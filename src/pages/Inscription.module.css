@@ -1,0 +1,487 @@
+/* Inscription.module.css */
+
+.pageContainer {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    padding: 40px 0;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: -1;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+.registerCard {
+    border: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.logoContainer {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logoWrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.mainLogo {
+    font-size: 40px;
+    color: white;
+}
+
+.title {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.tabContainer {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tabs {
+    justify-content: center;
+    border-bottom: none;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 25px !important;
+    color: #6c757d !important;
+    font-weight: 600;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.tab:hover {
+    color: #667eea !important;
+    background: rgba(102, 126, 234, 0.05) !important;
+}
+
+.tab.active {
+    color: #667eea !important;
+    background: transparent !important;
+    border-bottom: 3px solid #667eea !important;
+}
+
+.tabIcon {
+    font-size: 1.2rem;
+}
+
+.tabContent {
+    padding: 20px 0;
+}
+
+.userTypeBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 30px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.badgeIcon {
+    font-size: 1.2rem;
+}
+
+.infoAlert {
+    border: none !important;
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    margin-bottom: 25px;
+}
+
+.warningAlert {
+    border: none !important;
+    background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+    color: #212529 !important;
+    border-radius: 10px !important;
+    margin-bottom: 25px;
+}
+
+.privilegeInfo {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+}
+
+.privilegeInfo h4 {
+    color: #495057;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.privilegeInfo ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.privilegeInfo li {
+    color: #6c757d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.privilegeInfo li svg {
+    color: #28a745;
+}
+
+.formSection {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: #495057;
+    font-weight: 600;
+}
+
+.sectionIcon {
+    font-size: 1.3rem;
+    color: #667eea;
+}
+
+.label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.required {
+    color: #dc3545;
+    margin-left: 3px;
+}
+
+.inputIcon {
+    margin-right: 5px;
+    color: #667eea;
+}
+
+.input, .select {
+    height: 45px !important;
+    border-radius: 10px !important;
+    border: 2px solid #e9ecef !important;
+    transition: all 0.3s ease !important;
+}
+
+.input:focus, .select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.multiSelect {
+    height: auto !important;
+    min-height: 100px;
+    padding: 8px !important;
+}
+
+.multiSelect option {
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.multiSelect option:checked {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.passwordInput {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.passwordToggle {
+    position: absolute;
+    right: 10px;
+    background: none !important;
+    border: none !important;
+    color: #667eea !important;
+    padding: 0 !important;
+    font-size: 1.2rem;
+    text-decoration: none !important;
+}
+
+.passwordToggle:hover {
+    color: #764ba2 !important;
+}
+
+.passwordStrength {
+    margin-top: 8px;
+}
+
+.strengthBar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.strengthBarFill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.strengthWeak {
+    background: #dc3545;
+}
+
+.strengthMedium {
+    background: #ffc107;
+}
+
+.strengthStrong {
+    background: #28a745;
+}
+
+.strengthText {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.helpText {
+    display: block;
+    margin-top: 5px;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.checkboxGroup {
+    margin: 10px 0;
+}
+
+.checkboxGroup label {
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.checkboxGroup a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.checkboxGroup a:hover {
+    text-decoration: underline;
+}
+
+.errorText {
+    display: block;
+    margin-top: 5px;
+    color: #dc3545;
+    font-size: 0.8rem;
+}
+
+.submitButton {
+    width: 100%;
+    height: 50px;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    margin-top: 20px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.submitButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.studentButton {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.studentButton:hover:not(:disabled) {
+    box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3) !important;
+}
+
+.teacherButton {
+    background: linear-gradient(135deg, #fd7e14, #dc3545) !important;
+}
+
+.teacherButton:hover:not(:disabled) {
+    box-shadow: 0 10px 20px rgba(253, 126, 20, 0.3) !important;
+}
+
+.adminButton {
+    background: linear-gradient(135deg, #6f42c1, #6610f2) !important;
+}
+
+.adminButton:hover:not(:disabled) {
+    box-shadow: 0 10px 20px rgba(111, 66, 193, 0.3) !important;
+}
+
+.loginLink {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+}
+
+.loginLink a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.loginLink a:hover {
+    text-decoration: underline;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .registerCard {
+        margin: 15px;
+    }
+    
+    .title {
+        font-size: 1.8rem;
+    }
+    
+    .logoWrapper {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .mainLogo {
+        font-size: 30px;
+    }
+    
+    .tab {
+        padding: 8px 15px !important;
+        font-size: 0.9rem;
+    }
+    
+    .tabIcon {
+        font-size: 1rem;
+    }
+    
+    .privilegeInfo ul {
+        grid-template-columns: 1fr;
+    }
+    
+    .submitButton {
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab span:last-child {
+        display: none;
+    }
+    
+    .tab {
+        padding: 10px 20px !important;
+    }
+    
+    .tabIcon {
+        font-size: 1.3rem;
+        margin: 0;
+    }
+}

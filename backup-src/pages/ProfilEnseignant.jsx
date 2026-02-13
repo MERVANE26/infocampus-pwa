@@ -1,0 +1,1095 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { 
+    FaUniversity,
+    FaChalkboardTeacher,
+    FaUserTie,
+    FaUserGraduate,
+    FaBell,
+    FaExclamationTriangle,
+    FaCheckCircle,
+    FaInfoCircle,
+    FaArrowLeft,
+    FaArrowRight,
+    FaPaperclip,
+    FaTrash,
+    FaFilePdf,
+    FaFileImage,
+    FaFileAlt,
+    FaUsers,
+    FaBuilding,
+    FaGlobe,
+    FaEye,
+    FaEyeSlash,
+    FaComments,
+    FaExclamationCircle,
+    FaThumbsUp,
+    FaThumbsDown,
+    FaShare,
+    FaBookmark,
+    FaDownload,
+    FaRegBookmark,
+    FaRegComments,
+    FaRegThumbsUp,
+    FaRegThumbsDown,
+    FaTimes,
+    FaSearch,
+    FaFilter,
+    FaSort,
+    FaImage,
+    FaLink,
+    FaClock,
+    FaCalendarAlt,
+    FaUserCircle,
+    FaUser,
+    FaCog,
+    FaSignOutAlt,
+    FaHome,
+    FaEnvelope,
+    FaPhone,
+    FaMapMarkerAlt,
+    FaCamera,
+    FaSave,
+    FaUndo,
+    FaEdit,
+    FaGraduationCap,
+    FaBook,
+    FaIdCard,
+    FaMapPin,
+    FaBirthdayCake,
+    FaVenusMars,
+    FaHeart,
+    FaUserFriends,
+    FaUserPlus,
+    FaUserMinus,
+    FaUserCheck,
+    FaUserClock,
+    FaUserSlash,
+    FaUserEdit,
+    FaUserCog,
+    FaUserTie as FaUserTieIcon,
+    FaUserGraduate as FaUserGraduateIcon,
+    FaChalkboardTeacher as FaChalkboardTeacherIcon,
+    FaUniversity as FaUniversityIcon,
+    FaBuilding as FaBuildingIcon,
+    FaMapMarkedAlt,
+    FaMobile,
+    FaEnvelopeOpen,
+    FaEnvelopeOpenText,
+    FaLock,
+    FaUnlock,
+    FaKey,
+    FaShieldAlt,
+    FaBell as FaBellIcon,
+    FaBellSlash,
+    FaMoon,
+    FaSun,
+    FaLanguage,
+    FaGlobeAfrica,
+    FaGlobeAmericas,
+    FaGlobeAsia,
+    FaGlobeEurope,
+    FaPalette,
+    FaFont,
+    FaBold,
+    FaItalic,
+    FaUnderline,
+    FaList,
+    FaListUl,
+    FaListOl,
+    FaQuoteRight,
+    FaCode,
+    FaLink as FaLinkIcon,
+    FaImage as FaImageIcon,
+    FaVideo,
+    FaFile,
+    FaFilePdf as FaFilePdfIcon,
+    FaFileWord,
+    FaFileExcel,
+    FaFilePowerpoint,
+    FaFileArchive,
+    FaFileAudio,
+    FaFileVideo,
+    FaFileCode,
+    FaFileImage as FaFileImageIcon,
+    FaFileAlt as FaFileAltIcon,
+    FaPlus,
+    FaMinus,
+    FaTimesCircle,
+    FaCheckCircle as FaCheckCircleIcon,
+    FaInfoCircle as FaInfoCircleIcon,
+    FaExclamationTriangle as FaExclamationTriangleIcon
+} from 'react-icons/fa';
+import { MdEmail, MdPhone, MdSchool, MdWarning, MdClose, MdMenu, MdPhotoCamera, MdPhotoLibrary, MdDelete, MdEdit, MdSave, MdCancel, MdArrowBack, MdArrowForward, MdHome, MdPerson, MdSettings, MdNotifications, MdLogout, MdDashboard, MdAssignment, MdClass, MdEvent, MdAnnouncement, MdForum, MdGroup, MdWork, MdLocationOn, MdDateRange, MdAccessTime, MdAttachFile, MdInsertPhoto, MdPictureAsPdf, MdDescription, MdInsertDriveFile, MdCloudUpload, MdCloudDone, MdCloudOff } from 'react-icons/md';
+import { BsPersonBadge, BsPersonVcard, BsThreeDotsVertical, BsGenderMale, BsGenderFemale, BsGenderTrans, BsHeart, BsHeartFill, BsStar, BsStarFill, BsStarHalf, BsAward, BsTrophy, BsBookmark, BsBookmarkFill, BsBookmarkStar, BsBookmarkStarFill, BsBell, BsBellFill, BsBellSlash, BsBellSlashFill, BsGear, BsGearFill, BsPalette, BsPaletteFill, BsMoon, BsMoonFill, BsSun, BsSunFill, BsTranslate, BsGlobe, BsGlobe2 } from 'react-icons/bs';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import Spinner from 'react-bootstrap/Spinner';
+import Badge from 'react-bootstrap/Badge';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Modal from 'react-bootstrap/Modal';
+import Image from 'react-bootstrap/Image';
+import ListGroup from 'react-bootstrap/ListGroup';
+import ProgressBar from 'react-bootstrap/ProgressBar';
+import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Toast from 'react-bootstrap/Toast';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
+import Accordion from 'react-bootstrap/Accordion';
+import Placeholder from 'react-bootstrap/Placeholder';
+import Table from 'react-bootstrap/Table';
+import styles from './ProfilEnseignant.module.css';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+
+// Configuration Axios
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+});
+
+// Intercepteurs Axios
+api.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        console.log('🚀 Requête envoyée:', config.url);
+        return config;
+    },
+    error => {
+        console.error('❌ Erreur requête:', error);
+        return Promise.reject(error);
+    }
+);
+
+api.interceptors.response.use(
+    response => {
+        console.log('✅ Réponse reçue:', response.status);
+        return response;
+    },
+    error => {
+        console.error('❌ Erreur réponse:', error);
+        return Promise.reject(error);
+    }
+);
+
+const ProfilEnseignant = () => {
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+    const subjectInputRef = useRef(null);
+    
+    // États
+    const [currentTeacher, setCurrentTeacher] = useState({
+        id: "TCH001",
+        fullName: "Dr. Ngo Bassong",
+        firstName: "Ngo",
+        lastName: "Bassong",
+        title: "Maître de Conférences",
+        email: "n.bassong@iug.cm",
+        phone: localStorage.getItem('teacherPhone') || "+237 699 123 456",
+        department: "Informatique",
+        experience: "8 ans",
+        photo: "https://i.pravatar.cc/150?img=58",
+        role: "Enseignant",
+        subjects: JSON.parse(localStorage.getItem('teacherSubjects')) || [
+            "Algorithmique",
+            "Base de données",
+            "Intelligence Artificielle",
+            "Réseaux Informatiques"
+        ],
+        stats: {
+            students: 245,
+            publications: 18,
+            courses: 4,
+            research: 12
+        },
+        universite: "Institut Universitaire du Golfe",
+        campus: "Campus 2",
+        bureau: "Bâtiment A, Bureau 204",
+        specialite: "Intelligence Artificielle",
+        diplomes: [
+            "Doctorat en Informatique - Université Paris-Saclay",
+            "Master en IA - Université de Montréal",
+            "Licence en Mathématiques - Université de Yaoundé I"
+        ],
+        publications: [
+            "Deep Learning pour la reconnaissance d'images médicales (2024)",
+            "Optimisation des réseaux de neurones (2023)",
+            "Algorithmes génétiques appliqués à la robotique (2022)"
+        ]
+    });
+
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [activeTab, setActiveTab] = useState('profile');
+    const [notification, setNotification] = useState(null);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('info');
+    const [newSubject, setNewSubject] = useState('');
+    const [editingSubjects, setEditingSubjects] = useState(false);
+    
+    // États pour les paramètres
+    const [settings, setSettings] = useState({
+        phone: currentTeacher.phone,
+        emailNotifications: true,
+        pushNotifications: true,
+        theme: 'light',
+        language: 'fr',
+        showEmail: true,
+        showPhone: true
+    });
+
+    // Effets
+    useEffect(() => {
+        loadTeacherData();
+
+        // Service Worker (Workbox)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker enregistré:', registration);
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker error:', error);
+                    });
+            });
+        }
+
+        // Charger les notifications
+        checkNotifications();
+    }, []);
+
+    const loadTeacherData = async () => {
+        try {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                setCurrentTeacher(prev => ({
+                    ...prev,
+                    ...user,
+                    fullName: user.firstName + ' ' + user.lastName || prev.fullName,
+                    photo: user.photo || prev.photo,
+                    phone: user.phone || prev.phone
+                }));
+                
+                setSettings(prev => ({
+                    ...prev,
+                    phone: user.phone || prev.phone
+                }));
+            }
+        } catch (error) {
+            console.error('Erreur chargement utilisateur:', error);
+        }
+    };
+
+    const checkNotifications = () => {
+        // Demander la permission pour les notifications
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('❌ La photo ne doit pas dépasser 5 Mo', 'error');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ Veuillez sélectionner une image', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setCurrentTeacher(prev => ({
+                    ...prev,
+                    photo: event.target.result
+                }));
+                
+                // Sauvegarder dans localStorage
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                user.photo = event.target.result;
+                localStorage.setItem('user', JSON.stringify(user));
+                
+                showNotification('✅ Photo de profil mise à jour !', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAddSubject = () => {
+        if (!newSubject.trim()) {
+            showNotification('❌ Veuillez entrer une matière', 'error');
+            return;
+        }
+
+        if (currentTeacher.subjects.includes(newSubject.trim())) {
+            showNotification('❌ Cette matière existe déjà', 'error');
+            return;
+        }
+
+        setCurrentTeacher(prev => ({
+            ...prev,
+            subjects: [...prev.subjects, newSubject.trim()]
+        }));
+
+        setNewSubject('');
+        showNotification('✅ Matière ajoutée avec succès', 'success');
+    };
+
+    const handleRemoveSubject = (subjectToRemove) => {
+        if (window.confirm(`Supprimer la matière "${subjectToRemove}" ?`)) {
+            setCurrentTeacher(prev => ({
+                ...prev,
+                subjects: prev.subjects.filter(s => s !== subjectToRemove)
+            }));
+            showNotification('🗑️ Matière supprimée', 'info');
+        }
+    };
+
+    const handleSettingsChange = (field, value) => {
+        setSettings(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const saveSettings = async () => {
+        setSaving(true);
+
+        try {
+            // Mettre à jour l'enseignant
+            const updatedTeacher = {
+                ...currentTeacher,
+                phone: settings.phone
+            };
+
+            setCurrentTeacher(updatedTeacher);
+
+            // Sauvegarder dans localStorage
+            localStorage.setItem('teacherPhone', settings.phone);
+            localStorage.setItem('teacherSubjects', JSON.stringify(currentTeacher.subjects));
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.phone = settings.phone;
+            user.subjects = currentTeacher.subjects;
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // Envoyer à l'API
+            await api.put('/user/profile', {
+                phone: settings.phone,
+                subjects: currentTeacher.subjects
+            });
+
+            showNotification('✅ Paramètres enregistrés avec succès !', 'success');
+
+            // Retourner au profil après 1 seconde
+            setTimeout(() => {
+                setActiveTab('profile');
+                setEditingSubjects(false);
+            }, 1000);
+
+        } catch (error) {
+            console.error('Erreur sauvegarde paramètres:', error);
+            
+            if (error.code === 'ECONNABORTED') {
+                showNotification('❌ Délai de connexion dépassé', 'error');
+            } else if (error.response) {
+                showNotification(`❌ ${error.response.data.error || 'Erreur serveur'}`, 'error');
+            } else if (error.request) {
+                showNotification('❌ Mode hors-ligne : modifications sauvegardées localement', 'warning');
+            } else {
+                showNotification('❌ Erreur de connexion', 'error');
+            }
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const createPublication = () => {
+        showNotification('📝 Redirection vers la création de publication...', 'info');
+        setTimeout(() => {
+            navigate('/faire-publication');
+        }, 1000);
+    };
+
+    const logout = () => {
+        if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
+            // Effacer les données locales
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Notification PWA
+            if (Notification.permission === 'granted') {
+                new Notification('Déconnexion', {
+                    body: 'Vous avez été déconnecté',
+                    icon: '/icon-192x192.png'
+                });
+            }
+            
+            // Rediriger vers la page de connexion
+            navigate('/login');
+        }
+    };
+
+    const showNotification = (message, type = 'info') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+        
+        setTimeout(() => {
+            setShowToast(false);
+        }, 3000);
+    };
+
+    const getInitials = () => {
+        if (currentTeacher.fullName) {
+            return currentTeacher.fullName.split(' ').map(n => n[0]).join('');
+        }
+        return currentTeacher.firstName?.[0] + currentTeacher.lastName?.[0] || 'EN';
+    };
+
+    return (
+        <div className={styles.pageContainer}>
+            {/* Toast Container pour les notifications */}
+            <ToastContainer position="top-end" className={styles.toastContainer}>
+                <Toast 
+                    show={showToast} 
+                    onClose={() => setShowToast(false)}
+                    bg={toastType}
+                    className={styles.toast}
+                >
+                    <Toast.Body>{toastMessage}</Toast.Body>
+                </Toast>
+            </ToastContainer>
+
+            {/* Barre de navigation */}
+            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
+                <Container>
+                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
+                        <FaUniversity className={styles.brandIcon} />
+                        <div className={styles.brandText}>
+                            <span className={styles.brandName}>INFOcAMPUS</span>
+                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
+                        </div>
+                    </Navbar.Brand>
+
+                    <Navbar.Toggle aria-controls="basic-navbar-nav">
+                        <MdMenu />
+                    </Navbar.Toggle>
+                    
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <Nav className="mx-auto">
+                            <Nav.Link 
+                                as={Link} 
+                                to="/profil" 
+                                className={`${styles.navLink} ${activeTab === 'profile' ? styles.active : ''}`}
+                                onClick={() => setActiveTab('profile')}
+                            >
+                                <FaUserCircle /> Profil
+                            </Nav.Link>
+                            <Nav.Link 
+                                as={Link} 
+                                to="/publications" 
+                                className={styles.navLink}
+                            >
+                                <FaBell /> Publications
+                            </Nav.Link>
+                            <Nav.Link 
+                                as={Link} 
+                                to="/parametres" 
+                                className={`${styles.navLink} ${activeTab === 'settings' ? styles.active : ''}`}
+                                onClick={() => setActiveTab('settings')}
+                            >
+                                <FaCog /> Paramètres
+                            </Nav.Link>
+                        </Nav>
+
+                        <Dropdown align="end">
+                            <Dropdown.Toggle as="div" className={styles.userMenu}>
+                                <div 
+                                    className={styles.userAvatar}
+                                    style={currentTeacher.photo ? { backgroundImage: `url(${currentTeacher.photo})` } : {}}
+                                >
+                                    {!currentTeacher.photo && getInitials()}
+                                </div>
+                                <div className={styles.userInfo}>
+                                    <div className={styles.userName}>{currentTeacher.fullName}</div>
+                                    <div className={styles.userRole}>{currentTeacher.role}</div>
+                                </div>
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu className={styles.userDropdown}>
+                                <Dropdown.Item as={Link} to="/profil">
+                                    <FaUserCircle /> Mon profil
+                                </Dropdown.Item>
+                                <Dropdown.Item as={Link} to="/parametres">
+                                    <FaCog /> Paramètres
+                                </Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item onClick={logout}>
+                                    <FaSignOutAlt /> Déconnexion
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+
+            {/* Contenu principal */}
+            <Container className={styles.mainContent}>
+                <Row className="justify-content-center">
+                    <Col lg={8}>
+                        {/* Navigation par onglets */}
+                        <Card className={styles.tabCard}>
+                            <Card.Body>
+                                <Tabs
+                                    activeKey={activeTab}
+                                    onSelect={(k) => setActiveTab(k)}
+                                    className={styles.tabs}
+                                    fill
+                                >
+                                    <Tab 
+                                        eventKey="profile" 
+                                        title={
+                                            <span className={styles.tabTitle}>
+                                                <FaUserCircle /> Profil
+                                            </span>
+                                        }
+                                    >
+                                        {/* Section Profil */}
+                                        <div className={styles.profileSection}>
+                                            {/* Carte de profil */}
+                                            <Card className={styles.profileCard}>
+                                                <Card.Body>
+                                                    <div className={styles.avatarSection}>
+                                                        <div className={styles.avatarWrapper}>
+                                                            <div 
+                                                                className={styles.avatar}
+                                                                style={currentTeacher.photo ? { backgroundImage: `url(${currentTeacher.photo})` } : {}}
+                                                            >
+                                                                {!currentTeacher.photo && getInitials()}
+                                                            </div>
+                                                            <OverlayTrigger
+                                                                placement="bottom"
+                                                                overlay={<Tooltip>Changer la photo</Tooltip>}
+                                                            >
+                                                                <Button
+                                                                    variant="link"
+                                                                    className={styles.cameraButton}
+                                                                    onClick={() => fileInputRef.current?.click()}
+                                                                >
+                                                                    <FaCamera />
+                                                                </Button>
+                                                            </OverlayTrigger>
+                                                            <input
+                                                                type="file"
+                                                                ref={fileInputRef}
+                                                                onChange={handlePhotoChange}
+                                                                accept="image/*"
+                                                                style={{ display: 'none' }}
+                                                            />
+                                                        </div>
+                                                        <h2 className={styles.teacherName}>{currentTeacher.fullName}</h2>
+                                                        <div className={styles.teacherTitle}>
+                                                            <FaChalkboardTeacher /> {currentTeacher.title}
+                                                        </div>
+                                                        <Badge className={styles.universityBadge}>
+                                                            <FaUniversity /> {currentTeacher.universite}
+                                                        </Badge>
+                                                    </div>
+
+                                                    {/* Statistiques */}
+                                                    <div className={styles.statsGrid}>
+                                                        <div className={styles.statCard}>
+                                                            <FaUsers className={styles.statIcon} />
+                                                            <div className={styles.statContent}>
+                                                                <span className={styles.statNumber}>
+                                                                    {currentTeacher.stats.students}
+                                                                </span>
+                                                                <span className={styles.statLabel}>Étudiants</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.statCard}>
+                                                            <FaBell className={styles.statIcon} />
+                                                            <div className={styles.statContent}>
+                                                                <span className={styles.statNumber}>
+                                                                    {currentTeacher.stats.publications}
+                                                                </span>
+                                                                <span className={styles.statLabel}>Publications</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.statCard}>
+                                                            <FaBook className={styles.statIcon} />
+                                                            <div className={styles.statContent}>
+                                                                <span className={styles.statNumber}>
+                                                                    {currentTeacher.stats.courses}
+                                                                </span>
+                                                                <span className={styles.statLabel}>Cours</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.statCard}>
+                                                            <FaFlask className={styles.statIcon} />
+                                                            <div className={styles.statContent}>
+                                                                <span className={styles.statNumber}>
+                                                                    {currentTeacher.stats.research}
+                                                                </span>
+                                                                <span className={styles.statLabel}>Recherches</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Informations professionnelles */}
+                                                    <div className={styles.infoSection}>
+                                                        <h3 className={styles.sectionTitle}>
+                                                            <FaIdCard /> Informations professionnelles
+                                                        </h3>
+                                                        <div className={styles.infoGrid}>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <MdEmail /> Email
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.email}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaPhone /> Téléphone
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.phone}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaBuilding /> Département
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.department}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaMapMarkerAlt /> Bureau
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.bureau}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaGraduationCap /> Spécialité
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.specialite}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaClock /> Expérience
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentTeacher.experience}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Matières enseignées */}
+                                                    <div className={styles.subjectsSection}>
+                                                        <h3 className={styles.sectionTitle}>
+                                                            <FaBook /> Matières enseignées
+                                                        </h3>
+                                                        <div className={styles.subjectsList}>
+                                                            {currentTeacher.subjects.map((subject, index) => (
+                                                                <Badge 
+                                                                    key={index}
+                                                                    className={styles.subjectTag}
+                                                                >
+                                                                    {subject}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Diplômes */}
+                                                    <div className={styles.diplomasSection}>
+                                                        <h3 className={styles.sectionTitle}>
+                                                            <FaGraduationCap /> Diplômes
+                                                        </h3>
+                                                        <ListGroup variant="flush" className={styles.diplomasList}>
+                                                            {currentTeacher.diplomes.map((diplome, index) => (
+                                                                <ListGroup.Item key={index} className={styles.diplomaItem}>
+                                                                    <FaCheckCircle className={styles.diplomaIcon} />
+                                                                    {diplome}
+                                                                </ListGroup.Item>
+                                                            ))}
+                                                        </ListGroup>
+                                                    </div>
+
+                                                    {/* Publications */}
+                                                    <div className={styles.publicationsSection}>
+                                                        <h3 className={styles.sectionTitle}>
+                                                            <FaFileAlt /> Publications récentes
+                                                        </h3>
+                                                        <ListGroup variant="flush" className={styles.publicationsList}>
+                                                            {currentTeacher.publications.map((pub, index) => (
+                                                                <ListGroup.Item key={index} className={styles.publicationItem}>
+                                                                    <FaFilePdf className={styles.publicationIcon} />
+                                                                    {pub}
+                                                                </ListGroup.Item>
+                                                            ))}
+                                                        </ListGroup>
+                                                    </div>
+
+                                                    {/* Boutons d'action */}
+                                                    <div className={styles.actionButtons}>
+                                                        <Button
+                                                            variant="success"
+                                                            className={styles.primaryButton}
+                                                            onClick={createPublication}
+                                                        >
+                                                            <FaBell /> Faire une publication
+                                                        </Button>
+                                                        
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            className={styles.secondaryButton}
+                                                            onClick={() => setActiveTab('settings')}
+                                                        >
+                                                            <FaEdit /> Modifier mes informations
+                                                        </Button>
+                                                        
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            className={styles.secondaryButton}
+                                                            onClick={logout}
+                                                        >
+                                                            <FaSignOutAlt /> Déconnexion
+                                                        </Button>
+                                                    </div>
+                                                </Card.Body>
+                                            </Card>
+                                        </div>
+                                    </Tab>
+
+                                    <Tab 
+                                        eventKey="settings" 
+                                        title={
+                                            <span className={styles.tabTitle}>
+                                                <FaCog /> Paramètres
+                                            </span>
+                                        }
+                                    >
+                                        {/* Section Paramètres */}
+                                        <div className={styles.settingsSection}>
+                                            <Card className={styles.settingsCard}>
+                                                <Card.Body>
+                                                    <div className={styles.settingsHeader}>
+                                                        <Button
+                                                            variant="link"
+                                                            className={styles.backButton}
+                                                            onClick={() => setActiveTab('profile')}
+                                                        >
+                                                            <FaArrowLeft /> Retour au profil
+                                                        </Button>
+                                                        <h2 className={styles.settingsTitle}>
+                                                            <FaCog /> Paramètres
+                                                        </h2>
+                                                        <div style={{ width: '100px' }}></div>
+                                                    </div>
+
+                                                    <Tabs
+                                                        defaultActiveKey="personal"
+                                                        className={styles.settingsTabs}
+                                                    >
+                                                        <Tab 
+                                                            eventKey="personal" 
+                                                            title={
+                                                                <span>
+                                                                    <FaUser /> Informations
+                                                                </span>
+                                                            }
+                                                        >
+                                                            <div className={styles.settingsForm}>
+                                                                <h3 className={styles.sectionSubtitle}>
+                                                                    Informations personnelles
+                                                                </h3>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        <FaPhone /> Numéro de téléphone
+                                                                    </Form.Label>
+                                                                    <InputGroup>
+                                                                        <InputGroup.Text>
+                                                                            <FaPhone />
+                                                                        </InputGroup.Text>
+                                                                        <Form.Control
+                                                                            type="tel"
+                                                                            value={settings.phone}
+                                                                            onChange={(e) => handleSettingsChange('phone', e.target.value)}
+                                                                            placeholder="+237 6XX XXX XXX"
+                                                                            className={styles.formInput}
+                                                                        />
+                                                                    </InputGroup>
+                                                                </Form.Group>
+                                                            </div>
+                                                        </Tab>
+
+                                                        <Tab 
+                                                            eventKey="subjects" 
+                                                            title={
+                                                                <span>
+                                                                    <FaBook /> Matières
+                                                                </span>
+                                                            }
+                                                        >
+                                                            <div className={styles.settingsForm}>
+                                                                <h3 className={styles.sectionSubtitle}>
+                                                                    Gestion des matières enseignées
+                                                                </h3>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        Ajouter une matière
+                                                                    </Form.Label>
+                                                                    <InputGroup>
+                                                                        <Form.Control
+                                                                            type="text"
+                                                                            value={newSubject}
+                                                                            onChange={(e) => setNewSubject(e.target.value)}
+                                                                            placeholder="Ex: Algorithmique, Base de données..."
+                                                                            className={styles.formInput}
+                                                                            onKeyPress={(e) => {
+                                                                                if (e.key === 'Enter') {
+                                                                                    handleAddSubject();
+                                                                                }
+                                                                            }}
+                                                                        />
+                                                                        <Button
+                                                                            variant="primary"
+                                                                            onClick={handleAddSubject}
+                                                                            className={styles.addButton}
+                                                                        >
+                                                                            <FaPlus /> Ajouter
+                                                                        </Button>
+                                                                    </InputGroup>
+                                                                </Form.Group>
+
+                                                                <div className={styles.currentSubjects}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        Mes matières actuelles
+                                                                    </Form.Label>
+                                                                    <div className={styles.subjectsList}>
+                                                                        {currentTeacher.subjects.map((subject, index) => (
+                                                                            <Badge
+                                                                                key={index}
+                                                                                className={styles.editableSubjectTag}
+                                                                            >
+                                                                                {subject}
+                                                                                <Button
+                                                                                    variant="link"
+                                                                                    className={styles.removeSubject}
+                                                                                    onClick={() => handleRemoveSubject(subject)}
+                                                                                >
+                                                                                    <FaTimes />
+                                                                                </Button>
+                                                                            </Badge>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Tab>
+
+                                                        <Tab 
+                                                            eventKey="notifications" 
+                                                            title={
+                                                                <span>
+                                                                    <FaBell /> Notifications
+                                                                </span>
+                                                            }
+                                                        >
+                                                            <div className={styles.settingsForm}>
+                                                                <h3 className={styles.sectionSubtitle}>
+                                                                    Préférences de notification
+                                                                </h3>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Check
+                                                                        type="switch"
+                                                                        id="emailNotifications"
+                                                                        label="Notifications par email"
+                                                                        checked={settings.emailNotifications}
+                                                                        onChange={(e) => handleSettingsChange('emailNotifications', e.target.checked)}
+                                                                        className={styles.switch}
+                                                                    />
+                                                                    <Form.Text className={styles.helpText}>
+                                                                        Recevoir les notifications importantes par email
+                                                                    </Form.Text>
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Check
+                                                                        type="switch"
+                                                                        id="pushNotifications"
+                                                                        label="Notifications push"
+                                                                        checked={settings.pushNotifications}
+                                                                        onChange={(e) => handleSettingsChange('pushNotifications', e.target.checked)}
+                                                                        className={styles.switch}
+                                                                    />
+                                                                    <Form.Text className={styles.helpText}>
+                                                                        Recevoir les notifications dans votre navigateur
+                                                                    </Form.Text>
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Check
+                                                                        type="switch"
+                                                                        id="showEmail"
+                                                                        label="Afficher mon email publiquement"
+                                                                        checked={settings.showEmail}
+                                                                        onChange={(e) => handleSettingsChange('showEmail', e.target.checked)}
+                                                                        className={styles.switch}
+                                                                    />
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Check
+                                                                        type="switch"
+                                                                        id="showPhone"
+                                                                        label="Afficher mon téléphone publiquement"
+                                                                        checked={settings.showPhone}
+                                                                        onChange={(e) => handleSettingsChange('showPhone', e.target.checked)}
+                                                                        className={styles.switch}
+                                                                    />
+                                                                </Form.Group>
+                                                            </div>
+                                                        </Tab>
+
+                                                        <Tab 
+                                                            eventKey="appearance" 
+                                                            title={
+                                                                <span>
+                                                                    <FaPalette /> Apparence
+                                                                </span>
+                                                            }
+                                                        >
+                                                            <div className={styles.settingsForm}>
+                                                                <h3 className={styles.sectionSubtitle}>
+                                                                    Thème et langue
+                                                                </h3>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        <FaPalette /> Thème
+                                                                    </Form.Label>
+                                                                    <div className={styles.themeOptions}>
+                                                                        <Button
+                                                                            variant={settings.theme === 'light' ? 'primary' : 'outline-secondary'}
+                                                                            className={styles.themeButton}
+                                                                            onClick={() => handleSettingsChange('theme', 'light')}
+                                                                        >
+                                                                            <FaSun /> Clair
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant={settings.theme === 'dark' ? 'primary' : 'outline-secondary'}
+                                                                            className={styles.themeButton}
+                                                                            onClick={() => handleSettingsChange('theme', 'dark')}
+                                                                        >
+                                                                            <FaMoon /> Sombre
+                                                                        </Button>
+                                                                    </div>
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        <FaLanguage /> Langue
+                                                                    </Form.Label>
+                                                                    <Form.Select
+                                                                        value={settings.language}
+                                                                        onChange={(e) => handleSettingsChange('language', e.target.value)}
+                                                                        className={styles.formSelect}
+                                                                    >
+                                                                        <option value="fr">Français</option>
+                                                                        <option value="en">English</option>
+                                                                        <option value="es">Español</option>
+                                                                    </Form.Select>
+                                                                </Form.Group>
+                                                            </div>
+                                                        </Tab>
+                                                    </Tabs>
+
+                                                    {/* Boutons d'action des paramètres */}
+                                                    <div className={styles.settingsActions}>
+                                                        <Button
+                                                            variant="primary"
+                                                            className={styles.saveButton}
+                                                            onClick={saveSettings}
+                                                            disabled={saving}
+                                                        >
+                                                            {saving ? (
+                                                                <>
+                                                                    <Spinner size="sm" className="me-2" />
+                                                                    Sauvegarde...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <FaSave className="me-2" />
+                                                                    Enregistrer les modifications
+                                                                </>
+                                                            )}
+                                                        </Button>
+                                                        
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            className={styles.cancelButton}
+                                                            onClick={() => {
+                                                                setActiveTab('profile');
+                                                                setEditingSubjects(false);
+                                                                setNewSubject('');
+                                                            }}
+                                                        >
+                                                            <FaUndo className="me-2" />
+                                                            Annuler
+                                                        </Button>
+                                                    </div>
+                                                </Card.Body>
+                                            </Card>
+                                        </div>
+                                    </Tab>
+                                </Tabs>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+    );
+};
+
+export default ProfilEnseignant;

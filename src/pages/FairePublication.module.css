@@ -1,0 +1,754 @@
+/* FairePublication.module.css */
+
+.pageContainer {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding-top: 80px;
+    padding-bottom: 40px;
+}
+
+.notification {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    min-width: 300px;
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* En-tête */
+.header {
+    border-bottom: 2px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: white !important;
+}
+
+.brand {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brandIcon {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+.brandText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.brandName {
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brandSub {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.roleBadge {
+    margin-left: 10px;
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #f97316, #ef4444) !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.userMenu:hover {
+    background: #f8fafc;
+}
+
+.userAvatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.userInfo {
+    text-align: right;
+}
+
+.userName {
+    color: #374151;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.userRole {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.userDropdown {
+    min-width: 200px !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}
+
+.userDropdown a {
+    padding: 10px 20px !important;
+    color: #374151 !important;
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+}
+
+.userDropdown a:hover {
+    background: #f8fafc !important;
+    color: #667eea !important;
+}
+
+/* Contenu principal */
+.mainContent {
+    margin-top: 30px;
+}
+
+.pageHeader {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.backButton {
+    position: absolute !important;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    transition: all 0.3s ease !important;
+}
+
+.backButton:hover {
+    background: #f1f5f9 !important;
+    color: #667eea !important;
+}
+
+.pageTitle {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.pageSubtitle {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.infoMessage {
+    border: none !important;
+    background: linear-gradient(135deg, #f97316, #ef4444) !important;
+    color: white !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    margin-bottom: 30px;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.infoTitle {
+    font-size: 1.2rem !important;
+    margin-bottom: 10px !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.infoMessage p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Carte de publication */
+.publicationCard {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e5e7eb !important;
+    animation: slideUp 0.5s ease-out 0.1s both;
+}
+
+.publisherInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.publisherAvatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.publisherDetails {
+    flex: 1;
+}
+
+.publisherName {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.publisherBadge {
+    padding: 4px 10px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #f97316, #ef4444) !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+}
+
+.publisherRole {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Formulaire */
+.formLabel {
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+}
+
+.textarea {
+    min-height: 120px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    padding: 15px !important;
+    resize: vertical !important;
+    transition: all 0.3s ease !important;
+}
+
+.textarea:focus {
+    outline: none !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+}
+
+.charCounter {
+    margin-top: 8px;
+}
+
+.counterText {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.counterNormal {
+    color: #64748b;
+}
+
+.counterWarning {
+    color: #f97316;
+    font-weight: 600;
+}
+
+.counterError {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.warningIcon {
+    color: #f97316;
+    margin-left: 8px;
+    cursor: help;
+}
+
+.progressBar {
+    height: 4px !important;
+    border-radius: 2px !important;
+}
+
+/* Section de ciblage */
+.targetingSection {
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    margin-bottom: 25px;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+.sectionDescription {
+    color: #475569;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    background: rgba(102, 126, 234, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.targetLabel {
+    font-weight: 600 !important;
+    color: #374151 !important;
+    margin-bottom: 8px !important;
+    font-size: 0.9rem !important;
+}
+
+.targetSubLabel {
+    font-weight: 600 !important;
+    color: #475569 !important;
+    margin-bottom: 6px !important;
+    font-size: 0.8rem !important;
+}
+
+.select, .input {
+    height: 45px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.select:focus, .input:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.helpText {
+    display: block;
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.studentTargeting {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.targetingPreview {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f0f9ff;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.previewTitle {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.previewBadges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.targetBadge {
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Pièces jointes */
+.attachmentsSection {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #e5e7eb;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+}
+
+.attachmentsSection:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+.fileInputContainer {
+    position: relative;
+    margin: 15px 0;
+}
+
+.fileInput {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.fileInputLabel {
+    display: block;
+    padding: 20px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #64748b;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.fileInputLabel:hover {
+    background: #f1f5f9;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.fileInputLabel svg {
+    font-size: 2rem;
+}
+
+.fileInputLabel small {
+    color: #94a3b8;
+}
+
+.fileList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.fileItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.fileItem:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.fileIcon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    color: #667eea;
+}
+
+.fileInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.fileName {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #1e293b;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fileMeta {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.filePreview {
+    max-width: 100px;
+    max-height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-top: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.removeFile {
+    color: #dc2626 !important;
+    padding: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.removeFile:hover {
+    transform: scale(1.1);
+    background: #fee2e2 !important;
+    border-radius: 6px !important;
+}
+
+/* Options de publication */
+.publishOptions {
+    background: #fef3c7;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #fbbf24;
+    margin-bottom: 25px;
+}
+
+.optionsTitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #92400e;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.optionLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #92400e;
+    font-weight: 500;
+}
+
+.urgentBadge {
+    margin-left: 8px;
+    padding: 4px 8px !important;
+    font-size: 0.7rem !important;
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+    border: none !important;
+}
+
+/* Boutons d'action */
+.actionButtons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.draftButton, .publishButton {
+    flex: 1;
+    height: 50px;
+    border: none !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.draftButton {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+}
+
+.draftButton:hover:not(:disabled) {
+    background: #d1d5db !important;
+    transform: translateY(-2px);
+}
+
+.publishButton {
+    background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+}
+
+.publishButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4) !important;
+}
+
+.draftButton:disabled, .publishButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .pageContainer {
+        padding-top: 70px;
+    }
+
+    .backButton {
+        position: relative !important;
+        transform: none;
+        margin-bottom: 15px;
+        display: inline-flex !important;
+    }
+
+    .pageTitle {
+        font-size: 1.5rem;
+    }
+
+    .brandName {
+        font-size: 1.2rem;
+    }
+
+    .brandSub {
+        display: none;
+    }
+
+    .userInfo {
+        display: none;
+    }
+
+    .userMenu {
+        padding: 4px;
+    }
+
+    .userAvatar {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .targetingPreview .previewBadges {
+        flex-direction: column;
+    }
+
+    .actionButtons {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .brandName {
+        font-size: 1rem;
+    }
+
+    .roleBadge span:last-child {
+        display: none;
+    }
+
+    .publisherName {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .publisherBadge {
+        margin-left: 0;
+    }
+}
