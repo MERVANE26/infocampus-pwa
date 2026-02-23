@@ -1,0 +1,28 @@
+.comment-action {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.comment-action:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.comment-action.active-like {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.comment-action.active-dislike {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}

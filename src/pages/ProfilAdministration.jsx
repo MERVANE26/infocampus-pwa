@@ -171,6 +171,13 @@ import Placeholder from 'react-bootstrap/Placeholder';
 import Table from 'react-bootstrap/Table';
 import styles from './ProfilAdministration.module.css';
 
+// Import de nos composants de boutons personnalisés
+import { 
+    BoutonProfil,
+    BoutonFermer,
+    BoutonAction,
+} from '../composants/Index';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
 // Configuration Axios
@@ -603,13 +610,10 @@ const ProfilAdministration = () => {
                                                                 placement="bottom"
                                                                 overlay={<Tooltip>Changer la photo</Tooltip>}
                                                             >
-                                                                <Button
-                                                                    variant="link"
-                                                                    className={styles.cameraButton}
+                                                                <BoutonProfil
+                                                                    action="photo"
                                                                     onClick={() => fileInputRef.current?.click()}
-                                                                >
-                                                                    <FaCamera />
-                                                                </Button>
+                                                                />
                                                             </OverlayTrigger>
                                                             <input
                                                                 type="file"
@@ -803,31 +807,22 @@ const ProfilAdministration = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Boutons d'action */}
+                                                    {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
-                                                        <Button
-                                                            variant="success"
-                                                            className={styles.primaryButton}
+                                                        <BoutonProfil
+                                                            action="publication"
                                                             onClick={createPublication}
-                                                        >
-                                                            <FaBell /> Faire une publication
-                                                        </Button>
+                                                        />
                                                         
-                                                        <Button
-                                                            variant="outline-secondary"
-                                                            className={styles.secondaryButton}
+                                                        <BoutonProfil
+                                                            action="modifier"
                                                             onClick={() => setActiveTab('settings')}
-                                                        >
-                                                            <FaEdit /> Modifier mes informations
-                                                        </Button>
+                                                        />
                                                         
-                                                        <Button
-                                                            variant="outline-danger"
-                                                            className={styles.secondaryButton}
+                                                        <BoutonProfil
+                                                            action="deconnexion"
                                                             onClick={logout}
-                                                        >
-                                                            <FaSignOutAlt /> Déconnexion
-                                                        </Button>
+                                                        />
                                                     </div>
                                                 </Card.Body>
                                             </Card>

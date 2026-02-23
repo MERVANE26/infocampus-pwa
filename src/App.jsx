@@ -13,7 +13,8 @@ import FairePublication from './pages/FairePublication';
 import ProfilEtudiant from './pages/ProfilEtudiant';
 import ProfilEnseignant from './pages/ProfilEnseignant';
 import ProfilAdministration from './pages/ProfilAdministration';
-
+import CreationUniversite from './pages/CreationUniversite';
+import ValidationCode from './pages/ValidationCode';
 // ============================================
 // COMPOSANT DE PROTECTION DES ROUTES
 // ============================================
@@ -64,9 +65,10 @@ function App() {
               ROUTES PUBLIQUES (accessibles sans connexion)
               ======================================== */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Connexion />} />
+          <Route path="/connexion" element={<Connexion />} />
           <Route path="/inscription" element={<Inscription />} />
-          
+          <Route path="/creer-universite" element={<CreationUniversite />} />
+          <Route path="/validation-code" element={<ValidationCode />} />
           {/* ========================================
               ROUTES PROTÉGÉES (nécessitent une connexion)
               ======================================== */}
@@ -119,12 +121,20 @@ function App() {
               </PrivateRoute>
             } 
           />
-          
           <Route 
             path="/profil-administration" 
             element={
               <PrivateRoute>
                 <ProfilAdministration />
+              </PrivateRoute>
+            } 
+          />
+          
+          <Route 
+            path="/creation-université" 
+            element={
+              <PrivateRoute>
+                <CreationUniversite />
               </PrivateRoute>
             } 
           />

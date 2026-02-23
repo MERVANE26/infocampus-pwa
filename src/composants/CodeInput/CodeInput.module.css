@@ -1,0 +1,53 @@
+.codeContainer {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.codeInput {
+    width: 50px;
+    height: 60px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 24px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.codeInput:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: scale(1.05);
+}
+
+.codeInput:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* Supprimer les flèches sur les inputs number */
+.codeInput::-webkit-outer-spin-button,
+.codeInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.codeInput[type=number] {
+    -moz-appearance: textfield;
+}
+
+@media (max-width: 480px) {
+    .codeContainer {
+        gap: 5px;
+    }
+    
+    .codeInput {
+        width: 40px;
+        height: 50px;
+        font-size: 20px;
+    }
+}

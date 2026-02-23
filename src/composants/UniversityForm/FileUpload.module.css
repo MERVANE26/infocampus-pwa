@@ -1,0 +1,61 @@
+.formGroup {
+    margin-bottom: 25px;
+}
+
+.label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.labelIcon {
+    color: #667eea;
+}
+
+.fileUpload {
+    border: 2px dashed #e5e7eb;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.fileUpload:hover {
+    border-color: #667eea;
+    background: #f1f5f9;
+}
+
+.uploadIcon {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.uploadText {
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.uploadHint {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.fileInfo {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.fileInfo svg {
+    flex-shrink: 0;
+}

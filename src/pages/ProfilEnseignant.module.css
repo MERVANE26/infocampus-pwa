@@ -1,4 +1,4 @@
-/* ProfilEnseignant.module.css */
+/* ProfilEnseignant.module.css - Version nettoyée */
 
 .pageContainer {
     min-height: 100vh;
@@ -169,6 +169,12 @@
     color: #f97316 !important;
 }
 
+.notificationBadge {
+    margin-left: auto !important;
+    font-size: 0.7rem !important;
+    padding: 3px 6px !important;
+}
+
 /* Contenu principal */
 .mainContent {
     margin-top: 30px;
@@ -233,28 +239,6 @@
     background-position: center;
 }
 
-.cameraButton {
-    position: absolute !important;
-    bottom: 5px;
-    right: 5px;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    color: white !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    padding: 0 !important;
-    border: 2px solid white !important;
-    transition: all 0.3s ease !important;
-}
-
-.cameraButton:hover {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #ea580c, #f97316) !important;
-}
-
 .teacherName {
     font-size: 1.8rem;
     font-weight: 700;
@@ -296,7 +280,6 @@
     background: #f8fafc;
     padding: 15px;
     border-radius: 12px;
-    text-align: center;
     border: 1px solid #e5e7eb;
     transition: all 0.3s ease;
     display: flex;
@@ -378,7 +361,7 @@
     font-size: 1rem;
 }
 
-/* Matières */
+/* Matières enseignées */
 .subjectsSection {
     margin: 30px 0;
     padding: 20px;
@@ -391,11 +374,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 15px;
 }
 
 .subjectTag {
-    padding: 8px 16px !important;
+    padding: 6px 12px !important;
     background: #fef3c7 !important;
     color: #92400e !important;
     font-size: 0.9rem !important;
@@ -404,32 +386,35 @@
     border-radius: 20px !important;
 }
 
-.editableSubjectTag {
-    padding: 8px 16px !important;
-    background: #fef3c7 !important;
-    color: #92400e !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    border: 1px solid #fde68a !important;
-    border-radius: 20px !important;
-    display: inline-flex !important;
+/* Diplômes */
+.diplomasSection {
+    margin: 30px 0;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.diplomasList {
+    background: transparent !important;
+}
+
+.diplomaItem {
+    background: transparent !important;
+    border: none !important;
+    padding: 10px 0 !important;
+    display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    color: #374151;
 }
 
-.removeSubject {
-    color: #dc2626 !important;
-    padding: 0 !important;
-    font-size: 1rem !important;
-    margin-left: 4px;
+.diplomaIcon {
+    color: #f97316;
+    font-size: 1.1rem;
 }
 
-.removeSubject:hover {
-    color: #991b1b !important;
-}
-
-/* Diplômes et Publications */
-.diplomasSection,
+/* Publications */
 .publicationsSection {
     margin: 30px 0;
     padding: 20px;
@@ -438,72 +423,23 @@
     border: 1px solid #e5e7eb;
 }
 
-.diplomasList,
 .publicationsList {
-    margin-top: 15px;
+    background: transparent !important;
 }
 
-.diplomaItem,
 .publicationItem {
     background: transparent !important;
     border: none !important;
     padding: 10px 0 !important;
-    display: flex !important;
+    display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.diplomaIcon {
-    color: #16a34a;
-    font-size: 1.2rem;
+    color: #374151;
 }
 
 .publicationIcon {
-    color: #f97316;
-    font-size: 1.2rem;
-}
-
-/* Boutons d'action */
-.actionButtons {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.primaryButton {
-    flex: 1;
-    height: 50px !important;
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    border: none !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease !important;
-}
-
-.primaryButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3) !important;
-}
-
-.secondaryButton {
-    flex: 1;
-    height: 50px !important;
-    border: 2px solid #e5e7eb !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease !important;
-}
-
-.secondaryButton:hover {
-    background: #f8fafc !important;
-    border-color: #f97316 !important;
-    color: #f97316 !important;
+    color: #dc2626;
+    font-size: 1.1rem;
 }
 
 /* Section Paramètres */
@@ -598,27 +534,6 @@
     box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1) !important;
 }
 
-.addButton {
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    border: none !important;
-    height: 45px !important;
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-.addButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3) !important;
-}
-
-.currentSubjects {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #e5e7eb;
-}
-
 .switch {
     margin-bottom: 10px;
 }
@@ -637,6 +552,10 @@
     margin-top: 5px;
     color: #64748b;
     font-size: 0.8rem;
+}
+
+.currentSubjects {
+    margin-top: 20px;
 }
 
 .themeOptions {
@@ -726,10 +645,6 @@
 
     .infoGrid {
         grid-template-columns: 1fr;
-    }
-
-    .actionButtons {
-        flex-direction: column;
     }
 
     .settingsHeader {

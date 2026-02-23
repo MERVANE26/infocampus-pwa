@@ -1,103 +1,97 @@
 /* Home.module.css */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 .container {
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
     min-height: 100vh;
-    padding: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .homeCard {
     background: white;
     border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    padding: 40px 30px;
     max-width: 500px;
-    text-align: center;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.5s ease-out;
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+/* Logo */
 .logoContainer {
-    margin-bottom: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.universityIcon {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 10px;
 }
 
 .logoText {
-    background: linear-gradient(135deg, #1e40af, #2563eb);
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
 }
 
 .logoSubtitle {
+    font-size: 0.7rem;
     color: #64748b;
-    font-size: 1.1rem;
     font-weight: 500;
     letter-spacing: 2px;
-    margin-top: -5px;
+    text-transform: uppercase;
 }
 
 .tagline {
+    text-align: center;
     color: #64748b;
     font-size: 1rem;
-    margin-bottom: 40px;
     line-height: 1.5;
+    margin-bottom: 30px;
+    padding: 0 10px;
 }
 
+/* Actions principales */
 .mainActions {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    gap: 15px;
     margin-bottom: 30px;
 }
 
 .mainBtn {
-    padding: 18px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
-    font-size: 1.1rem;
+    gap: 10px;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
     text-decoration: none;
-    position: relative;
-    overflow: hidden;
-}
-
-.btnSignup {
-    background: linear-gradient(135deg, #16a34a, #22c55e);
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-.btnLogin {
-    background: linear-gradient(135deg, #1e40af, #2563eb);
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 700;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    transform: translateY(0);
 }
 
 .mainBtn:hover {
@@ -105,100 +99,90 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.mainBtn:active {
-    transform: translateY(-1px);
+.btnSignup {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btnLogin {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
 }
 
 .btnIcon {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
+    font-size: 1.1rem;
 }
 
-.userTypes {
+/* Créer une université */
+.createUniversity {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
     background: #f8fafc;
     border-radius: 12px;
-    padding: 20px;
-    margin-top: 30px;
+    border: 2px dashed #667eea;
+    transition: all 0.3s ease;
 }
 
-.userTypesTitle {
-    color: #1e40af;
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 15px;
+.createUniversity:hover {
+    background: #f1f5f9;
+    border-color: #764ba2;
 }
 
-.userTypesGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-}
-
-.userTypeItem {
-    display: flex;
-    flex-direction: column;
+.createUniversityBtn {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
-    background: white;
-    border-radius: 8px;
-    transition: transform 0.2s;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
+    gap: 10px;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     border: none;
-    width: 100%;
-}
-
-.userTypeItem:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.userTypeIcon {
-    font-size: 1.8rem;
-}
-
-.userTypeLabel {
-    font-size: 0.8rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
 }
 
-.studentIcon {
-    color: #16a34a;
+.createUniversityBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-.teacherIcon {
-    color: #f97316;
+.createUniversityIcon {
+    font-size: 1.2rem;
 }
 
-.adminIcon {
-    color: #1e40af;
+.createUniversitySub {
+    color: #64748b;
+    font-size: 0.85rem;
 }
 
+/* Features */
 .features {
     background: #f8fafc;
+    padding: 20px;
     border-radius: 12px;
-    padding: 25px;
-    margin-top: 25px;
+    margin-bottom: 25px;
 }
 
 .featuresTitle {
-    color: #1e40af;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
+    color: #374151;
     margin-bottom: 15px;
+    text-align: center;
 }
 
 .featureItem {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 10px;
     color: #64748b;
     font-size: 0.9rem;
+    margin-bottom: 12px;
 }
 
 .featureItem:last-child {
@@ -206,21 +190,36 @@
 }
 
 .check {
-    color: #16a34a;
-    font-weight: bold;
+    color: #10b981;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
+/* Footer */
 .footer {
-    margin-top: 25px;
+    text-align: center;
     color: #94a3b8;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
 }
 
-.universityIcon {
-    font-size: 3.5rem;
-    color: #1e40af;
-    margin-bottom: 15px;
-    opacity: 0.9;
-    display: flex;
-    justify-content: center;
+/* Media Queries */
+@media (max-width: 480px) {
+    .homeCard {
+        padding: 30px 20px;
+    }
+
+    .logoText {
+        font-size: 1.8rem;
+    }
+
+    .mainActions {
+        flex-direction: column;
+    }
+
+    .createUniversityBtn {
+        width: 100%;
+        justify-content: center;
+    }
 }

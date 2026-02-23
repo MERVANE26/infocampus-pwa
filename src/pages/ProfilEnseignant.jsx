@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -153,6 +154,14 @@ import Accordion from 'react-bootstrap/Accordion';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Table from 'react-bootstrap/Table';
 import styles from './ProfilEnseignant.module.css';
+
+// Import de nos composants de boutons personnalisés
+import { 
+    BoutonProfil,
+    BoutonMatiere,
+    BoutonFermer,
+    BoutonAction
+} from '../composants/Index';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
@@ -599,13 +608,10 @@ const ProfilEnseignant = () => {
                                                                 placement="bottom"
                                                                 overlay={<Tooltip>Changer la photo</Tooltip>}
                                                             >
-                                                                <Button
-                                                                    variant="link"
-                                                                    className={styles.cameraButton}
+                                                                <BoutonProfil
+                                                                    action="photo"
                                                                     onClick={() => fileInputRef.current?.click()}
-                                                                >
-                                                                    <FaCamera />
-                                                                </Button>
+                                                                />
                                                             </OverlayTrigger>
                                                             <input
                                                                 type="file"
@@ -768,31 +774,22 @@ const ProfilEnseignant = () => {
                                                         </ListGroup>
                                                     </div>
 
-                                                    {/* Boutons d'action */}
+                                                    {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
-                                                        <Button
-                                                            variant="success"
-                                                            className={styles.primaryButton}
+                                                        <BoutonProfil
+                                                            action="publication"
                                                             onClick={createPublication}
-                                                        >
-                                                            <FaBell /> Faire une publication
-                                                        </Button>
+                                                        />
                                                         
-                                                        <Button
-                                                            variant="outline-secondary"
-                                                            className={styles.secondaryButton}
+                                                        <BoutonProfil
+                                                            action="modifier"
                                                             onClick={() => setActiveTab('settings')}
-                                                        >
-                                                            <FaEdit /> Modifier mes informations
-                                                        </Button>
+                                                        />
                                                         
-                                                        <Button
-                                                            variant="outline-danger"
-                                                            className={styles.secondaryButton}
+                                                        <BoutonProfil
+                                                            action="deconnexion"
                                                             onClick={logout}
-                                                        >
-                                                            <FaSignOutAlt /> Déconnexion
-                                                        </Button>
+                                                        />
                                                     </div>
                                                 </Card.Body>
                                             </Card>
@@ -892,13 +889,10 @@ const ProfilEnseignant = () => {
                                                                                 }
                                                                             }}
                                                                         />
-                                                                        <Button
-                                                                            variant="primary"
-                                                                            onClick={handleAddSubject}
-                                                                            className={styles.addButton}
-                                                                        >
-                                                                            <FaPlus /> Ajouter
-                                                                        </Button>
+                                                                        <BoutonMatiere
+                                                                            type="add"
+                                                                            onAction={handleAddSubject}
+                                                                        />
                                                                     </InputGroup>
                                                                 </Form.Group>
 
@@ -908,19 +902,12 @@ const ProfilEnseignant = () => {
                                                                     </Form.Label>
                                                                     <div className={styles.subjectsList}>
                                                                         {currentTeacher.subjects.map((subject, index) => (
-                                                                            <Badge
+                                                                            <BoutonMatiere
                                                                                 key={index}
-                                                                                className={styles.editableSubjectTag}
-                                                                            >
-                                                                                {subject}
-                                                                                <Button
-                                                                                    variant="link"
-                                                                                    className={styles.removeSubject}
-                                                                                    onClick={() => handleRemoveSubject(subject)}
-                                                                                >
-                                                                                    <FaTimes />
-                                                                                </Button>
-                                                                            </Badge>
+                                                                                type="subject"
+                                                                                subject={subject}
+                                                                                onAction={() => handleRemoveSubject(subject)}
+                                                                            />
                                                                         ))}
                                                                     </div>
                                                                 </div>

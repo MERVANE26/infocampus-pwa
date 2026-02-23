@@ -1,4 +1,4 @@
-/* ProfilAdministration.module.css */
+/* ProfilAdministration.module.css - Version nettoyée */
 
 .pageContainer {
     min-height: 100vh;
@@ -233,28 +233,6 @@
     background-position: center;
 }
 
-.cameraButton {
-    position: absolute !important;
-    bottom: 5px;
-    right: 5px;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
-    color: white !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    padding: 0 !important;
-    border: 2px solid white !important;
-    transition: all 0.3s ease !important;
-}
-
-.cameraButton:hover {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
-}
-
 .adminName {
     font-size: 1.8rem;
     font-weight: 700;
@@ -485,49 +463,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Boutons d'action */
-.actionButtons {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.primaryButton {
-    flex: 1;
-    height: 50px !important;
-    background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
-    border: none !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease !important;
-}
-
-.primaryButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3) !important;
-}
-
-.secondaryButton {
-    flex: 1;
-    height: 50px !important;
-    border: 2px solid #e5e7eb !important;
-    font-weight: 600 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.3s ease !important;
-}
-
-.secondaryButton:hover {
-    background: #f8fafc !important;
-    border-color: #7c3aed !important;
-    color: #7c3aed !important;
-}
-
 /* Section Paramètres */
 .settingsSection {
     padding: 25px 0;
@@ -747,10 +682,6 @@
 
     .quickActionsGrid {
         grid-template-columns: 1fr;
-    }
-
-    .actionButtons {
-        flex-direction: column;
     }
 
     .settingsHeader {
