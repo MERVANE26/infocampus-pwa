@@ -252,7 +252,7 @@ const Inscription = () => {
             });
             
             setTimeout(() => {
-                navigate(`/validation-code?email=${encodeURIComponent(formData.email)}`);
+                navigate(`/otp-validation?email=${encodeURIComponent(formData.email)}`);
             }, 2000);
 
         } catch (err) {
@@ -272,7 +272,7 @@ const Inscription = () => {
                                 {/* Logo */}
                                 <div className={styles.logo}>
                                     <FaUniversity className={styles.logoIcon} />
-                                    <h1>INFO<span>CAMPUS</span></h1>
+                                    <h1>INFO<span>cAMPUS</span></h1>
                                 </div>
 
                                 {/* Step badge */}

@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import styles from './Home.module.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+
 const Home = () => {
     const navigate = useNavigate();
 
@@ -50,7 +50,7 @@ const Home = () => {
 
     const handleCreateUniversity = () => {
         console.log('Navigation vers création université...');
-        navigate('/creation-universite');
+        navigate('/create-university');
     };
 
     return (
@@ -71,14 +71,14 @@ const Home = () => {
 
                 {/* Actions principales */}
                 <div className={styles.mainActions}>
-                    <Link to="/inscription" className={`${styles.mainBtn} ${styles.btnSignup}`}>
+                    <Link to="/register" className={`${styles.mainBtn} ${styles.btnSignup}`}>
                         <span className={styles.btnIcon}>
                             <FaPen />
                         </span>
                         S'inscrire
                     </Link>
                     
-                    <Link to="/connexion" className={`${styles.mainBtn} ${styles.btnLogin}`}>
+                    <Link to="/login" className={`${styles.mainBtn} ${styles.btnLogin}`}>
                         <span className={styles.btnIcon}>
                             <FaLock />
                         </span>

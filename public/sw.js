@@ -87,7 +87,7 @@ self.addEventListener('push', event => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('INFOCAMPUS', options)
+    self.registration.showNotification('INFOcAMPUS', options)
   );
 });
 

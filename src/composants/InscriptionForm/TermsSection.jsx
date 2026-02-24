@@ -20,15 +20,15 @@ const TermsSection = ({ checked, onChange }) => {
             </div>
 
             <div className={styles.legalLinks}>
-                <Link to="/conditions" target="_blank" className={styles.link}>
+                <Link to="/terms" target="_blank" className={styles.link}>
                     <FaFileContract /> Conditions d'utilisation
                 </Link>
                 <span className={styles.separator}>|</span>
-                <Link to="/confidentialite" target="_blank" className={styles.link}>
+                <Link to="/privacy" target="_blank" className={styles.link}>
                     <FaShieldAlt /> Politique de confidentialité
                 </Link>
                 <span className={styles.separator}>|</span>
-                <Link to="/charte-donnees" target="_blank" className={styles.link}>
+                <Link to="/legal" target="_blank" className={styles.link}>
                     <FaDatabase /> Charte des données
                 </Link>
             </div>

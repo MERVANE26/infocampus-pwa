@@ -29,8 +29,8 @@ const Connexion = () => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
         
-        if (!token && !user) {
-            navigate('/dashboard');
+        if (token && user) {
+            navigate('/profil');
         }
 
         // Service Worker (Workbox)
@@ -142,7 +142,7 @@ const Connexion = () => {
 
     return (
         <div className={styles.pageContainer}>
-            <div className={styles.background}></div>
+            {/* <div className={styles.background}></div> */}
             
             <Container className={styles.container}>
                 <Row className="justify-content-center align-items-center min-vh-100">
@@ -247,10 +247,10 @@ const Connexion = () => {
 
                                     {/* Liens supplémentaires */}
                                     <div className={styles.links}>
-                                        <Link to="/mot-de-passe-oublie" className={styles.link}>
+                                        <Link to="/forgot-password" className={styles.link}>
                                             Mot de passe oublié ?
                                         </Link>
-                                        <Link to="/inscription" className={styles.link}>
+                                        <Link to="/register" className={styles.link}>
                                             Pas encore inscrit ?
                                         </Link>
                                     </div>

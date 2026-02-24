@@ -1,5 +1,5 @@
 import React from 'react';
-import LegalLayout from '../components/LegalLayout/LegalLayout';
+import LegalLayout from '../composants/LegalLayout/LegalLayout';
 import { FaUsers, FaGlobeAfrica, FaRocket, FaHandshake } from 'react-icons/fa';
 
 const About = () => {

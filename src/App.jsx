@@ -15,6 +15,10 @@ import ProfilEnseignant from './pages/ProfilEnseignant';
 import ProfilAdministration from './pages/ProfilAdministration';
 import CreationUniversite from './pages/CreationUniversite';
 import ValidationCode from './pages/ValidationCode';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Legal from './pages/Legal';
+import About from './pages/About';
 // ============================================
 // COMPOSANT DE PROTECTION DES ROUTES
 // ============================================
@@ -65,10 +69,10 @@ function App() {
               ROUTES PUBLIQUES (accessibles sans connexion)
               ======================================== */}
           <Route path="/" element={<Home />} />
-          <Route path="/connexion" element={<Connexion />} />
-          <Route path="/inscription" element={<Inscription />} />
-          <Route path="/creer-universite" element={<CreationUniversite />} />
-          <Route path="/validation-code" element={<ValidationCode />} />
+          <Route path="/login" element={<Connexion />} />
+          <Route path="/register" element={<Inscription />} />
+          <Route path="/create-university" element={<CreationUniversite />} />
+          <Route path="/otp-validation" element={<ValidationCode />} />
           {/* ========================================
               ROUTES PROTÉGÉES (nécessitent une connexion)
               ======================================== */}
@@ -136,6 +140,42 @@ function App() {
               <PrivateRoute>
                 <CreationUniversite />
               </PrivateRoute>
+            } 
+          />
+
+           <Route 
+            path="/terms" 
+            element={
+              // <PrivateRoute>
+                <Terms />
+              // </PrivateRoute>
+            } 
+          />
+
+           <Route 
+            path="/privacy" 
+            element={
+              // <PrivateRoute>
+                <Privacy/>
+              // </PrivateRoute>
+            } 
+          />
+
+           <Route 
+            path="/legal" 
+            element={
+              // <PrivateRoute>
+                <Legal/>
+              // </PrivateRoute>
+            } 
+          />
+
+           <Route 
+            path="/about" 
+            element={
+              // <PrivateRoute>
+                <About/>
+              // </PrivateRoute>
             } 
           />
           

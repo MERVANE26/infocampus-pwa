@@ -1,9 +1,9 @@
 import React from 'react';
-import LegalLayout from '../components/LegalLayout/LegalLayout';
+import LegalLayout from '../composants/LegalLayout/LegalLayout';
 
 const Terms = () => {
     return (
-        <LegalLayout 
+        <LegalLayout
             title="Conditions générales d'utilisation" 
             lastUpdated="23 février 2026"
         >
