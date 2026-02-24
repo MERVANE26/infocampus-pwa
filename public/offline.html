@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFOCAMPUS - Hors ligne</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 400px;
+        }
+        .features li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .features li::before {
+            content: "✓";
+            margin-right: 10px;
+            color: #10b981;
+            font-weight: bold;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .retry {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        .university-name {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="university-name">📚 INFOCAMPUS</div>
+    
+    <div class="offline-icon">📶</div>
+    
+    <h1>Vous êtes hors ligne</h1>
+    
+    <p>Pas de connexion Internet. Pas de panique !</p>
+    
+    <div class="features">
+        <ul>
+            <li>Consulter les publications déjà chargées</li>
+            <li>Lire les commentaires disponibles</li>
+            <li>Réagir (synchronisé à la reconnexion)</li>
+            <li>Accéder à votre profil</li>
+        </ul>
+    </div>
+    
+    <div>
+        <button onclick="window.location.reload()" class="retry">
+            🔄 Réessayer
+        </button>
+        <button onclick="window.location.href='/'">
+            🏠 Accueil
+        </button>
+    </div>
+    
+    <p style="margin-top: 30px; font-size: 14px;">
+        Les modifications seront synchronisées automatiquement<br>
+        dès le retour de la connexion.
+    </p>
+</body>
+</html>

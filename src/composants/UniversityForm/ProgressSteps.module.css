@@ -1,0 +1,81 @@
+.progressContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 30px 0;
+    padding: 20px;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.stepCircle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.step.active .stepCircle {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.step.completed .stepCircle {
+    background: #10b981;
+    color: white;
+}
+
+.stepLabel {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.step.active .stepLabel {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.progressLine {
+    flex: 1;
+    height: 2px;
+    background: #e5e7eb;
+    margin: 0 10px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .progressContainer {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .progressLine {
+        width: 2px;
+        height: 30px;
+        margin: 5px 0;
+    }
+    
+    .step {
+        flex-direction: row;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .stepCircle {
+        margin-bottom: 0;
+    }
+}

@@ -1,0 +1,42 @@
+.action-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.action-btn:hover {
+  background: #f1f5f9;
+  color: #1e40af;
+}
+
+.action-btn.active-like {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.action-btn.active-dislike {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.count {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+  .action-btn span:last-child {
+    display: none;
+  }
+}

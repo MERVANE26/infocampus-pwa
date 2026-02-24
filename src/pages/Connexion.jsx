@@ -15,7 +15,6 @@ import { api } from '../lib/api';
 const Connexion = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        userType: '',
         email: '',
         password: ''
     });
@@ -57,9 +56,9 @@ const Connexion = () => {
     };
 
     const validateForm = () => {
-        const { userType, email, password } = formData;
+        const { email, password } = formData;
         
-        if (!userType || !email || !password) {
+        if (!email || !password) {
             setError('Veuillez remplir tous les champs');
             return false;
         }
@@ -116,7 +115,7 @@ const Connexion = () => {
                 const path = redirectMap[response.data?.user?.roles[0]] || '/dashboard';
                 
                 setTimeout(() => {
-                    navigate(path);
+                    navigate('/dashboard');
                 }, 1000);
             } else {
                 setError(response.data?.message || 'Email ou mot de passe incorrect');
@@ -163,25 +162,6 @@ const Connexion = () => {
 
                                 {/* Formulaire */}
                                 <Form onSubmit={handleSubmit} className={styles.form}>
-                                    {/* Type d'utilisateur */}
-                                    <Form.Group className="mb-4">
-                                        <Form.Label className={styles.label}>
-                                            Statut
-                                        </Form.Label>
-                                        <Form.Select
-                                            name="userType"
-                                            value={formData.userType}
-                                            onChange={handleChange}
-                                            disabled={loading}
-                                            className={styles.select}
-                                        >
-                                            <option value="">Sélectionnez votre statut</option>
-                                            <option value="etudiant">Étudiant</option>
-                                            <option value="enseignant">Enseignant</option>
-                                            <option value="admin">Administration</option>
-                                        </Form.Select>
-                                    </Form.Group>
-
                                     {/* Email */}
                                     <Form.Group className="mb-4">
                                         <Form.Label className={styles.label}>

@@ -1,0 +1,34 @@
+.infoBox {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.infoHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1e293b;
+    margin-bottom: 10px;
+}
+
+.infoIcon {
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.infoContent {
+    color: #475569;
+    line-height: 1.6;
+}
+
+.infoContent ol {
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.infoContent li {
+    margin-bottom: 5px;
+}

@@ -7,10 +7,13 @@ import {
     FaCheckCircle,
     FaUniversity,
     FaPen,
-    FaLock
+    FaLock,
+    FaBuilding,
+    FaPlusCircle
 } from 'react-icons/fa';
 import styles from './Home.module.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 const Home = () => {
     const navigate = useNavigate();
 
@@ -45,10 +48,9 @@ const Home = () => {
         };
     }, []);
 
-    const handleUserTypeClick = (type) => {
-        console.log(`Navigation vers le formulaire ${type}...`);
-        // Naviguer vers le formulaire spécifique avec le type d'utilisateur
-        navigate(`/inscription?type=${type}`);
+    const handleCreateUniversity = () => {
+        console.log('Navigation vers création université...');
+        navigate('/creation-universite');
     };
 
     return (
@@ -84,41 +86,21 @@ const Home = () => {
                     </Link>
                 </div>
 
-                {/* Types d'utilisateurs */}
-                <div className={styles.userTypes}>
-                    <div className={styles.userTypesTitle}>
-                        Vous êtes ?
-                    </div>
-                    <div className={styles.userTypesGrid}>
-                        <button 
-                            onClick={() => handleUserTypeClick('etudiant')}
-                            className={styles.userTypeItem}
-                        >
-                            <span className={`${styles.userTypeIcon} ${styles.studentIcon}`}>
-                                <FaUserGraduate />
-                            </span>
-                            <span className={styles.userTypeLabel}>Étudiant</span>
-                        </button>
-
-                        <button 
-                            onClick={() => handleUserTypeClick('enseignant')}
-                            className={styles.userTypeItem}
-                        >
-                            <span className={`${styles.userTypeIcon} ${styles.teacherIcon}`}>
-                                <FaChalkboardTeacher />
-                            </span>
-                            <span className={styles.userTypeLabel}>Enseignant</span>
-                        </button>
-
-                        <button 
-                            onClick={() => handleUserTypeClick('admin')}
-                            className={styles.userTypeItem}
-                        >
-                            <span className={`${styles.userTypeIcon} ${styles.adminIcon}`}>
-                                <FaUserTie />
-                            </span>
-                            <span className={styles.userTypeLabel}>Admin</span>
-                        </button>
+                {/* Créer une université */}
+                <div className={styles.createUniversity}>
+                    <button 
+                        onClick={handleCreateUniversity}
+                        className={styles.createUniversityBtn}
+                    >
+                        <span className={styles.createUniversityIcon}>
+                            <FaPlusCircle />
+                        </span>
+                        <span className={styles.createUniversityText}>
+                            Créer une université
+                        </span>
+                    </button>
+                    <div className={styles.createUniversitySub}>
+                        Inscrivez votre établissement sur InfoCAMPUS
                     </div>
                 </div>
 

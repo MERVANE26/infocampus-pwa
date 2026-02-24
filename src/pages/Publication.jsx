@@ -50,6 +50,11 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import InputGroup from 'react-bootstrap/InputGroup';
 import styles from './Publication.module.css';
+import { 
+    BoutonAction, 
+    BoutonTelecharger,  
+    BoutonCommentaire
+} from '../composants/Index';  
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
