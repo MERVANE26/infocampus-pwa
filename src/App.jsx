@@ -75,9 +75,9 @@ function App() {
           <Route 
             path="/publications" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <Publication />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           
@@ -85,9 +85,9 @@ function App() {
           <Route 
             path="/faire-publication" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <FairePublication />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           
@@ -95,9 +95,9 @@ function App() {
           <Route 
             path="/profil" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <RoleBasedProfil />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           
@@ -105,27 +105,27 @@ function App() {
           <Route 
             path="/profil-etudiant" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <ProfilEtudiant />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           
           <Route 
             path="/profil-enseignant" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <ProfilEnseignant />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           
           <Route 
             path="/profil-administration" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <ProfilAdministration />
-              </PrivateRoute>
+              // </PrivateRoute>
             } 
           />
           

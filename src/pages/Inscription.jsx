@@ -38,41 +38,8 @@ import Spinner from 'react-bootstrap/Spinner';
 import Tab from 'react-bootstrap/Tab';
 import Nav from 'react-bootstrap/Nav';
 import styles from './Inscription.module.css';
+import { api } from '../lib/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Configuration Axios
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-  config => {
-    console.log('🚀 Requête envoyée:', config.url);
-    return config;
-  },
-  error => {
-    console.error('❌ Erreur requête:', error);
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  response => {
-    console.log('✅ Réponse reçue:', response.status);
-    return response;
-  },
-  error => {
-    console.error('❌ Erreur réponse:', error);
-    return Promise.reject(error);
-  }
-);
 
 const Inscription = () => {
   const navigate = useNavigate();

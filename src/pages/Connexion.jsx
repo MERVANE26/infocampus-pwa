@@ -10,6 +10,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import styles from './Connexion.module.css';
+import { api } from '../lib/api';
 
 const Connexion = () => {
     const navigate = useNavigate();
@@ -22,45 +23,14 @@ const Connexion = () => {
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    // Configuration Axios
-    const api = axios.create({
-        baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000/api',
-        timeout: 10000,
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-    });
 
-    // Intercepteur Axios
-    api.interceptors.request.use(
-        config => {
-            console.log('🚀 Requête envoyée:', config.url);
-            return config;
-        },
-        error => {
-            console.error('❌ Erreur requête:', error);
-            return Promise.reject(error);
-        }
-    );
-
-    api.interceptors.response.use(
-        response => {
-            console.log('✅ Réponse reçue:', response.status);
-            return response;
-        },
-        error => {
-            console.error('❌ Erreur réponse:', error);
-            return Promise.reject(error);
-        }
-    );
 
     useEffect(() => {
         // Vérifier si l'utilisateur est déjà connecté
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
         
-        if (token && user) {
+        if (!token && !user) {
             navigate('/dashboard');
         }
 
@@ -116,16 +86,15 @@ const Connexion = () => {
         setLoading(true);
         setError('');
 
+        const data = {
+            email: formData.email,
+            password: formData.password
+        }
+
         try {
-            const response = await api.post('/auth/login', {
-                email: formData.email,
-                password: formData.password,
-                user_type: formData.userType
-            });
+            const response = await api.post('/auth/login', data);
 
-            console.log('📦 Données reçues:', response.data);
-
-            if (response.data.success) {
+            if (response.data?.user) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
                 localStorage.setItem('loginTime', new Date().toISOString());
@@ -133,31 +102,31 @@ const Connexion = () => {
                 // Notification PWA
                 if (Notification.permission === 'granted') {
                     new Notification('Connexion réussie!', {
-                        body: `Bienvenue ${response.data.user.name || 'utilisateur'}`,
+                        body: `Bienvenue ${response.data?.user?.email || 'utilisateur'}`,
                         icon: '/icon-192x192.png'
                     });
                 }
 
                 const redirectMap = {
-                    'etudiant': '/profil-etudiant',
-                    'enseignant': '/profil-enseignant',
+                    'student': '/profil-etudiant',
+                    'teacher': '/profil-enseignant',
                     'admin': '/profil-administration'
                 };
 
-                const path = redirectMap[formData.userType] || '/dashboard';
+                const path = redirectMap[response.data?.user?.roles[0]] || '/dashboard';
                 
                 setTimeout(() => {
                     navigate(path);
                 }, 1000);
             } else {
-                setError(response.data.error || 'Email ou mot de passe incorrect');
+                setError(response.data?.message || 'Email ou mot de passe incorrect');
             }
 
         } catch (err) {
             if (err.code === 'ECONNABORTED') {
                 setError('Délai de connexion dépassé. Vérifiez votre connexion.');
             } else if (err.response) {
-                setError(err.response.data.error || `Erreur ${err.response.status}`);
+                setError(err.response.data.message || `Erreur ${err.response.status}`);
             } else if (err.request) {
                 setError('Serveur indisponible. Vérifiez que le backend est lancé');
             } else {
