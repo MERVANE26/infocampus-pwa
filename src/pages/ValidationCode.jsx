@@ -10,12 +10,14 @@ import {
 import { Container, Card, Alert, Button } from 'react-bootstrap';
 import CodeInput from '../composants/CodeInput/CodeInput';
 import styles from './ValidationCode.module.css';
+import { api } from '../lib/api';
 
 const ValidationCode = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [code, setCode] = useState(['', '', '', '', '', '']);
+    const [code, setCode] = useState(['', '', '', '', '']);
     const [email, setEmail] = useState('');
+    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -26,6 +28,18 @@ const ValidationCode = () => {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const emailParam = params.get('email');
+        const dataParam = params.get('data');
+        const pendingUser = sessionStorage.getItem('pendingUser');
+
+        if (dataParam) {
+            try {
+                const parsedData = JSON.parse(decodeURIComponent(dataParam));
+                console.log('Données reçues pour validation :', parsedData);
+                setData(parsedData || pendingUser ? JSON.parse(pendingUser) : null);
+            } catch (err) {
+                console.error('Erreur lors du parsing des données :', err);
+            }
+        }
         setEmail(emailParam || 'email@exemple.com');
     }, [location]);
 
@@ -43,10 +57,7 @@ const ValidationCode = () => {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
-    // Récupérer le code stocké (pour simulation)
-    const getStoredCode = () => {
-        return sessionStorage.getItem('validationCode') || '123456';
-    };
+
 
     const handleCodeChange = (newCode) => {
         setCode(newCode);
@@ -55,9 +66,9 @@ const ValidationCode = () => {
 
     const validateCode = async () => {
         const fullCode = code.join('');
-        
-        if (fullCode.length !== 6) {
-            setError('Veuillez entrer le code à 6 chiffres.');
+
+        if (fullCode.length !== 5) {
+            setError('Veuillez entrer le code à 5 chiffres.');
             return;
         }
 
@@ -66,38 +77,38 @@ const ValidationCode = () => {
 
         try {
             // Simulation de validation
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            const storedCode = getStoredCode();
-            
-            if (fullCode === storedCode) {
+            const response = await api.post('/auth/verify', {
+                data,
+                code: fullCode
+            });
+
+
+            if (response.data && response.data.success) {
                 setSuccess(true);
-                
+
                 // Récupérer les données de l'utilisateur
                 const pendingUser = sessionStorage.getItem('pendingUser');
-                
+                localStorage.setItem('user', JSON.stringify(response.data?.user));
+                localStorage.setItem('token', response.data?.token);
+
                 if (pendingUser) {
-                    // Ici, vous appelleriez votre API pour créer le compte
-                    console.log('✅ Compte validé:', JSON.parse(pendingUser));
-                    
                     // Nettoyer le stockage
                     sessionStorage.removeItem('pendingUser');
-                    sessionStorage.removeItem('validationCode');
                 }
-                
+
                 // Redirection après succès
                 setTimeout(() => {
-                    navigate('/login', { 
-                        state: { 
-                            message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.' 
-                        } 
+                    navigate('/profile', {
+                        state: {
+                            message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
+                        }
                     });
                 }, 2000);
             } else {
                 setError('Code incorrect. Veuillez vérifier et réessayer.');
             }
         } catch (err) {
-            setError('Une erreur est survenue. Veuillez réessayer.');
+            setError(err.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.');
         } finally {
             setLoading(false);
         }
@@ -105,27 +116,18 @@ const ValidationCode = () => {
 
     const resendCode = async () => {
         if (!canResend) return;
-        
+
         setLoading(true);
-        
+
         try {
             // Simulation d'envoi
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Générer un nouveau code
-            const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-            sessionStorage.setItem('validationCode', newCode);
-            
+            await api.post('/auth/resend-otp', data);
+
             // Reset du timer
             setTimeLeft(300);
             setCanResend(false);
             setError('');
-            
-            // Log pour simulation
-            console.log('📧 Nouveau code envoyé:', newCode);
-            
-            alert(`Nouveau code envoyé à ${email}`);
-            
+
         } catch (err) {
             setError('Erreur lors de l\'envoi du code.');
         } finally {
@@ -173,7 +175,7 @@ const ValidationCode = () => {
                             )}
 
                             {/* Code Input */}
-                            <CodeInput 
+                            <CodeInput
                                 value={code}
                                 onChange={handleCodeChange}
                                 onComplete={validateCode}

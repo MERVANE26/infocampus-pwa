@@ -24,10 +24,17 @@ import ProgressSteps from '../composants/UniversityForm/ProgressSteps';
 import FileUpload from '../composants/UniversityForm/FileUpload';
 import InfoBox from '../composants/UniversityForm/InfoBox';
 import styles from './CreationUniversite.module.css';
+import { api } from '../lib/api';
 
 const CreationUniversite = () => {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(1);
+    // AJOUTE ces nouveaux states en haut
+
+    const [universityId, setUniversityId] = useState(null);
+    const [verificationCode, setVerificationCode] = useState("");
+    const [confirmed, setConfirmed] = useState(false);
+
     const [formData, setFormData] = useState({
         universityName: 'Institut Universitaire du Golfe',
         country: 'Cameroun',
@@ -106,46 +113,77 @@ const CreationUniversite = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
-        
+
         setLoading(true);
 
         try {
-            const validationCode = generateValidationCode();
-            
-            // Sauvegarder les données
-            sessionStorage.setItem('universityFormData', JSON.stringify({
-                ...formData,
-                logo: formData.logo ? formData.logo.name : 'logo-non-fourni.png'
-            }));
-            sessionStorage.setItem('validationCode', validationCode);
-            
-            // Log pour simulation
-            console.log('📧 EMAIL DE VALIDATION', {
-                to: formData.email,
-                subject: 'Code de validation INFOCAMPUS',
-                code: validationCode
+            const response = await api.post("/universities/create", {
+                name: formData.universityName,
+                country: formData.country,
+                city: formData.city,
+                region: formData.region,
+                address: formData.address,
+                email: formData.email,
+                phone: formData.phone,
+                website: formData.website,
+                founded: formData.founded,
+                type: formData.type,
+                campusCount: formData.campus,
+                description: formData.description,
+                logo: formData.logo ? formData.logo.name : null
             });
-            
+
+
+            if (!response.data?.message) throw new Error(response.data?.message || "Erreur lors de la création de l'université.");
+
+            setUniversityId(response.data?.universityId);
+            setCurrentStep(2);
+
             setAlertMessage({
                 show: true,
-                text: `Formulaire validé ! Redirection vers la page de validation... Un code a été envoyé à ${formData.email}`
+                text: "Un code de validation a été envoyé par email."
             });
-            
-            setTimeout(() => {
-                navigate('/validation-universite');
-            }, 2000);
-            
+
         } catch (error) {
             setAlertMessage({
                 show: true,
-                text: 'Une erreur est survenue. Veuillez réessayer.'
+                text: error.response?.message
             });
         } finally {
             setLoading(false);
         }
     };
+
+
+    const handleVerifyCode = async (e) => {
+        e.preventDefault();
+
+        setLoading(true);
+
+        try {
+            const response = await api.post("/universities/verify", {
+                universityId,
+                code: verificationCode,
+            });
+
+
+            if (!response.data.message) throw new Error(response.data?.message || "Erreur lors de la vérification du code de validation.");
+
+            setCurrentStep(3);
+            setConfirmed(true);
+
+        } catch (error) {
+            setAlertMessage({
+                show: true,
+                text: error.message
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const fillIUGExample = () => {
         setFormData({
@@ -185,7 +223,7 @@ const CreationUniversite = () => {
                                         <div className={styles.logoText}>
                                             <h1>INFO<span>CAMPUS</span></h1>
                                             <p>
-                                                Plateforme de gestion universitaire 
+                                                Plateforme de gestion universitaire
                                                 <span className={styles.subtitle}> • Création d'établissements</span>
                                             </p>
                                         </div>
@@ -199,311 +237,357 @@ const CreationUniversite = () => {
                                 <ProgressSteps currentStep={currentStep} steps={steps} />
 
                                 {/* Formulaire */}
-                                <Form onSubmit={handleSubmit}>
-                                    {/* Nom de l'établissement */}
-                                    <Form.Group className={styles.formGroup}>
-                                        <Form.Label className={styles.label}>
-                                            <FaUniversity className={styles.labelIcon} /> Nom de l'établissement *
-                                        </Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            id="universityName"
-                                            value={formData.universityName}
-                                            onChange={handleInputChange}
-                                            placeholder="Ex: Institut Universitaire du Golfe"
-                                            required
-                                            className={styles.input}
-                                        />
-                                    </Form.Group>
+                                {currentStep === 1 && (
+                                    <Form onSubmit={handleSubmit}>
+                                        {/* Nom de l'établissement */}
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.label}>
+                                                <FaUniversity className={styles.labelIcon} /> Nom de l'établissement *
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                id="universityName"
+                                                value={formData.universityName}
+                                                onChange={handleInputChange}
+                                                placeholder="Ex: Institut Universitaire du Golfe"
+                                                required
+                                                className={styles.input}
+                                            />
+                                        </Form.Group>
 
-                                    {/* Pays, Ville, Région */}
-                                    <Row>
-                                        <Col md={4}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaGlobe className={styles.labelIcon} /> Pays *
-                                                </Form.Label>
-                                                <Form.Select
-                                                    id="country"
-                                                    value={formData.country}
-                                                    onChange={handleInputChange}
-                                                    required
-                                                    className={styles.select}
-                                                >
-                                                    <option value="">Sélectionnez un pays</option>
-                                                    <optgroup label="🌍 Afrique">
-                                                        <option value="Cameroun">Cameroun</option>
-                                                        <option value="Sénégal">Sénégal</option>
-                                                        <option value="Côte d'Ivoire">Côte d'Ivoire</option>
-                                                        <option value="Nigeria">Nigeria</option>
-                                                        <option value="Gabon">Gabon</option>
-                                                        <option value="RDC">RDC</option>
-                                                        <option value="Afrique du Sud">Afrique du Sud</option>
-                                                    </optgroup>
-                                                    <optgroup label="🌍 Europe">
-                                                        <option value="France">France</option>
-                                                    </optgroup>
-                                                    <optgroup label="🌎 Amérique">
-                                                        <option value="Canada">Canada</option>
-                                                    </optgroup>
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col md={4}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaCity className={styles.labelIcon} /> Ville *
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    id="city"
-                                                    value={formData.city}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Ex: Douala"
-                                                    required
-                                                    className={styles.input}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col md={4}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaMap className={styles.labelIcon} /> Région / Province
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    id="region"
-                                                    value={formData.region}
-                                                    onChange={handleInputChange}
-                                                    placeholder="Ex: Littoral"
-                                                    className={styles.input}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    {/* Adresse */}
-                                    <Form.Group className={styles.formGroup}>
-                                        <Form.Label className={styles.label}>
-                                            <FaMapMarkerAlt className={styles.labelIcon} /> Adresse complète
-                                        </Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            id="address"
-                                            value={formData.address}
-                                            onChange={handleInputChange}
-                                            placeholder="Ex: Boulevard de la Liberté, BP 1234"
-                                            className={styles.input}
-                                        />
-                                    </Form.Group>
-
-                                    {/* Email et Téléphone */}
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaEnvelope className={styles.labelIcon} /> Email de contact *
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="email"
-                                                    id="email"
-                                                    value={formData.email}
-                                                    onChange={handleInputChange}
-                                                    placeholder="contact@etablissement.edu"
-                                                    required
-                                                    className={styles.input}
-                                                />
-                                                <Form.Text className={styles.helpText}>
-                                                    Un code de validation sera envoyé à cette adresse
-                                                </Form.Text>
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaPhone className={styles.labelIcon} /> Téléphone *
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="tel"
-                                                    id="phone"
-                                                    value={formData.phone}
-                                                    onChange={handleInputChange}
-                                                    placeholder="+237 6XX XXX XXX"
-                                                    required
-                                                    className={styles.input}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    {/* Site web et Année */}
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaGlobe className={styles.labelIcon} /> Site web
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="url"
-                                                    id="website"
-                                                    value={formData.website}
-                                                    onChange={handleInputChange}
-                                                    placeholder="https://www.etablissement.edu"
-                                                    className={styles.input}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaCalendar className={styles.labelIcon} /> Année de fondation
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="number"
-                                                    id="founded"
-                                                    value={formData.founded}
-                                                    onChange={handleInputChange}
-                                                    min="1800"
-                                                    max="2024"
-                                                    placeholder="Ex: 2005"
-                                                    className={styles.input}
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    {/* Type et Campus */}
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaTag className={styles.labelIcon} /> Type d'établissement *
-                                                </Form.Label>
-                                                <Form.Select
-                                                    id="type"
-                                                    value={formData.type}
-                                                    onChange={handleInputChange}
-                                                    required
-                                                    className={styles.select}
-                                                >
-                                                    <option value="">Sélectionnez un type</option>
-                                                    <option value="Publique">Université Publique</option>
-                                                    <option value="Privée">Université Privée</option>
-                                                    <option value="Institut">Institut Supérieur</option>
-                                                    <option value="Grande École">Grande École</option>
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.label}>
-                                                    <FaBuilding className={styles.labelIcon} /> Nombre de campus *
-                                                </Form.Label>
-                                                <div className={styles.campusCounter}>
-                                                    <Button
-                                                        variant="outline-secondary"
-                                                        onClick={() => handleCampusChange(-1)}
-                                                        className={styles.counterBtn}
-                                                        type="button"
+                                        {/* Pays, Ville, Région */}
+                                        <Row>
+                                            <Col md={4}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaGlobe className={styles.labelIcon} /> Pays *
+                                                    </Form.Label>
+                                                    <Form.Select
+                                                        id="country"
+                                                        value={formData.country}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className={styles.select}
                                                     >
-                                                        -
-                                                    </Button>
+                                                        <option value="">Sélectionnez un pays</option>
+                                                        <optgroup label="🌍 Afrique">
+                                                            <option value="Cameroun">Cameroun</option>
+                                                            <option value="Sénégal">Sénégal</option>
+                                                            <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                                                            <option value="Nigeria">Nigeria</option>
+                                                            <option value="Gabon">Gabon</option>
+                                                            <option value="RDC">RDC</option>
+                                                            <option value="Afrique du Sud">Afrique du Sud</option>
+                                                        </optgroup>
+                                                        <optgroup label="🌍 Europe">
+                                                            <option value="France">France</option>
+                                                        </optgroup>
+                                                        <optgroup label="🌎 Amérique">
+                                                            <option value="Canada">Canada</option>
+                                                        </optgroup>
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col md={4}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaCity className={styles.labelIcon} /> Ville *
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        id="city"
+                                                        value={formData.city}
+                                                        onChange={handleInputChange}
+                                                        placeholder="Ex: Douala"
+                                                        required
+                                                        className={styles.input}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col md={4}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaMap className={styles.labelIcon} /> Région / Province
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        id="region"
+                                                        value={formData.region}
+                                                        onChange={handleInputChange}
+                                                        placeholder="Ex: Littoral"
+                                                        className={styles.input}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+
+                                        {/* Adresse */}
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.label}>
+                                                <FaMapMarkerAlt className={styles.labelIcon} /> Adresse complète
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                id="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                placeholder="Ex: Boulevard de la Liberté, BP 1234"
+                                                className={styles.input}
+                                            />
+                                        </Form.Group>
+
+                                        {/* Email et Téléphone */}
+                                        <Row>
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaEnvelope className={styles.labelIcon} /> Email de contact *
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        type="email"
+                                                        id="email"
+                                                        value={formData.email}
+                                                        onChange={handleInputChange}
+                                                        placeholder="contact@etablissement.edu"
+                                                        required
+                                                        className={styles.input}
+                                                    />
+                                                    <Form.Text className={styles.helpText}>
+                                                        Un code de validation sera envoyé à cette adresse
+                                                    </Form.Text>
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaPhone className={styles.labelIcon} /> Téléphone *
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        type="tel"
+                                                        id="phone"
+                                                        value={formData.phone}
+                                                        onChange={handleInputChange}
+                                                        placeholder="+237 6XX XXX XXX"
+                                                        required
+                                                        className={styles.input}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+
+                                        {/* Site web et Année */}
+                                        <Row>
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaGlobe className={styles.labelIcon} /> Site web
+                                                    </Form.Label>
+                                                    <Form.Control
+                                                        type="url"
+                                                        id="website"
+                                                        value={formData.website}
+                                                        onChange={handleInputChange}
+                                                        placeholder="https://www.etablissement.edu"
+                                                        className={styles.input}
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaCalendar className={styles.labelIcon} /> Année de fondation
+                                                    </Form.Label>
                                                     <Form.Control
                                                         type="number"
-                                                        id="campus"
-                                                        value={formData.campus}
+                                                        id="founded"
+                                                        value={formData.founded}
                                                         onChange={handleInputChange}
-                                                        min="1"
-                                                        max="20"
-                                                        required
-                                                        className={styles.counterInput}
+                                                        min="1800"
+                                                        max="2024"
+                                                        placeholder="Ex: 2005"
+                                                        className={styles.input}
                                                     />
-                                                    <Button
-                                                        variant="outline-secondary"
-                                                        onClick={() => handleCampusChange(1)}
-                                                        className={styles.counterBtn}
-                                                        type="button"
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+
+                                        {/* Type et Campus */}
+                                        <Row>
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaTag className={styles.labelIcon} /> Type d'établissement *
+                                                    </Form.Label>
+                                                    <Form.Select
+                                                        id="type"
+                                                        value={formData.type}
+                                                        onChange={handleInputChange}
+                                                        required
+                                                        className={styles.select}
                                                     >
-                                                        +
-                                                    </Button>
-                                                </div>
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
+                                                        <option value="">Sélectionnez un type</option>
+                                                        <option value="Publique">Université Publique</option>
+                                                        <option value="Privée">Université Privée</option>
+                                                        <option value="Institut">Institut Supérieur</option>
+                                                        <option value="Grande École">Grande École</option>
+                                                    </Form.Select>
+                                                </Form.Group>
+                                            </Col>
 
-                                    {/* Description */}
-                                    <Form.Group className={styles.formGroup}>
-                                        <Form.Label className={styles.label}>
-                                            <FaAlignLeft className={styles.labelIcon} /> Description de l'établissement *
-                                        </Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            id="description"
-                                            rows={4}
-                                            value={formData.description}
-                                            onChange={handleInputChange}
-                                            placeholder="Présentez votre établissement, son histoire, ses valeurs, ses filières principales..."
-                                            required
-                                            className={styles.textarea}
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaBuilding className={styles.labelIcon} /> Nombre de campus *
+                                                    </Form.Label>
+                                                    <div className={styles.campusCounter}>
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            onClick={() => handleCampusChange(-1)}
+                                                            className={styles.counterBtn}
+                                                            type="button"
+                                                        >
+                                                            -
+                                                        </Button>
+                                                        <Form.Control
+                                                            type="number"
+                                                            id="campus"
+                                                            value={formData.campus}
+                                                            onChange={handleInputChange}
+                                                            min="1"
+                                                            max="20"
+                                                            required
+                                                            className={styles.counterInput}
+                                                        />
+                                                        <Button
+                                                            variant="outline-secondary"
+                                                            onClick={() => handleCampusChange(1)}
+                                                            className={styles.counterBtn}
+                                                            type="button"
+                                                        >
+                                                            +
+                                                        </Button>
+                                                    </div>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+
+                                        {/* Description */}
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.label}>
+                                                <FaAlignLeft className={styles.labelIcon} /> Description de l'établissement *
+                                            </Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                id="description"
+                                                rows={4}
+                                                value={formData.description}
+                                                onChange={handleInputChange}
+                                                placeholder="Présentez votre établissement, son histoire, ses valeurs, ses filières principales..."
+                                                required
+                                                className={styles.textarea}
+                                            />
+                                        </Form.Group>
+
+                                        {/* Logo Upload */}
+                                        <FileUpload
+                                            onFileSelect={handleFileChange}
+                                            fileInfo={fileInfo}
+                                            label="Logo de l'établissement"
+                                            icon={FaImage}
                                         />
-                                    </Form.Group>
 
-                                    {/* Logo Upload */}
-                                    <FileUpload
-                                        onFileSelect={handleFileChange}
-                                        fileInfo={fileInfo}
-                                        label="Logo de l'établissement"
-                                        icon={FaImage}
-                                    />
+                                        {/* Info Box */}
+                                        <InfoBox title="Processus de validation :">
+                                            <ol>
+                                                <li>Vous remplissez le formulaire de création</li>
+                                                <li>Vous serez redirigé vers la page de validation</li>
+                                                <li>Un code à 6 chiffres vous sera envoyé par email</li>
+                                                <li>Saisissez le code pour finaliser la création</li>
+                                            </ol>
+                                        </InfoBox>
 
-                                    {/* Info Box */}
-                                    <InfoBox title="Processus de validation :">
-                                        <ol>
-                                            <li>Vous remplissez le formulaire de création</li>
-                                            <li>Vous serez redirigé vers la page de validation</li>
-                                            <li>Un code à 6 chiffres vous sera envoyé par email</li>
-                                            <li>Saisissez le code pour finaliser la création</li>
-                                        </ol>
-                                    </InfoBox>
-
-                                    {/* Alert Message */}
-                                    {alertMessage.show && (
-                                        <Alert 
-                                            variant="success" 
-                                            className={styles.alert}
-                                            onClose={() => setAlertMessage({ show: false, text: '' })}
-                                            dismissible
-                                        >
-                                            <FaCheckCircle className="me-2" />
-                                            {alertMessage.text}
-                                        </Alert>
-                                    )}
-
-                                    {/* Submit Button */}
-                                    <Button
-                                        type="submit"
-                                        className={styles.submitButton}
-                                        disabled={loading}
-                                        size="lg"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2" />
-                                                Traitement en cours...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FaPaperPlane className="me-2" />
-                                                Continuer vers la validation
-                                            </>
+                                        {/* Alert Message */}
+                                        {alertMessage.show && (
+                                            <Alert
+                                                variant="success"
+                                                className={styles.alert}
+                                                onClose={() => setAlertMessage({ show: false, text: '' })}
+                                                dismissible
+                                            >
+                                                <FaCheckCircle className="me-2" />
+                                                {alertMessage.text}
+                                            </Alert>
                                         )}
-                                    </Button>
-                                </Form>
+
+                                        {/* Submit Button */}
+                                        <Button
+                                            type="submit"
+                                            className={styles.submitButton}
+                                            disabled={loading}
+                                            size="lg"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-2" />
+                                                    Traitement en cours...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FaPaperPlane className="me-2" />
+                                                    Continuer vers la validation
+                                                </>
+                                            )}
+                                        </Button>
+                                    </Form>)}
+
+                                {/* ================= VERIFICATION STEP ================= */}
+                                {currentStep === 2 && (
+                                    <Form onSubmit={handleVerifyCode} className="mt-4">
+                                        <Form.Group>
+                                            <Form.Label>
+                                                <FaShieldAlt className="me-2" />
+                                                Code de validation
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={verificationCode}
+                                                onChange={(e) => setVerificationCode(e.target.value)}
+                                                placeholder="Entrez le code reçu par email"
+                                                required
+                                            />
+                                        </Form.Group>
+
+                                        <Button
+                                            type="submit"
+                                            className={styles.submitButton + " mt-3"}
+                                            disabled={loading}
+                                        >
+                                            Vérifier le code
+                                        </Button>
+                                    </Form>
+                                )}
+
+                                {/* ================= CONFIRMATION STEP ================= */}
+                                {currentStep === 3 && confirmed && (
+                                    <div className="text-center mt-4">
+                                        <FaCheckCircle size={60} color="green" />
+                                        <h4 className="mt-3">Université validée avec succès 🎉</h4>
+                                        <p>Votre établissement est maintenant enregistré.</p>
+
+                                        <Button
+                                            onClick={() => navigate("/dashboard")}
+                                            className={styles.submitButton}
+                                        >
+                                            Accéder au tableau de bord
+                                        </Button>
+                                    </div>
+                                )}
+
+
                             </Card.Body>
                         </Card>
                     </Col>
