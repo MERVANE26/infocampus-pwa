@@ -1,992 +1,741 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { 
-    FaUniversity,
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+    FaPen,
+    FaSave,
     FaBell,
     FaExclamationTriangle,
-    FaInfoCircle,
+    FaArrowLeft,
+    FaArrowRight,
     FaPaperclip,
+    FaTrash,
     FaFilePdf,
     FaFileImage,
     FaFileAlt,
+    FaUsers,
+    FaUserGraduate,
+    FaChalkboardTeacher,
+    FaBuilding,
+    FaGlobe,
     FaComments,
-    FaThumbsUp,
-    FaThumbsDown,
-    FaDownload,
-    FaRegComments,
-    FaRegThumbsUp,
-    FaRegThumbsDown,
-    FaTimes,
-    FaSearch,
-    FaClock,
-    FaUserCircle,
-    FaCog,
-    FaSignOutAlt,
+    FaExclamationCircle,
+    FaUniversity
 } from 'react-icons/fa';
-import { MdEmail, MdPhone, MdSchool, MdWarning, MdClose, MdMenu } from 'react-icons/md';
-import { BsPersonBadge, BsPersonVcard, BsThreeDotsVertical } from 'react-icons/bs';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
-import Spinner from 'react-bootstrap/Spinner';
-import Badge from 'react-bootstrap/Badge';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Modal from 'react-bootstrap/Modal';
-import Image from 'react-bootstrap/Image';
-import InputGroup from 'react-bootstrap/InputGroup';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
-import styles from './Publication.module.css';
-import { 
-    BoutonAction, 
-    BoutonTelecharger, 
-    BoutonFermer, 
-    BoutonCommentaire 
-} from '../composants/Index';
+import { Container, Row, Col, Card, Form, Button, Alert, Badge } from 'react-bootstrap';
+import styles from './FairePublication.module.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Configuration Axios
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        console.log('🚀 Requête envoyée:', config.url);
-        return config;
-    },
-    error => {
-        console.error('❌ Erreur requête:', error);
-        return Promise.reject(error);
-    }
-);
-
-api.interceptors.response.use(
-    response => {
-        console.log('✅ Réponse reçue:', response.status);
-        return response;
-    },
-    error => {
-        console.error('❌ Erreur réponse:', error);
-        return Promise.reject(error);
-    }
-);
-
-const Publication = () => {
+const FairePublication = () => {
     const navigate = useNavigate();
+    const fileInputRef = useRef(null);
     
     // États
     const [currentUser, setCurrentUser] = useState({
-        id: "ETU000",
-        name: "LaurenDa M.",
-        avatar: "LM",
-        role: "Étudiante",
-        email: "laurenda.m@universite.cm"
+        id: "PROF001",
+        name: "Pr. Amadou Diallo",
+        avatar: "PD",
+        role: "Enseignant",
+        department: "Informatique",
+        filiere: "Genie Logiciel",
+        campus: "Campus 2"
     });
 
-    const [publications, setPublications] = useState([]);
-    const [filteredPublications, setFilteredPublications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    
-    // États pour les modals
-    const [showCommentsModal, setShowCommentsModal] = useState(false);
-    const [showLightbox, setShowLightbox] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [currentPublication, setCurrentPublication] = useState(null);
-    const [newComment, setNewComment] = useState('');
-    
-    // États pour les commentaires
-    const [commentReactions, setCommentReactions] = useState({});
-    
-    // États pour les filtres
-    const [filterType, setFilterType] = useState('all');
-    const [sortBy, setSortBy] = useState('recent');
-    const [searchTerm, setSearchTerm] = useState('');
-    
-    // États pour les toasts
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-    const [toastType, setToastType] = useState('info');
+    const [publication, setPublication] = useState({
+        content: '',
+        audience: 'students',
+        staffTarget: '',
+        filiere: 'tous',
+        niveau: '3eme annee',
+        campus: 'Campus 2',
+        groupe: 'Cours du jour',
+        allowComments: true,
+        isUrgent: false
+    });
 
-    // Effets
+    const [charCount, setCharCount] = useState(0);
+    const [charWarning, setCharWarning] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [savingDraft, setSavingDraft] = useState(false);
+    const [notification, setNotification] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [showPreview, setShowPreview] = useState(false);
+
+    const MAX_CHARS = 1500;
+    const WARNING_CHARS = 1100;
+    const ERROR_CHARS = 1300;
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 Mo
+
     useEffect(() => {
         loadUserData();
-        loadPublications();
-
-        // Service Worker (Workbox)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker enregistré:', registration);
-                    })
-                    .catch(error => {
-                        console.log('❌ Service Worker error:', error);
-                    });
-            });
-        }
-
-        // Gestionnaire de touche Echap
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                if (showCommentsModal) setShowCommentsModal(false);
-                if (showLightbox) setShowLightbox(false);
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
+        loadDraft();
+        updateCharCount();
     }, []);
 
     useEffect(() => {
-        filterAndSortPublications();
-    }, [publications, filterType, sortBy, searchTerm]);
+        updateCharCount();
+    }, [publication.content]);
 
-    const loadUserData = async () => {
-        try {
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
+    const loadUserData = () => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
                 const user = JSON.parse(userStr);
                 setCurrentUser(prev => ({
                     ...prev,
                     ...user,
                     avatar: user.firstName?.[0] + user.lastName?.[0] || prev.avatar
                 }));
+            } catch (error) {
+                console.error('Erreur chargement utilisateur:', error);
             }
-        } catch (error) {
-            console.error('Erreur chargement utilisateur:', error);
         }
     };
 
-    const loadPublications = async () => {
-        setLoading(true);
+    const loadDraft = () => {
         try {
-            // Essayer de charger depuis l'API
-            const response = await api.get('/publications');
-            if (response.data.success) {
-                setPublications(response.data.publications);
-            }
-        } catch (error) {
-            console.error('Erreur chargement publications:', error);
-            
-            // Fallback: charger depuis localStorage ou données mock
-            const localPublications = JSON.parse(localStorage.getItem('publications')) || [];
-            if (localPublications.length > 0) {
-                setPublications(localPublications);
-            } else {
-                // Données mockées
-                setPublications(mockPublications);
-            }
-            
-            showNotification('📱 Mode hors-ligne : chargement des publications locales', 'warning');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const filterAndSortPublications = () => {
-        let filtered = [...publications];
-
-        // Filtre par type
-        if (filterType !== 'all') {
-            filtered = filtered.filter(p => {
-                if (filterType === 'urgent') return p.urgent;
-                if (filterType === 'teacher') return p.authorRole === 'Enseignant';
-                if (filterType === 'admin') return p.authorRole === 'Administration';
-                if (filterType === 'student') return p.authorRole === 'Étudiant';
-                return true;
-            });
-        }
-
-        // Recherche
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(p => 
-                p.content.toLowerCase().includes(term) ||
-                p.author.toLowerCase().includes(term) ||
-                p.authorRole.toLowerCase().includes(term)
-            );
-        }
-
-        // Tri
-        filtered.sort((a, b) => {
-            if (sortBy === 'recent') {
-                return new Date(b.date) - new Date(a.date);
-            }
-            if (sortBy === 'popular') {
-                return (b.likes + b.comments) - (a.likes + a.comments);
-            }
-            if (sortBy === 'likes') {
-                return b.likes - a.likes;
-            }
-            return 0;
-        });
-
-        setFilteredPublications(filtered);
-    };
-
-    const handleReaction = async (publicationId, reactionType) => {
-        try {
-            const updatedPublications = publications.map(pub => {
-                if (pub.id === publicationId) {
-                    const newPub = { ...pub };
-                    
-                    // Annuler la réaction si c'est la même
-                    if (pub.userReaction === reactionType) {
-                        newPub[reactionType === 'like' ? 'likes' : 'dislikes']--;
-                        newPub.userReaction = null;
-                        showNotification(`Réaction retirée`, 'info');
-                    } else {
-                        // Supprimer l'ancienne réaction
-                        if (pub.userReaction) {
-                            newPub[pub.userReaction === 'like' ? 'likes' : 'dislikes']--;
-                        }
-                        // Ajouter la nouvelle
-                        newPub[reactionType === 'like' ? 'likes' : 'dislikes']++;
-                        newPub.userReaction = reactionType;
-                        showNotification(`Vous avez ${reactionType === 'like' ? 'aimé' : 'disliké'} cette publication`, 'success');
-                    }
-                    
-                    return newPub;
+            const draft = JSON.parse(localStorage.getItem('teacherDraft'));
+            if (draft) {
+                if (window.confirm('Un brouillon de publication a été trouvé. Voulez-vous le charger ?')) {
+                    setPublication({
+                        content: draft.message || '',
+                        audience: draft.audience || 'students',
+                        staffTarget: draft.staffTarget || '',
+                        filiere: draft.filiere || 'tous',
+                        niveau: draft.niveau || 'tous',
+                        campus: draft.campus || 'tous',
+                        groupe: draft.groupe || 'tous',
+                        allowComments: draft.allowComments !== false,
+                        isUrgent: draft.urgent || false
+                    });
+                    showNotification('Brouillon chargé avec succès', 'success');
                 }
-                return pub;
-            });
-
-            setPublications(updatedPublications);
-            
-            // Sauvegarder dans localStorage
-            localStorage.setItem('publications', JSON.stringify(updatedPublications));
-
-            // Envoyer à l'API
-            await api.post(`/publications/${publicationId}/react`, {
-                reaction: reactionType
-            });
-
+            }
         } catch (error) {
-            console.error('Erreur réaction:', error);
-            showNotification('❌ Erreur lors de la réaction', 'error');
+            console.error('Erreur chargement brouillon:', error);
         }
     };
 
-    const handleCommentReaction = (publicationId, commentId, reactionType) => {
-        setPublications(prev => prev.map(pub => {
-            if (pub.id === publicationId) {
-                const updatedComments = pub.commentsData.map(comment => {
-                    if (comment.id === commentId) {
-                        const newComment = { ...comment };
-                        
-                        if (comment.userReaction === reactionType) {
-                            newComment[reactionType === 'like' ? 'likes' : 'dislikes']--;
-                            newComment.userReaction = null;
-                        } else {
-                            if (comment.userReaction) {
-                                newComment[comment.userReaction === 'like' ? 'likes' : 'dislikes']--;
-                            }
-                            newComment[reactionType === 'like' ? 'likes' : 'dislikes']++;
-                            newComment.userReaction = reactionType;
-                        }
-                        
-                        return newComment;
-                    }
-                    return comment;
-                });
-                
-                return { ...pub, commentsData: updatedComments };
-            }
-            return pub;
+    const updateCharCount = () => {
+        const length = publication.content.length;
+        setCharCount(length);
+        
+        if (length > ERROR_CHARS) {
+            setCharWarning('error');
+        } else if (length > WARNING_CHARS) {
+            setCharWarning('warning');
+        } else {
+            setCharWarning('');
+        }
+    };
+
+    const handleChange = (field, value) => {
+        setPublication(prev => ({
+            ...prev,
+            [field]: value
         }));
     };
 
-    const handleAddComment = async () => {
-        if (!newComment.trim() || !currentPublication) return;
-
-        try {
-            const comment = {
-                id: Date.now(),
-                author: currentUser.name,
-                avatar: currentUser.avatar,
-                role: currentUser.role,
-                text: newComment,
-                date: new Date().toISOString(),
-                likes: 0,
-                dislikes: 0,
-                userReaction: null
-            };
-
-            const updatedPublications = publications.map(pub => {
-                if (pub.id === currentPublication.id) {
-                    return {
-                        ...pub,
-                        commentsData: [comment, ...pub.commentsData],
-                        comments: (pub.comments || 0) + 1
-                    };
-                }
-                return pub;
-            });
-
-            setPublications(updatedPublications);
-            setNewComment('');
-            
-            // Sauvegarder dans localStorage
-            localStorage.setItem('publications', JSON.stringify(updatedPublications));
-
-            // Envoyer à l'API
-            await api.post(`/publications/${currentPublication.id}/comments`, {
-                comment: newComment
-            });
-
-            showNotification('✅ Commentaire ajouté !', 'success');
-
-            // Fermer le modal après 2 secondes
-            setTimeout(() => {
-                setShowCommentsModal(false);
-                setCurrentPublication(null);
-            }, 2000);
-
-        } catch (error) {
-            console.error('Erreur ajout commentaire:', error);
-            showNotification('❌ Erreur lors de l\'ajout du commentaire', 'error');
-        }
-    };
-
-    const openComments = (publication) => {
-        setCurrentPublication(publication);
-        setShowCommentsModal(true);
-    };
-
-    const openLightbox = (imageUrl) => {
-        setSelectedImage(imageUrl);
-        setShowLightbox(true);
-    };
-
-    const handleDownload = (fileName) => {
-        showNotification(`📥 Téléchargement de "${fileName}" démarré`, 'success');
-        console.log(`Fichier téléchargé: ${fileName} - Utilisateur: ${currentUser.name}`);
-    };
-
-    const showNotification = (message, type = 'info') => {
-        setToastMessage(message);
-        setToastType(type);
-        setShowToast(true);
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
         
-        setTimeout(() => {
-            setShowToast(false);
-        }, 3000);
-    };
+        // Vérifier la taille
+        const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+        if (oversizedFiles.length > 0) {
+            showNotification('❌ Certains fichiers dépassent 10 Mo', 'error');
+            return;
+        }
 
-    const getAvatarClass = (role) => {
-        switch(role) {
-            case 'Administration': return styles.avatarAdmin;
-            case 'Enseignant': return styles.avatarTeacher;
-            default: return styles.avatarStudent;
+        // Vérifier le nombre max (5 fichiers)
+        if (selectedFiles.length + files.length > 5) {
+            showNotification('❌ Maximum 5 fichiers autorisés', 'error');
+            return;
+        }
+
+        // Ajouter les fichiers
+        const newFiles = files.map(file => ({
+            file,
+            name: file.name,
+            size: file.size,
+            type: getFileType(file.name),
+            preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+        }));
+
+        setSelectedFiles(prev => [...prev, ...newFiles]);
+        showNotification(`✅ ${files.length} fichier(s) ajouté(s)`, 'success');
+        
+        // Réinitialiser l'input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
-    const getCommentAvatarClass = (role) => {
-        switch(role) {
-            case 'Administration': return styles.commentAvatarAdmin;
-            case 'Enseignant': return styles.commentAvatarTeacher;
-            default: return styles.commentAvatarStudent;
-        }
+    const removeFile = (index) => {
+        setSelectedFiles(prev => {
+            const newFiles = [...prev];
+            if (newFiles[index].preview) {
+                URL.revokeObjectURL(newFiles[index].preview);
+            }
+            newFiles.splice(index, 1);
+            return newFiles;
+        });
+        showNotification('🗑️ Fichier supprimé', 'info');
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
+    const getFileType = (filename) => {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) return 'image';
+        if (ext === 'pdf') return 'pdf';
+        return 'document';
+    };
 
-        if (diffMins < 1) return 'À l\'instant';
-        if (diffMins < 60) return `Il y a ${diffMins} min`;
-        if (diffHours < 24) return `Il y a ${diffHours} h`;
-        if (diffDays === 1) return 'Hier';
-        if (diffDays < 7) return `Il y a ${diffDays} jours`;
-        return date.toLocaleDateString('fr-FR');
+    const getFileIcon = (type) => {
+        switch(type) {
+            case 'pdf': return <FaFilePdf />;
+            case 'image': return <FaFileImage />;
+            default: return <FaFileAlt />;
+        }
     };
 
     const formatFileSize = (bytes) => {
-        if (!bytes) return '';
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const updateTargetingPreview = () => {
+        setShowPreview(true);
+    };
+
+    useEffect(() => {
+        updateTargetingPreview();
+    }, [publication.audience, publication.filiere, publication.niveau, 
+        publication.campus, publication.groupe, publication.staffTarget]);
+
+    const getTargetingBadges = () => {
+        const badges = [];
+        
+        if (publication.audience === 'students' || publication.audience === 'both') {
+            badges.push({ icon: <FaUserGraduate />, text: 'Étudiants', type: 'student' });
+            
+            if (publication.filiere !== 'tous') {
+                badges.push({ icon: '🎓', text: publication.filiere, type: 'student' });
+            }
+            if (publication.niveau !== 'tous') {
+                badges.push({ icon: '📚', text: publication.niveau, type: 'student' });
+            }
+            if (publication.campus !== 'tous') {
+                badges.push({ icon: <FaBuilding />, text: publication.campus, type: 'student' });
+            }
+            if (publication.groupe !== 'tous') {
+                badges.push({ icon: '⏰', text: publication.groupe, type: 'student' });
+            }
+        }
+        
+        if (publication.audience === 'staff' || publication.audience === 'both') {
+            badges.push({ icon: <FaChalkboardTeacher />, text: 'Personnel', type: 'staff' });
+            
+            if (publication.staffTarget) {
+                badges.push({ icon: <FaBuilding />, text: publication.staffTarget, type: 'staff' });
+            }
+        }
+        
+        if (publication.audience === 'both') {
+            badges.unshift({ icon: <FaGlobe />, text: 'Tout le monde', type: 'both' });
+        }
+        
+        return badges;
+    };
+
+    const validatePublication = () => {
+        if (!publication.content.trim()) {
+            showNotification('❌ Veuillez rédiger le contenu de votre publication', 'error');
+            return false;
+        }
+        return true;
+    };
+
+    const publishNow = () => {
+        if (!validatePublication()) return;
+        
+        setLoading(true);
+        
+        // Simulation de publication
+        setTimeout(() => {
+            const newPublication = {
+                id: Date.now(),
+                author: currentUser.name,
+                authorAvatar: currentUser.avatar,
+                authorRole: currentUser.role,
+                content: publication.content,
+                date: 'À l\'instant',
+                likes: 0,
+                dislikes: 0,
+                comments: 0,
+                urgent: publication.isUrgent,
+                attachments: selectedFiles.map(f => ({
+                    type: f.type,
+                    name: f.name,
+                    size: formatFileSize(f.size),
+                    url: '#'
+                })),
+                settings: {
+                    allowComments: publication.allowComments
+                },
+                target: {
+                    audience: publication.audience,
+                    filiere: publication.filiere,
+                    niveau: publication.niveau,
+                    campus: publication.campus,
+                    groupe: publication.groupe
+                }
+            };
+            
+            // Sauvegarder
+            const publications = JSON.parse(localStorage.getItem('publications')) || [];
+            publications.unshift(newPublication);
+            localStorage.setItem('publications', JSON.stringify(publications));
+            
+            // Supprimer le brouillon
+            localStorage.removeItem('teacherDraft');
+            
+            let message = '';
+            if (publication.audience === 'students') {
+                message = '✅ Publication créée pour les étudiants !';
+            } else if (publication.audience === 'staff') {
+                message = '✅ Publication interne créée pour le personnel !';
+            } else {
+                message = '✅ Publication créée pour tout le campus !';
+            }
+            
+            showNotification(message, 'success');
+            
+            setLoading(false);
+            
+            setTimeout(() => {
+                navigate('/publications');
+            }, 2000);
+        }, 1500);
+    };
+
+    const saveAsDraft = () => {
+        if (!publication.content.trim()) {
+            showNotification('Le brouillon est vide', 'error');
+            return;
+        }
+        
+        setSavingDraft(true);
+        
+        setTimeout(() => {
+            const draft = {
+                message: publication.content,
+                audience: publication.audience,
+                staffTarget: publication.staffTarget,
+                filiere: publication.filiere,
+                niveau: publication.niveau,
+                campus: publication.campus,
+                groupe: publication.groupe,
+                urgent: publication.isUrgent,
+                allowComments: publication.allowComments,
+                date: new Date().toISOString()
+            };
+            
+            localStorage.setItem('teacherDraft', JSON.stringify(draft));
+            showNotification('✅ Brouillon enregistré avec succès', 'success');
+            setSavingDraft(false);
+        }, 500);
+    };
+
+    const showNotification = (message, type = 'info') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
     };
 
     return (
         <div className={styles.pageContainer}>
-            {/* Toast Container pour les notifications */}
-            <ToastContainer position="top-end" className={styles.toastContainer}>
-                <Toast 
-                    show={showToast} 
-                    onClose={() => setShowToast(false)}
-                    bg={toastType}
-                    className={styles.toast}
+            {/* Notification */}
+            {notification && (
+                <Alert 
+                    variant={notification.type === 'success' ? 'success' : notification.type === 'error' ? 'danger' : 'info'}
+                    className={styles.notification}
+                    onClose={() => setNotification(null)}
+                    dismissible
                 >
-                    <Toast.Body>{toastMessage}</Toast.Body>
-                </Toast>
-            </ToastContainer>
+                    {notification.message}
+                </Alert>
+            )}
 
-            {/* Barre de navigation */}
-            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                        <FaUniversity className={styles.brandIcon} />
-                        <div className={styles.brandText}>
-                            <span className={styles.brandName}>INFOcAMPUS</span>
-                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
+            {/* En-tête */}
+            <header className={styles.header}>
+                <div className={styles.headerContent}>
+                    <div className={styles.logoSection}>
+                        <div className={styles.logoText}>
+                            <span className={styles.logoMain}>INFOcAMPUS</span>
+                            <span className={styles.logoSubtitle}>CONNECTING UNIVERSITIES</span>
                         </div>
-                    </Navbar.Brand>
+                        <Badge bg="warning" className={styles.teacherBadge}>
+                            <FaChalkboardTeacher /> ENSEIGNANT
+                        </Badge>
+                    </div>
 
-                    <Navbar.Toggle aria-controls="basic-navbar-nav">
-                        <MdMenu />
-                    </Navbar.Toggle>
-                    
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link as={Link} to="/profil" className={styles.navLink}>
-                                <FaUserCircle /> Profil
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/publications" className={`${styles.navLink} ${styles.active}`}>
-                                <FaBell /> Publications
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/parametres" className={styles.navLink}>
-                                <FaCog /> Paramètres
-                            </Nav.Link>
-                        </Nav>
-
-                        <Dropdown align="end">
-                            <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div className={styles.userAvatar}>
-                                    {currentUser.avatar}
-                                </div>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentUser.name}</div>
-                                    <div className={styles.userRole}>{currentUser.role}</div>
-                                </div>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu className={styles.userDropdown}>
-                                <Dropdown.Item as={Link} to="/profil">
-                                    <FaUserCircle /> Mon profil
-                                </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/parametres">
-                                    <FaCog /> Paramètres
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={() => navigate('/login')}>
-                                    <FaSignOutAlt /> Déconnexion
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+                    <div className={styles.userSection}>
+                        <div className={styles.userAvatar}>
+                            {currentUser.avatar}
+                        </div>
+                        <div className={styles.userInfo}>
+                            <div className={styles.userName}>{currentUser.name}</div>
+                            <div className={styles.userRole}>{currentUser.role} - {currentUser.department}</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             {/* Contenu principal */}
             <Container className={styles.mainContent}>
                 <Row className="justify-content-center">
                     <Col lg={8}>
-                        {/* Message informatif pour étudiants */}
-                        {currentUser.role === 'Étudiante' && (
-                            <Alert variant="info" className={styles.infoMessage}>
-                                <FaInfoCircle className="me-2" />
-                                <Alert.Heading as="h2" className={styles.infoTitle}>
-                                    📢 Publications du Campus
-                                </Alert.Heading>
-                                <p>
-                                    Les publications sont réservées aux enseignants et à l'administration. 
-                                    En tant qu'étudiant, vous pouvez consulter, réagir et commenter les publications.
-                                </p>
-                            </Alert>
-                        )}
-
-                        {/* Barre de recherche et filtres */}
-                        <Card className={styles.filterCard}>
-                            <Card.Body>
-                                <Row>
-                                    <Col md={6}>
-                                        <InputGroup className={styles.searchInput}>
-                                            <InputGroup.Text>
-                                                <FaSearch />
-                                            </InputGroup.Text>
-                                            <Form.Control
-                                                placeholder="Rechercher une publication..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </InputGroup>
-                                    </Col>
-                                    <Col md={3}>
-                                        <Form.Select 
-                                            value={filterType}
-                                            onChange={(e) => setFilterType(e.target.value)}
-                                            className={styles.filterSelect}
-                                        >
-                                            <option value="all">Toutes</option>
-                                            <option value="urgent">Urgentes</option>
-                                            <option value="teacher">Enseignants</option>
-                                            <option value="admin">Administration</option>
-                                            <option value="student">Étudiants</option>
-                                        </Form.Select>
-                                    </Col>
-                                    <Col md={3}>
-                                        <Form.Select 
-                                            value={sortBy}
-                                            onChange={(e) => setSortBy(e.target.value)}
-                                            className={styles.filterSelect}
-                                        >
-                                            <option value="recent">Plus récentes</option>
-                                            <option value="popular">Plus populaires</option>
-                                            <option value="likes">Plus aimées</option>
-                                        </Form.Select>
-                                    </Col>
-                                </Row>
-                            </Card.Body>
-                        </Card>
-
-                        {/* Liste des publications */}
-                        {loading ? (
-                            <div className={styles.loadingContainer}>
-                                <Spinner animation="border" variant="primary" />
-                                <p>Chargement des publications...</p>
-                            </div>
-                        ) : filteredPublications.length === 0 ? (
-                            <Card className={styles.emptyState}>
-                                <Card.Body className="text-center">
-                                    <FaBell className={styles.emptyIcon} />
-                                    <h3>Aucune publication</h3>
-                                    <p>Aucune publication ne correspond à vos critères</p>
-                                </Card.Body>
-                            </Card>
-                        ) : (
-                            <div className={styles.publicationsList}>
-                                {filteredPublications.map((post) => (
-                                    <Card key={post.id} className={styles.publicationCard}>
-                                        <Card.Body>
-                                            {/* En-tête de la publication */}
-                                            <div className={styles.publisherInfo}>
-                                                <div className={`${styles.publisherAvatar} ${getAvatarClass(post.authorRole)}`}>
-                                                    {post.authorAvatar}
-                                                </div>
-                                                <div className={styles.publisherDetails}>
-                                                    <div className={styles.publisherName}>
-                                                        {post.author}
-                                                        {post.urgent && (
-                                                            <Badge bg="danger" className={styles.urgentBadge}>
-                                                                <FaExclamationTriangle /> URGENT
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    <div className={styles.publisherMeta}>
-                                                        <span className={styles.publisherRole}>{post.authorRole}</span>
-                                                        <span className={styles.publisherDate}>
-                                                            <FaClock /> {formatDate(post.date)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Contenu */}
-                                            <div className={styles.publicationContent}>
-                                                {post.content.split('\n').map((line, i) => (
-                                                    <p key={i}>{line}</p>
-                                                ))}
-                                            </div>
-
-                                            {/* Pièces jointes - Utilisation de BoutonTelecharger */}
-                                            {post.attachments?.length > 0 && (
-                                                <div className={styles.attachmentsSection}>
-                                                    <div className={styles.attachmentsTitle}>
-                                                        <FaPaperclip /> Pièces jointes ({post.attachments.length})
-                                                    </div>
-                                                    <div className={styles.attachmentsGrid}>
-                                                        {post.attachments.map((attachment, index) => (
-                                                            <BoutonTelecharger
-                                                                key={index}
-                                                                fileName={attachment.name}
-                                                                fileSize={formatFileSize(attachment.size)}
-                                                                fileType={attachment.type}
-                                                                fileUrl={attachment.url}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Images */}
-                                            {post.images?.length > 0 && (
-                                                <div className={styles.imagesSection}>
-                                                    {post.images.map((image, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className={styles.imagePreview}
-                                                            onClick={() => openLightbox(image.url)}
-                                                        >
-                                                            <Image src={image.url} alt={image.caption} fluid />
-                                                            {image.caption && (
-                                                                <div className={styles.imageCaption}>
-                                                                    {image.caption}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {/* Statistiques */}
-                                            <div className={styles.publicationStats}>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.likes} personnes aiment</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaThumbsUp /> {post.likes}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.dislikes} personnes n'aiment pas</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaThumbsDown /> {post.dislikes}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.comments} commentaires</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaComments /> {post.comments}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                {post.attachments?.length > 0 && (
-                                                    <OverlayTrigger
-                                                        placement="top"
-                                                        overlay={<Tooltip>{post.attachments.length} pièces jointes</Tooltip>}
-                                                    >
-                                                        <span className={styles.statItem}>
-                                                            <FaPaperclip /> {post.attachments.length}
-                                                        </span>
-                                                    </OverlayTrigger>
-                                                )}
-                                            </div>
-
-                                            {/* Actions - Utilisation de BoutonAction */}
-                                            <div className={styles.publicationActions}>
-                                                <BoutonAction
-                                                    type="like"
-                                                    count={post.likes}
-                                                    isActive={post.userReaction === 'like'}
-                                                    onClick={() => handleReaction(post.id, 'like')}
-                                                />
-                                                <BoutonAction
-                                                    type="dislike"
-                                                    count={post.dislikes}
-                                                    isActive={post.userReaction === 'dislike'}
-                                                    onClick={() => handleReaction(post.id, 'dislike')}
-                                                />
-                                                <BoutonAction
-                                                    type="comment"
-                                                    count={post.comments}
-                                                    onClick={() => openComments(post)}
-                                                />
-                                            </div>
-                                        </Card.Body>
-                                    </Card>
-                                ))}
-                            </div>
-                        )}
-                    </Col>
-                </Row>
-            </Container>
-
-            {/* Modal des commentaires */}
-            <Modal
-                show={showCommentsModal}
-                onHide={() => {
-                    setShowCommentsModal(false);
-                    setCurrentPublication(null);
-                    setNewComment('');
-                }}
-                centered
-                size="lg"
-                className={styles.commentsModal}
-            >
-                <Modal.Header className={styles.modalHeader}>
-                    <Modal.Title>
-                        <FaComments /> Commentaires
-                        {currentPublication && (
-                            <Badge bg="secondary" className="ms-2">
-                                {currentPublication.comments}
-                            </Badge>
-                        )}
-                    </Modal.Title>
-                    <BoutonFermer onClose={() => {
-                        setShowCommentsModal(false);
-                        setCurrentPublication(null);
-                        setNewComment('');
-                    }} />
-                </Modal.Header>
-                <Modal.Body className={styles.modalBody}>
-                    {/* Formulaire de commentaire */}
-                    <div className={styles.commentForm}>
-                        <div className={styles.commentAvatar}>
-                            {currentUser.avatar}
-                        </div>
-                        <div className={styles.commentInputContainer}>
-                            <Form.Control
-                                as="textarea"
-                                rows={2}
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Écrivez votre commentaire..."
-                                className={styles.commentInput}
-                                onKeyPress={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleAddComment();
-                                    }
-                                }}
-                            />
-                            <Button
-                                variant="success"
-                                onClick={handleAddComment}
-                                disabled={!newComment.trim()}
-                                className={styles.commentSubmit}
+                        {/* En-tête de page */}
+                        <div className={styles.pageHeader}>
+                            <Button 
+                                variant="link" 
+                                className={styles.backButton}
+                                onClick={() => navigate('/publications')}
                             >
-                                Commenter
+                                <FaArrowLeft /> Retour
                             </Button>
+                            <h1 className={styles.pageTitle}>
+                                <FaPen /> Nouvelle publication
+                            </h1>
+                            <p className={styles.pageSubtitle}>
+                                Créez une publication pour vos collègues enseignants ou pour les étudiants
+                            </p>
                         </div>
-                    </div>
 
-                    {/* Liste des commentaires */}
-                    <div className={styles.commentsList}>
-                        {currentPublication?.commentsData?.length === 0 ? (
-                            <div className={styles.emptyComments}>
-                                <FaRegComments className={styles.emptyIcon} />
-                                <p>Aucun commentaire</p>
-                                <small>Soyez le premier à commenter</small>
-                            </div>
-                        ) : (
-                            currentPublication?.commentsData?.map((comment) => (
-                                <div key={comment.id} className={styles.commentItem}>
-                                    <div className={`${styles.commentAvatar} ${getCommentAvatarClass(comment.role)}`}>
-                                        {comment.avatar}
+                        {/* Message d'information */}
+                        <Alert variant="warning" className={styles.infoMessage}>
+                            <Alert.Heading>
+                                <FaExclamationTriangle /> Publication réservée au personnel
+                            </Alert.Heading>
+                            <p>
+                                En tant qu'enseignant ou membre de l'administration, 
+                                vous pouvez publier pour vos collègues ou pour les étudiants.
+                            </p>
+                        </Alert>
+
+                        {/* Carte de publication */}
+                        <Card className={styles.publicationCard}>
+                            <Card.Body>
+                                {/* En-tête du publieur */}
+                                <div className={styles.publisherInfo}>
+                                    <div className={styles.publisherAvatar}>
+                                        {currentUser.avatar}
                                     </div>
-                                    <div className={styles.commentContent}>
-                                        <div className={styles.commentHeader}>
-                                            <div className={styles.commentAuthor}>
-                                                {comment.author}
-                                                <Badge bg="secondary" className={styles.commentRole}>
-                                                    {comment.role}
-                                                </Badge>
-                                            </div>
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={<Tooltip>{new Date(comment.date).toLocaleString('fr-FR')}</Tooltip>}
-                                            >
-                                                <span className={styles.commentDate}>
-                                                    <FaClock /> {formatDate(comment.date)}
-                                                </span>
-                                            </OverlayTrigger>
+                                    <div className={styles.publisherDetails}>
+                                        <div className={styles.publisherName}>
+                                            {currentUser.name}
+                                            <Badge bg="warning" className={styles.publisherBadge}>
+                                                <FaChalkboardTeacher /> {currentUser.role}
+                                            </Badge>
                                         </div>
-                                        <div className={styles.commentText}>
-                                            {comment.text}
-                                        </div>
-                                        <div className={styles.commentActions}>
-                                            <BoutonCommentaire
-                                                type="like"
-                                                count={comment.likes}
-                                                isActive={comment.userReaction === 'like'}
-                                                onClick={() => handleCommentReaction(currentPublication.id, comment.id, 'like')}
-                                            />
-                                            <BoutonCommentaire
-                                                type="dislike"
-                                                count={comment.dislikes}
-                                                isActive={comment.userReaction === 'dislike'}
-                                                onClick={() => handleCommentReaction(currentPublication.id, comment.id, 'dislike')}
-                                            />
+                                        <div className={styles.publisherRole}>
+                                            {currentUser.department} • {currentUser.campus}
                                         </div>
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                </Modal.Body>
-            </Modal>
 
-            {/* Lightbox pour les images */}
-            <Modal
-                show={showLightbox}
-                onHide={() => setShowLightbox(false)}
-                centered
-                size="xl"
-                className={styles.lightboxModal}
-                contentClassName={styles.lightboxContent}
-            >
-                <Modal.Body className={styles.lightboxBody}>
-                    <BoutonFermer 
-                        onClose={() => setShowLightbox(false)} 
-                        variant="lightbox"
-                    />
-                    {selectedImage && (
-                        <Image
-                            src={selectedImage}
-                            alt=""
-                            className={styles.lightboxImage}
-                            fluid
-                        />
-                    )}
-                </Modal.Body>
-            </Modal>
+                                {/* Formulaire */}
+                                <Form>
+                                    {/* Contenu */}
+                                    <Form.Group className={styles.formGroup}>
+                                        <Form.Label className={styles.formLabel}>
+                                            <FaPen /> Contenu de la publication
+                                        </Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={6}
+                                            value={publication.content}
+                                            onChange={(e) => handleChange('content', e.target.value)}
+                                            placeholder="Rédigez votre message ici..."
+                                            maxLength={MAX_CHARS}
+                                            className={styles.messageInput}
+                                        />
+                                        <div className={styles.charCounter}>
+                                            <span className={
+                                                charWarning === 'error' ? styles.counterError :
+                                                charWarning === 'warning' ? styles.counterWarning :
+                                                styles.counterNormal
+                                            }>
+                                                {charCount}/{MAX_CHARS} caractères
+                                            </span>
+                                            {charCount > WARNING_CHARS && (
+                                                <FaExclamationCircle className={styles.warningIcon} />
+                                            )}
+                                        </div>
+                                    </Form.Group>
+
+                                    {/* Section ciblage */}
+                                    <div className={styles.targetingSection}>
+                                        <div className={styles.sectionTitle}>
+                                            <FaGlobe /> Ciblage du public
+                                        </div>
+                                        
+                                        <p className={styles.sectionDescription}>
+                                            Sélectionnez à qui est destinée votre publication.
+                                        </p>
+
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.audienceLabel}>
+                                                Cette publication est destinée à :
+                                            </Form.Label>
+                                            <Form.Select
+                                                value={publication.audience}
+                                                onChange={(e) => handleChange('audience', e.target.value)}
+                                                className={styles.audienceSelect}
+                                            >
+                                                <option value="students">👨‍🎓 Étudiants uniquement</option>
+                                                <option value="staff">👨‍🏫 Personnel uniquement</option>
+                                                <option value="both">👥 Tout le monde</option>
+                                            </Form.Select>
+                                        </Form.Group>
+
+                                        {/* Champs personnel */}
+                                        {(publication.audience === 'staff' || publication.audience === 'both') && (
+                                            <Form.Group className={styles.formGroup}>
+                                                <Form.Label className={styles.fieldLabel}>
+                                                    Spécifiez pour quel personnel (facultatif) :
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={publication.staffTarget}
+                                                    onChange={(e) => handleChange('staffTarget', e.target.value)}
+                                                    placeholder="Ex: Enseignants du département Informatique"
+                                                    className={styles.textInput}
+                                                />
+                                                <Form.Text className={styles.helpText}>
+                                                    Laissez vide si c'est pour tout le personnel
+                                                </Form.Text>
+                                            </Form.Group>
+                                        )}
+
+                                        {/* Champs étudiants */}
+                                        {(publication.audience === 'students' || publication.audience === 'both') && (
+                                            <div className={styles.studentTargeting}>
+                                                <Form.Label className={styles.fieldLabel}>
+                                                    Ciblage des étudiants :
+                                                </Form.Label>
+                                                <Row>
+                                                    <Col md={6}>
+                                                        <Form.Group className={styles.formGroup}>
+                                                            <Form.Label className={styles.targetLabel}>
+                                                                Filière
+                                                            </Form.Label>
+                                                            <Form.Select
+                                                                value={publication.filiere}
+                                                                onChange={(e) => handleChange('filiere', e.target.value)}
+                                                                className={styles.targetSelect}
+                                                            >
+                                                                <option value="tous">Toutes les filières</option>
+                                                                <option value="genie-logiciel">Génie Logiciel</option>
+                                                                <option value="telecoms">TELECOMS</option>
+                                                                <option value="reseaux">Réseaux et sécurité</option>
+                                                                <option value="iia">IIA</option>
+                                                            </Form.Select>
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col md={6}>
+                                                        <Form.Group className={styles.formGroup}>
+                                                            <Form.Label className={styles.targetLabel}>
+                                                                Niveau
+                                                            </Form.Label>
+                                                            <Form.Select
+                                                                value={publication.niveau}
+                                                                onChange={(e) => handleChange('niveau', e.target.value)}
+                                                                className={styles.targetSelect}
+                                                            >
+                                                                <option value="tous">Tous les niveaux</option>
+                                                                <option value="1ere annee">1ère année</option>
+                                                                <option value="2eme annee">2ème année</option>
+                                                                <option value="3eme annee">3ème année</option>
+                                                                <option value="Master 1">Master 1</option>
+                                                            </Form.Select>
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col md={6}>
+                                                        <Form.Group className={styles.formGroup}>
+                                                            <Form.Label className={styles.targetLabel}>
+                                                                Campus
+                                                            </Form.Label>
+                                                            <Form.Select
+                                                                value={publication.campus}
+                                                                onChange={(e) => handleChange('campus', e.target.value)}
+                                                                className={styles.targetSelect}
+                                                            >
+                                                                <option value="tous">Tous les campus</option>
+                                                                <option value="Campus 1">Campus A</option>
+                                                                <option value="Campus 2">Campus B</option>
+                                                                <option value="Campus 3">Campus C</option>
+                                                            </Form.Select>
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col md={6}>
+                                                        <Form.Group className={styles.formGroup}>
+                                                            <Form.Label className={styles.targetLabel}>
+                                                                Groupe
+                                                            </Form.Label>
+                                                            <Form.Select
+                                                                value={publication.groupe}
+                                                                onChange={(e) => handleChange('groupe', e.target.value)}
+                                                                className={styles.targetSelect}
+                                                            >
+                                                                <option value="tous">Tous les groupes</option>
+                                                                <option value="Cours du jour">Cours du jour</option>
+                                                                <option value="Cours du soir">Cours du soir</option>
+                                                            </Form.Select>
+                                                        </Form.Group>
+                                                    </Col>
+                                                </Row>
+                                            </div>
+                                        )}
+
+                                        {/* Aperçu ciblage */}
+                                        {showPreview && (
+                                            <div className={styles.targetingPreview}>
+                                                <div className={styles.previewTitle}>
+                                                    Public ciblé :
+                                                </div>
+                                                <div className={styles.previewBadges}>
+                                                    {getTargetingBadges().map((badge, index) => (
+                                                        <Badge 
+                                                            key={index}
+                                                            className={`${styles.targetBadge} ${styles[badge.type]}`}
+                                                        >
+                                                            {badge.icon} {badge.text}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Pièces jointes */}
+                                    <div className={styles.attachmentsSection}>
+                                        <div className={styles.attachmentsTitle}>
+                                            <FaPaperclip /> Pièces jointes (facultatif)
+                                        </div>
+                                        
+                                        <div className={styles.fileInputContainer}>
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                onChange={handleFileChange}
+                                                multiple
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.ppt,.pptx"
+                                                className={styles.fileInput}
+                                                id="fileInput"
+                                            />
+                                            <label htmlFor="fileInput" className={styles.fileInputLabel}>
+                                                <FaPaperclip />
+                                                <span>Cliquez pour ajouter des fichiers</span>
+                                                <small>Taille max : 10 Mo par fichier</small>
+                                            </label>
+                                        </div>
+
+                                        {selectedFiles.length > 0 && (
+                                            <div className={styles.fileList}>
+                                                {selectedFiles.map((file, index) => (
+                                                    <div key={index} className={styles.fileItem}>
+                                                        <div className={`${styles.fileIcon} ${styles[file.type]}`}>
+                                                            {getFileIcon(file.type)}
+                                                        </div>
+                                                        <div className={styles.fileInfo}>
+                                                            <div className={styles.fileName}>{file.name}</div>
+                                                            <div className={styles.fileSize}>
+                                                                {formatFileSize(file.size)} • {file.type.toUpperCase()}
+                                                            </div>
+                                                        </div>
+                                                        <Button
+                                                            variant="link"
+                                                            className={styles.removeFile}
+                                                            onClick={() => removeFile(index)}
+                                                        >
+                                                            <FaTrash />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Options */}
+                                    <div className={styles.publishOptions}>
+                                        <div className={styles.optionsTitle}>
+                                            ⚙️ Options de publication
+                                        </div>
+                                        
+                                        <Form.Check
+                                            type="checkbox"
+                                            id="allowComments"
+                                            checked={publication.allowComments}
+                                            onChange={(e) => handleChange('allowComments', e.target.checked)}
+                                            label="Autoriser les commentaires"
+                                            className={styles.optionCheckbox}
+                                        />
+                                        
+                                        <Form.Check
+                                            type="checkbox"
+                                            id="markUrgent"
+                                            checked={publication.isUrgent}
+                                            onChange={(e) => handleChange('isUrgent', e.target.checked)}
+                                            label={
+                                                <span>
+                                                    Marquer comme urgent
+                                                    {publication.isUrgent && (
+                                                        <Badge bg="danger" className={styles.urgentBadge}>
+                                                            URGENT
+                                                        </Badge>
+                                                    )}
+                                                </span>
+                                            }
+                                            className={styles.optionCheckbox}
+                                        />
+                                    </div>
+
+                                    {/* Boutons */}
+                                    <div className={styles.actionButtons}>
+                                        <Button
+                                            variant="secondary"
+                                            className={styles.draftButton}
+                                            onClick={saveAsDraft}
+                                            disabled={savingDraft || loading}
+                                        >
+                                            {savingDraft ? (
+                                                <><span className="spinner-border spinner-border-sm me-2" />Sauvegarde...</>
+                                            ) : (
+                                                <><FaSave className="me-2" />Brouillon</>
+                                            )}
+                                        </Button>
+                                        
+                                        <Button
+                                            variant="success"
+                                            className={styles.publishButton}
+                                            onClick={publishNow}
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <><span className="spinner-border spinner-border-sm me-2" />Publication...</>
+                                            ) : (
+                                                <><FaBell className="me-2" />Publier <FaArrowRight className="ms-2" /></>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
         </div>
     );
 };
 
-// Données mockées (inchangées)
-const mockPublications = [
-    {
-        id: 1,
-        author: "Dr. Ngo Bassong",
-        authorAvatar: "NB",
-        authorRole: "Enseignant",
-        content: "📚 Supports de cours pour la semaine 15\n\nJe partage avec vous les supports de cours pour la semaine prochaine. Veuillez télécharger les documents suivants avant le prochain cours.\n\n• Algorithmique Avancée - Chapitre 4\n• Exercices d'application\n• Corrigés des TP précédents",
-        date: new Date(Date.now() - 30 * 60000).toISOString(),
-        likes: 12,
-        dislikes: 0,
-        comments: 3,
-        userReaction: null,
-        urgent: true,
-        attachments: [
-            {
-                type: "pdf",
-                name: "Algorithmique_Avancee_Chap4.pdf",
-                size: 4.2 * 1024 * 1024,
-                url: "#"
-            },
-            {
-                type: "pdf", 
-                name: "Exercices_Application_Semaine15.pdf",
-                size: 2.8 * 1024 * 1024,
-                url: "#"
-            }
-        ],
-        images: [],
-        commentsData: [
-            {
-                id: 1,
-                author: "Marie Tanga",
-                avatar: "MT",
-                role: "Étudiante",
-                text: "Merci pour les documents ! Est-ce qu'il y aura un QCM cette semaine ?",
-                date: new Date(Date.now() - 25 * 60000).toISOString(),
-                likes: 2,
-                dislikes: 0,
-                userReaction: null
-            },
-            {
-                id: 2,
-                author: "Luc Ndongo",
-                avatar: "LN",
-                role: "Étudiant", 
-                text: "Les exercices semblent intéressants, j'ai hâte de les tester !",
-                date: new Date(Date.now() - 20 * 60000).toISOString(),
-                likes: 1,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    },
-    {
-        id: 2,
-        author: "Prof. Sarah Johnson",
-        authorAvatar: "SJ",
-        authorRole: "Enseignant",
-        content: "🏆 Photo du gagnant du concours d'algorithmique\n\nFélicitations à Thomas Mbala qui a remporté le concours d'algorithmique organisé cette semaine !",
-        date: new Date(Date.now() - 2 * 3600000).toISOString(),
-        likes: 28,
-        dislikes: 0,
-        comments: 7,
-        userReaction: "like",
-        urgent: false,
-        attachments: [],
-        images: [
-            {
-                url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop",
-                caption: "Thomas Mbala recevant son prix pour le concours d'algorithmique"
-            }
-        ],
-        commentsData: [
-            {
-                id: 1,
-                author: "Thomas Mbala",
-                avatar: "TM",
-                role: "Étudiant",
-                text: "Merci beaucoup professeur ! C'était un vrai défi, j'ai beaucoup appris.",
-                date: new Date(Date.now() - 1 * 3600000).toISOString(),
-                likes: 5,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    },
-    {
-        id: 3,
-        author: "Administration",
-        authorAvatar: "AD",
-        authorRole: "Administration",
-        content: "📋 Informations importantes pour les examens de fin de semestre\n\n• Dates des examens : 15-20 décembre\n• Salles attribuées : consulter le PDF\n• Matériel autorisé : calculatrice scientifique uniquement\n• Pièce d'identité obligatoire",
-        date: new Date(Date.now() - 24 * 3600000).toISOString(),
-        likes: 42,
-        dislikes: 5,
-        comments: 12,
-        userReaction: null,
-        urgent: false,
-        attachments: [
-            {
-                type: "pdf",
-                name: "Planning_Examens_Decembre.pdf",
-                size: 1.8 * 1024 * 1024,
-                url: "#"
-            }
-        ],
-        images: [],
-        commentsData: [
-            {
-                id: 1,
-                author: "Jean Dupont",
-                avatar: "JD",
-                role: "Étudiant",
-                text: "Est-ce que les salles seront chauffées ? Il fait très froid en ce moment.",
-                date: new Date(Date.now() - 23 * 3600000).toISOString(),
-                likes: 8,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    }
-];
-
-export default Publication;
+export default FairePublication;
