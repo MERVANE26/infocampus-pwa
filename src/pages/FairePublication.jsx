@@ -52,51 +52,14 @@ import {
     BoutonFermer, 
     BoutonCommentaire 
 } from '../composants/Index';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Configuration Axios
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        console.log('🚀 Requête envoyée:', config.url);
-        return config;
-    },
-    error => {
-        console.error('❌ Erreur requête:', error);
-        return Promise.reject(error);
-    }
-);
-
-api.interceptors.response.use(
-    response => {
-        console.log('✅ Réponse reçue:', response.status);
-        return response;
-    },
-    error => {
-        console.error('❌ Erreur réponse:', error);
-        return Promise.reject(error);
-    }
-);
+import { api } from '../lib/api';
+ 
 
 const Publication = () => {
     const navigate = useNavigate();
     
     // États
-    const [currentUser, setCurrentUser] = useState({
+    const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || {
         id: "ETU000",
         name: "LaurenDa M.",
         avatar: "LM",
@@ -171,6 +134,7 @@ const Publication = () => {
                 setCurrentUser(prev => ({
                     ...prev,
                     ...user,
+                    name: user.firstName + ' ' + user.lastName?.slice(0,1).toUpperCase(),
                     avatar: user.firstName?.[0] + user.lastName?.[0] || prev.avatar
                 }));
             }
@@ -183,9 +147,9 @@ const Publication = () => {
         setLoading(true);
         try {
             // Essayer de charger depuis l'API
-            const response = await api.get('/publications');
+            const response = await api.get('/posts/all');
             if (response.data.success) {
-                setPublications(response.data.publications);
+                setPublications(response.data?.data);
             }
         } catch (error) {
             console.error('Erreur chargement publications:', error);
@@ -509,7 +473,7 @@ const Publication = () => {
                 <Row className="justify-content-center">
                     <Col lg={8}>
                         {/* Message informatif pour étudiants */}
-                        {currentUser.role === 'Étudiante' && (
+                        {currentUser.roles[0] === 'student' && (
                             <Alert variant="info" className={styles.infoMessage}>
                                 <FaInfoCircle className="me-2" />
                                 <Alert.Heading as="h2" className={styles.infoTitle}>

@@ -2,29 +2,30 @@ import React from 'react';
 import { FaChalkboardTeacher, FaBook, FaBriefcase, FaUserTie } from 'react-icons/fa';
 import { Form } from 'react-bootstrap';
 import styles from './TeacherFields.module.css';
+import TeacherUniversityMultiSelect from './TeacherUniversityMultiSelect';
 
-const TeacherFields = ({ formData, onChange, onToggleAdmin }) => {
+const TeacherFields = ({ formData, onChange, onToggleAdmin ,universities}) => {
+
+    
     return (
         <div className={styles.teacherFields}>
             <h2 className={styles.sectionTitle}>
                 <FaChalkboardTeacher /> Enseignant
             </h2>
 
-            <Form.Group className={styles.formGroup}>
-                <Form.Label>
-                    Université(s) <span className={styles.required}>*</span>
-                </Form.Label>
-                <Form.Control
-                    type="text"
-                    id="teacher.universities"
-                    value={formData.universities}
-                    onChange={onChange}
-                    placeholder="IUG, UY1..."
-                    required
-                    className={styles.input}
-                />
-                <Form.Text className={styles.note}>Séparez par des virgules</Form.Text>
-            </Form.Group>
+            <TeacherUniversityMultiSelect
+                universities={universities}
+                selected={formData.universities}
+                onChange={(values) =>
+                    onChange({
+                        target: {
+                            id: "teacher.universities",
+                            value: values
+                        }
+                    })
+                }
+            />
+
 
             <Form.Group className={styles.formGroup}>
                 <Form.Label>
@@ -74,7 +75,7 @@ const TeacherFields = ({ formData, onChange, onToggleAdmin }) => {
                     <h3 className={styles.subSectionTitle}>
                         <FaUserTie /> Rôle administratif
                     </h3>
-                    
+
                     <Form.Group className={styles.formGroup}>
                         <Form.Label>Service</Form.Label>
                         <Form.Control

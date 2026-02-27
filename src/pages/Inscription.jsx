@@ -20,6 +20,8 @@ import AdminFields from '../composants/InscriptionForm/AdminFields';
 import TermsSection from '../composants/InscriptionForm/TermsSection';
 import styles from './Inscription.module.css';
 import { api } from '../lib/api';
+import TeacherUniversityMultiSelect from "../composants/InscriptionForm/TeacherUniversityMultiSelect";
+
 
 const Inscription = () => {
   const navigate = useNavigate();
@@ -27,6 +29,32 @@ const Inscription = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [alertMessage, setAlertMessage] = useState({ show: false, text: '' });
+  const [universities, setUniversities] = useState([]);
+
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await api.get('/universities/list');
+        setUniversities(response.data.universities);
+      } catch (err) {
+        console.error('Erreur lors du chargement des universités :', err);
+      }
+    };
+
+    fetchUniversities();
+  }, []);
+
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      if (token || user) {
+        navigate('/profile');
+      }
+    }
+    checkToken();
+  }, []);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -58,7 +86,7 @@ const Inscription = () => {
     },
 
     admin: {
-      university: '',
+      universities: [], // 🔥 changed to array
       service: '',
       function: '',
       hasTeacherRole: false,
@@ -149,10 +177,11 @@ const Inscription = () => {
       return false;
     }
 
-    if (role === 'teacher' && !formData.teacher.universities) {
+    if (role === 'teacher' && formData.teacher.universities.length === 0) {
       setError('Au moins une université requise.');
       return false;
     }
+
 
     return true;
   };
@@ -190,8 +219,8 @@ const Inscription = () => {
 
       // ===== TEACHER =====
       if (role === "teacher") {
-        submissionData.teacherUniversityIds =
-          formData.teacher.universities.split(',').map(u => u.trim());
+        submissionData.teacherUniversityIds = formData.teacher.universities;
+
 
         submissionData.teacherInfo = {
           matricule: formData.teacher.matricule,
@@ -238,7 +267,7 @@ const Inscription = () => {
 
       console.log("📦 Données envoyées :", submissionData);
 
-      await api.post('/auth/register', {submissionData});
+      await api.post('/auth/register', { submissionData });
 
       sessionStorage.setItem(
         'pendingUser',
@@ -337,6 +366,7 @@ const Inscription = () => {
 
                   {role === 'student' && (
                     <StudentFields
+                      universities={universities}
                       formData={formData.student}
                       onChange={handleInputChange}
                     />
@@ -344,6 +374,7 @@ const Inscription = () => {
 
                   {role === 'teacher' && (
                     <TeacherFields
+                      universities={universities}
                       formData={formData.teacher}
                       onChange={handleInputChange}
                       onToggleAdmin={toggleTeacherAdmin}

@@ -3,7 +3,7 @@ import { FaUniversity, FaCity, FaBook, FaGraduationCap, FaUsers } from 'react-ic
 import { Row, Col, Form } from 'react-bootstrap';
 import styles from './StudentFields.module.css';
 
-const StudentFields = ({ formData, onChange }) => {
+const StudentFields = ({ formData, onChange, universities }) => {
     return (
         <div className={styles.studentFields}>
             <h2 className={styles.sectionTitle}>
@@ -21,10 +21,11 @@ const StudentFields = ({ formData, onChange }) => {
                     required
                     className={styles.select}
                 >
+                    
                     <option value="">Choisissez</option>
-                    <option value="iug">Institut Universitaire du Golfe (IUG)</option>
-                    <option value="uy1">Université de Yaoundé I</option>
-                    <option value="ud">Université de Douala</option>
+                    {universities.map(u => (
+                        <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
                 </Form.Select>
             </Form.Group>
 

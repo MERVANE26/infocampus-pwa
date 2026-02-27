@@ -30,7 +30,7 @@ const Connexion = () => {
         const user = localStorage.getItem('user');
         
         if (token && user) {
-            navigate('/profil');
+            navigate('/profile');
         }
 
         // Service Worker (Workbox)

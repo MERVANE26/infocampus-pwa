@@ -55,51 +55,14 @@ import {
     BoutonTelecharger,  
     BoutonCommentaire
 } from '../composants/Index';  
+import { api } from '../lib/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-
-// Configuration Axios
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        console.log('🚀 Requête envoyée:', config.url);
-        return config;
-    },
-    error => {
-        console.error('❌ Erreur requête:', error);
-        return Promise.reject(error);
-    }
-);
-
-api.interceptors.response.use(
-    response => {
-        console.log('✅ Réponse reçue:', response.status);
-        return response;
-    },
-    error => {
-        console.error('❌ Erreur réponse:', error);
-        return Promise.reject(error);
-    }
-);
 
 const Publication = () => {
     const navigate = useNavigate();
     
     // États
-    const [currentUser, setCurrentUser] = useState({
+    const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || {
         id: "ETU000",
         name: "LaurenDa M.",
         avatar: "LM",
@@ -188,9 +151,9 @@ const Publication = () => {
         setLoading(true);
         try {
             // Essayer de charger depuis l'API
-            const response = await api.get('/publications');
+            const response = await api.get('/posts/all');
             if (response.data.success) {
-                setPublications(response.data.publications);
+                setPublications(response.data?.data);
             }
         } catch (error) {
             console.error('Erreur chargement publications:', error);
@@ -284,7 +247,7 @@ const Publication = () => {
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
             // Envoyer à l'API
-            await api.post(`/publications/${publicationId}/react`, {
+            await api.post(`/posts/${publicationId}/react`, {
                 reaction: reactionType
             });
 
@@ -329,9 +292,9 @@ const Publication = () => {
         try {
             const comment = {
                 id: Date.now(),
-                author: currentUser.name,
+                author: currentUser.firstName + ' ' + currentUser.lastName,
                 avatar: currentUser.avatar,
-                role: currentUser.role,
+                role: currentUser.roles[0],
                 text: newComment,
                 date: new Date().toISOString(),
                 likes: 0,
@@ -357,7 +320,7 @@ const Publication = () => {
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
             // Envoyer à l'API
-            await api.post(`/publications/${currentPublication.id}/comments`, {
+            await api.post(`/posts/${currentPublication.id}/comments`, {
                 comment: newComment
             });
 
@@ -472,7 +435,7 @@ const Publication = () => {
                     
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mx-auto">
-                            <Nav.Link as={Link} to="/profil" className={styles.navLink}>
+                            <Nav.Link as={Link} to="/profile" className={styles.navLink}>
                                 <FaUserCircle /> Profil
                             </Nav.Link>
                             <Nav.Link as={Link} to="/publications" className={`${styles.navLink} ${styles.active}`}>
@@ -489,8 +452,8 @@ const Publication = () => {
                                     {currentUser.avatar}
                                 </div>
                                 <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentUser.name}</div>
-                                    <div className={styles.userRole}>{currentUser.role}</div>
+                                    <div className={styles.userName}>{currentUser.firstName + ' ' + currentUser.lastName?.slice(0,1).toUpperCase()}</div>
+                                    <div className={styles.userRole}>{currentUser.roles[0]}</div>
                                 </div>
                             </Dropdown.Toggle>
 
@@ -516,7 +479,7 @@ const Publication = () => {
                 <Row className="justify-content-center">
                     <Col lg={8}>
                         {/* Message informatif pour étudiants */}
-                        {currentUser.role === 'Étudiante' && (
+                        {currentUser.roles[0] === 'student' && (
                             <Alert variant="info" className={styles.infoMessage}>
                                 <FaInfoCircle className="me-2" />
                                 <Alert.Heading as="h2" className={styles.infoTitle}>

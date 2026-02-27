@@ -207,7 +207,7 @@ const ProfilEtudiant = () => {
         email: "laurenda.m@universite.cm",
         phone: "+237 6XX XXX XXX",
         photo: "https://i.pravatar.cc/150?img=32",
-        role: "Étudiante",
+        roles: ["Étudiante"],
         campus: localStorage.getItem('userCampus') || "Campus 2",
         filiere: localStorage.getItem('userFiliere') || "Génie Logiciel",
         groupe: localStorage.getItem('userGroupe') || "Cours du Soir",
@@ -475,7 +475,7 @@ const ProfilEtudiant = () => {
                     bg={toastType}
                     className={styles.toast}
                 >
-                    <Toast.Body>{toastMessage}</Toast.Body>
+                    <Toast.Body className={styles.toastText}>{toastMessage}</Toast.Body>
                 </Toast>
             </ToastContainer>
 
@@ -531,7 +531,7 @@ const ProfilEtudiant = () => {
                                 </div>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userName}>{currentUser.fullName}</div>
-                                    <div className={styles.userRole}>{currentUser.role}</div>
+                                    <div className={styles.userRole}>{currentUser.roles[0]}</div>
                                 </div>
                             </Dropdown.Toggle>
 
@@ -810,10 +810,18 @@ const ProfilEtudiant = () => {
                                                             </div>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaEnvelopeOpen /> Email alternatif
+                                                                    <FaEnvelopeOpen /> Status de verification
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentUser.emailAlternatif}
+                                                                    {currentUser.verificationStatus === 'verified' ? (
+                                                                        <Badge bg="success">
+                                                                            <FaCheckCircle /> Vérifié
+                                                                        </Badge>
+                                                                    ) : (
+                                                                        <Badge bg="warning">
+                                                                            <FaExclamationTriangle /> Non vérifié
+                                                                        </Badge>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                             <div className={styles.infoItem}>
@@ -829,10 +837,6 @@ const ProfilEtudiant = () => {
 
                                                     {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
-                                                        <BoutonProfil
-                                                            action="publication"
-                                                            onClick={() => navigate('/publications')}
-                                                        />
                                                         
                                                         <BoutonProfil
                                                             action="modifier"

@@ -43,17 +43,17 @@ const RoleBasedProfil = () => {
     return <Navigate to="/login" />;
   }
 
-  switch(user.role) {
-    case 'Étudiant':
+  switch(user.roles[0]) {
+    case 'student':
     case 'Étudiante':
       return <ProfilEtudiant />;
-    case 'Enseignant':
+    case 'teacher':
       return <ProfilEnseignant />;
-    case 'Administrateur':
+    case 'admin':
     case 'Administration':
       return <ProfilAdministration />;
     default:
-      return <Navigate to="/profil-etudiant" />;
+      return <Navigate to="/profile" />;
   }
 };
 
@@ -81,9 +81,9 @@ function App() {
           <Route 
             path="/publications" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <Publication />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           
@@ -91,19 +91,19 @@ function App() {
           <Route 
             path="/faire-publication" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <FairePublication />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           
           {/* Routes de profil - version générique */}
           <Route 
-            path="/profil" 
+            path="/profile" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <RoleBasedProfil />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           
@@ -111,37 +111,37 @@ function App() {
           <Route 
             path="/profil-etudiant" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <ProfilEtudiant />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           
           <Route 
             path="/profil-enseignant" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <ProfilEnseignant />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           <Route 
             path="/profil-administration" 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <ProfilAdministration />
-              // </PrivateRoute>
+              </PrivateRoute>
             } 
           />
           
-          <Route 
-            path="/creation-université" 
+          {/* <Route 
+            path="/create-university" 
             element={
               <PrivateRoute>
                 <CreationUniversite />
               </PrivateRoute>
             } 
-          />
+          /> */}
 
            <Route 
             path="/terms" 
