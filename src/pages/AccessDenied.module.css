@@ -1,0 +1,46 @@
+.access-denied-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.access-denied-content {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.access-denied-icon {
+  font-size: 5rem;
+  color: #dc3545;
+  opacity: 0.8;
+}
+
+.access-denied-content h1 {
+  color: #212529;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.access-denied-content p {
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .access-denied-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .access-denied-icon {
+    font-size: 3rem;
+  }
+
+  .access-denied-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .access-denied-content p {
+    font-size: 1rem;
+  }
+}

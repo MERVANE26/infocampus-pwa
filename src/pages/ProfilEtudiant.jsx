@@ -127,10 +127,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
+import AppNavbar from '../composants/AppNavbar';
 import Image from 'react-bootstrap/Image';
 import ListGroup from 'react-bootstrap/ListGroup';
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -200,33 +198,23 @@ const ProfilEtudiant = () => {
     
     // États
     const [currentUser, setCurrentUser] = useState({
-        id: "ETU001",
-        fullName: "LaurenDa M.",
-        firstName: "LaurenDa",
-        lastName: "M.",
-        email: "laurenda.m@universite.cm",
-        phone: "+237 6XX XXX XXX",
-        photo: "https://i.pravatar.cc/150?img=32",
-        roles: ["Étudiante"],
-        campus: localStorage.getItem('userCampus') || "Campus 2",
-        filiere: localStorage.getItem('userFiliere') || "Génie Logiciel",
-        groupe: localStorage.getItem('userGroupe') || "Cours du Soir",
-        niveau: localStorage.getItem('userNiveau') || "1ère Année",
-        matricule: "GL2024001",
-        dateNaissance: "2002-05-15",
-        lieuNaissance: "Douala",
-        genre: "Féminin",
-        adresse: "123 Rue de l'Université, Douala",
-        telephone: "+237 699 123 456",
-        emailAlternatif: "laurenda.m@gmail.com",
-        universite: "Institut Universitaire du Golfe",
-        departement: "Informatique",
-        anneeAcademique: "2024-2025",
-        moyenne: 15.5,
-        credits: 45,
-        totalCredits: 60,
-        status: "Actif",
-        dateInscription: "2024-09-01"
+        _id: "",
+        firstName: "Étudiant",
+        lastName: "Utilisateur",
+        email: "student@university.cm",
+        phoneNumber: "",
+        photoUrl: "",
+        roles: ["student"],
+        status: "student",
+        verificationStatus: "pending",
+        studentUniversityId: "",
+        studentInfo: {
+            matricule: "",
+            campusId: "",
+            filiere: "",
+            niveau: "",
+            groupe: ""
+        }
     });
 
     const [loading, setLoading] = useState(false);
@@ -239,10 +227,10 @@ const ProfilEtudiant = () => {
     
     // États pour les paramètres
     const [settings, setSettings] = useState({
-        campus: currentUser.campus,
-        filiere: currentUser.filiere,
-        groupe: currentUser.groupe,
-        niveau: currentUser.niveau,
+        matricule: currentUser.studentInfo?.matricule || "",
+        filiere: currentUser.studentInfo?.filiere || "",
+        groupe: currentUser.studentInfo?.groupe || "",
+        niveau: currentUser.studentInfo?.niveau || "",
         emailNotifications: true,
         pushNotifications: true,
         theme: 'light',
@@ -251,14 +239,14 @@ const ProfilEtudiant = () => {
 
     // États pour les statistiques
     const [stats, setStats] = useState({
-        publications: 15,
-        commentaires: 28,
-        likes: 42,
-        notifications: 3,
-        messages: 5,
-        cours: 8,
-        examens: 4,
-        travaux: 12
+        publications: 0,
+        commentaires: 0,
+        likes: 0,
+        notifications: 0,
+        messages: 0,
+        cours: 0,
+        examens: 0,
+        travaux: 0
     });
 
     // Effets
@@ -290,16 +278,16 @@ const ProfilEtudiant = () => {
                 setCurrentUser(prev => ({
                     ...prev,
                     ...user,
-                    fullName: user.firstName + ' ' + user.lastName || prev.fullName,
-                    photo: user.photo || prev.photo
+                    studentInfo: user.studentInfo || prev.studentInfo,
+                    photoUrl: user.photoUrl || user.photo || prev.photoUrl
                 }));
                 
                 setSettings(prev => ({
                     ...prev,
-                    campus: user.campus || prev.campus,
-                    filiere: user.filiere || prev.filiere,
-                    groupe: user.groupe || prev.groupe,
-                    niveau: user.niveau || prev.niveau
+                    matricule: user.studentInfo?.matricule || prev.matricule || "",
+                    filiere: user.studentInfo?.filiere || prev.filiere || "",
+                    groupe: user.studentInfo?.groupe || prev.groupe || "",
+                    niveau: user.studentInfo?.niveau || prev.niveau || ""
                 }));
             }
         } catch (error) {
@@ -331,12 +319,12 @@ const ProfilEtudiant = () => {
             reader.onload = (event) => {
                 setCurrentUser(prev => ({
                     ...prev,
-                    photo: event.target.result
+                    photoUrl: event.target.result
                 }));
                 
                 // Sauvegarder dans localStorage
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.photo = event.target.result;
+                user.photoUrl = event.target.result;
                 localStorage.setItem('user', JSON.stringify(user));
                 
                 showNotification('✅ Photo de profil mise à jour !', 'success');
@@ -359,33 +347,36 @@ const ProfilEtudiant = () => {
             // Mettre à jour l'utilisateur
             const updatedUser = {
                 ...currentUser,
-                campus: settings.campus,
-                filiere: settings.filiere,
-                groupe: settings.groupe,
-                niveau: settings.niveau
+                studentInfo: {
+                    ...currentUser.studentInfo,
+                    matricule: settings.matricule,
+                    filiere: settings.filiere,
+                    groupe: settings.groupe,
+                    niveau: settings.niveau
+                }
             };
 
             setCurrentUser(updatedUser);
 
             // Sauvegarder dans localStorage
-            localStorage.setItem('userCampus', settings.campus);
-            localStorage.setItem('userFiliere', settings.filiere);
-            localStorage.setItem('userGroupe', settings.groupe);
-            localStorage.setItem('userNiveau', settings.niveau);
-
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            user.campus = settings.campus;
-            user.filiere = settings.filiere;
-            user.groupe = settings.groupe;
-            user.niveau = settings.niveau;
+            user.studentInfo = {
+                ...user.studentInfo,
+                matricule: settings.matricule,
+                filiere: settings.filiere,
+                groupe: settings.groupe,
+                niveau: settings.niveau
+            };
             localStorage.setItem('user', JSON.stringify(user));
 
             // Envoyer à l'API
             await api.put('/user/profile', {
-                campus: settings.campus,
-                filiere: settings.filiere,
-                groupe: settings.groupe,
-                niveau: settings.niveau
+                studentInfo: {
+                    matricule: settings.matricule,
+                    filiere: settings.filiere,
+                    groupe: settings.groupe,
+                    niveau: settings.niveau
+                }
             });
 
             showNotification('✅ Paramètres enregistrés avec succès !', 'success');
@@ -442,7 +433,7 @@ const ProfilEtudiant = () => {
     };
 
     const getInitials = () => {
-        return currentUser.firstName?.[0] + currentUser.lastName?.[0] || currentUser.fullName.split(' ').map(n => n[0]).join('');
+        return currentUser.firstName?.[0] + currentUser.lastName?.[0] || 'ET';
     };
 
     const formatDate = (dateString) => {
@@ -480,85 +471,7 @@ const ProfilEtudiant = () => {
             </ToastContainer>
 
             {/* Barre de navigation */}
-            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                        <FaUniversity className={styles.brandIcon} />
-                        <div className={styles.brandText}>
-                            <span className={styles.brandName}>INFOcAMPUS</span>
-                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
-                        </div>
-                    </Navbar.Brand>
-
-                    <Navbar.Toggle aria-controls="basic-navbar-nav">
-                        <MdMenu />
-                    </Navbar.Toggle>
-                    
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link 
-                                as={Link} 
-                                to="/profil" 
-                                className={`${styles.navLink} ${activeTab === 'profile' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('profile')}
-                            >
-                                <FaUserCircle /> Profil
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/publications" 
-                                className={styles.navLink}
-                            >
-                                <FaBell /> Publications
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/parametres" 
-                                className={`${styles.navLink} ${activeTab === 'settings' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('settings')}
-                            >
-                                <FaCog /> Paramètres
-                            </Nav.Link>
-                        </Nav>
-
-                        <Dropdown align="end">
-                            <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div 
-                                    className={styles.userAvatar}
-                                    style={currentUser.photo ? { backgroundImage: `url(${currentUser.photo})` } : {}}
-                                >
-                                    {!currentUser.photo && getInitials()}
-                                </div>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentUser.fullName}</div>
-                                    <div className={styles.userRole}>{currentUser.roles[0]}</div>
-                                </div>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu className={styles.userDropdown}>
-                                <Dropdown.Item as={Link} to="/profil">
-                                    <FaUserCircle /> Mon profil
-                                </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/parametres">
-                                    <FaCog /> Paramètres
-                                </Dropdown.Item>
-                                <Dropdown.Item onClick={() => setActiveTab('settings')}>
-                                    <FaBell /> Notifications
-                                    {stats.notifications > 0 && (
-                                        <Badge bg="danger" className={styles.notificationBadge}>
-                                            {stats.notifications}
-                                        </Badge>
-                                    )}
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={logout}>
-                                    <FaSignOutAlt /> Déconnexion
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+            <AppNavbar currentUser={currentUser} />
 
             {/* Contenu principal */}
             <Container className={styles.mainContent}>
@@ -590,9 +503,9 @@ const ProfilEtudiant = () => {
                                                         <div className={styles.avatarWrapper}>
                                                             <div 
                                                                 className={styles.avatar}
-                                                                style={currentUser.photo ? { backgroundImage: `url(${currentUser.photo})` } : {}}
+                                                                style={currentUser.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})` } : {}}
                                                             >
-                                                                {!currentUser.photo && getInitials()}
+                                                                {!currentUser.photoUrl && getInitials()}
                                                             </div>
                                                             <OverlayTrigger
                                                                 placement="bottom"
@@ -611,12 +524,12 @@ const ProfilEtudiant = () => {
                                                                 style={{ display: 'none' }}
                                                             />
                                                         </div>
-                                                        <h2 className={styles.studentName}>{currentUser.fullName}</h2>
+                                                        <h2 className={styles.studentName}>{currentUser.firstName} {currentUser.lastName}</h2>
                                                         <div className={styles.studentProgram}>
-                                                            <FaGraduationCap /> {currentUser.filiere}
+                                                            <FaGraduationCap /> {currentUser.studentInfo?.filiere || 'Filière non définie'}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
-                                                            <FaUniversity /> {currentUser.universite}
+                                                            <FaUniversity /> {currentUser.studentInfo?.campusId || 'Campus non défini'}
                                                         </Badge>
                                                     </div>
 
@@ -627,16 +540,16 @@ const ProfilEtudiant = () => {
                                                                 <FaIdCard /> Matricule
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.matricule}
+                                                                {currentUser.studentInfo?.matricule || 'Non défini'}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaBuilding /> Campus
+                                                                <FaBuilding /> Campus ID
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.campus}
+                                                                {currentUser.studentInfo?.campusId || 'Non défini'}
                                                             </div>
                                                         </div>
 
@@ -645,7 +558,7 @@ const ProfilEtudiant = () => {
                                                                 <FaBook /> Filière
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.filiere}
+                                                                {currentUser.studentInfo?.filiere || 'Non définie'}
                                                             </div>
                                                         </div>
 
@@ -654,7 +567,7 @@ const ProfilEtudiant = () => {
                                                                 <FaUsers /> Groupe
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.groupe}
+                                                                {currentUser.studentInfo?.groupe || 'Non défini'}
                                                             </div>
                                                         </div>
 
@@ -663,95 +576,32 @@ const ProfilEtudiant = () => {
                                                                 <FaGraduationCap /> Niveau
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.niveau}
+                                                                {currentUser.studentInfo?.niveau || 'Non défini'}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaCalendarAlt /> Année académique
+                                                                <FaUserCheck /> Statut de vérification
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.anneeAcademique}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className={styles.infoItem}>
-                                                            <div className={styles.infoLabel}>
-                                                                <FaUserCheck /> Statut
-                                                            </div>
-                                                            <div className={styles.infoValue}>
-                                                                <Badge bg="success" className={styles.statusBadge}>
-                                                                    {currentUser.status}
-                                                                </Badge>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className={styles.infoItem}>
-                                                            <div className={styles.infoLabel}>
-                                                                <FaCalendarAlt /> Inscription
-                                                            </div>
-                                                            <div className={styles.infoValue}>
-                                                                {formatDate(currentUser.dateInscription)}
+                                                                {currentUser.verificationStatus === 'verified' ? (
+                                                                    <Badge bg="success">
+                                                                        <FaCheckCircle /> Vérifié
+                                                                    </Badge>
+                                                                ) : currentUser.verificationStatus === 'pending' ? (
+                                                                    <Badge bg="warning">
+                                                                        <FaExclamationTriangle /> En attente
+                                                                    </Badge>
+                                                                ) : (
+                                                                    <Badge bg="danger">
+                                                                        <FaTimes /> Rejeté
+                                                                    </Badge>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Progression académique */}
-                                                    <div className={styles.progressSection}>
-                                                        <h3 className={styles.sectionTitle}>
-                                                            <FaGraduationCap /> Progression académique
-                                                        </h3>
-                                                        <div className={styles.progressInfo}>
-                                                            <div className={styles.progressLabel}>
-                                                                <span>Crédits obtenus</span>
-                                                                <span>{currentUser.credits}/{currentUser.totalCredits}</span>
-                                                            </div>
-                                                            <ProgressBar 
-                                                                now={getProgressPercentage()}
-                                                                variant="success"
-                                                                className={styles.progressBar}
-                                                            />
-                                                        </div>
-                                                        <div className={styles.statsGrid}>
-                                                            <div className={styles.statCard}>
-                                                                <div className={styles.statIcon}>
-                                                                    <FaBook />
-                                                                </div>
-                                                                <div className={styles.statContent}>
-                                                                    <div className={styles.statValue}>{stats.cours}</div>
-                                                                    <div className={styles.statLabel}>Cours</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.statCard}>
-                                                                <div className={styles.statIcon}>
-                                                                    <FaCalendarAlt />
-                                                                </div>
-                                                                <div className={styles.statContent}>
-                                                                    <div className={styles.statValue}>{stats.examens}</div>
-                                                                    <div className={styles.statLabel}>Examens</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.statCard}>
-                                                                <div className={styles.statIcon}>
-                                                                    <FaFileAlt />
-                                                                </div>
-                                                                <div className={styles.statContent}>
-                                                                    <div className={styles.statValue}>{stats.travaux}</div>
-                                                                    <div className={styles.statLabel}>Travaux</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.statCard}>
-                                                                <div className={styles.statIcon}>
-                                                                    <FaStar />
-                                                                </div>
-                                                                <div className={styles.statContent}>
-                                                                    <div className={styles.statValue}>{currentUser.moyenne}</div>
-                                                                    <div className={styles.statLabel}>Moyenne</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
                                                     {/* Informations personnelles */}
                                                     <div className={styles.personalInfo}>
@@ -761,48 +611,7 @@ const ProfilEtudiant = () => {
                                                         <div className={styles.infoGrid}>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaBirthdayCake /> Date de naissance
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {formatDate(currentUser.dateNaissance)}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <FaMapPin /> Lieu de naissance
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentUser.lieuNaissance}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <FaVenusMars /> Genre
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentUser.genre}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <FaMapMarkedAlt /> Adresse
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentUser.adresse}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Contacts */}
-                                                    <div className={styles.contactInfo}>
-                                                        <h3 className={styles.sectionTitle}>
-                                                            <FaEnvelope /> Contacts
-                                                        </h3>
-                                                        <div className={styles.infoGrid}>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <MdEmail /> Email universitaire
+                                                                    <FaEnvelope /> Email universitaire
                                                                 </div>
                                                                 <div className={styles.infoValue}>
                                                                     {currentUser.email}
@@ -810,26 +619,10 @@ const ProfilEtudiant = () => {
                                                             </div>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaEnvelopeOpen /> Status de verification
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentUser.verificationStatus === 'verified' ? (
-                                                                        <Badge bg="success">
-                                                                            <FaCheckCircle /> Vérifié
-                                                                        </Badge>
-                                                                    ) : (
-                                                                        <Badge bg="warning">
-                                                                            <FaExclamationTriangle /> Non vérifié
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
                                                                     <FaPhone /> Téléphone
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentUser.telephone}
+                                                                    {currentUser.phoneNumber || 'Non défini'}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -898,72 +691,54 @@ const ProfilEtudiant = () => {
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaBuilding /> Campus
+                                                                        <FaIdCard /> Matricule
                                                                     </Form.Label>
-                                                                    <Form.Select
-                                                                        value={settings.campus}
-                                                                        onChange={(e) => handleSettingsChange('campus', e.target.value)}
-                                                                        className={styles.formSelect}
-                                                                    >
-                                                                        <option value="Campus 1">Campus 1</option>
-                                                                        <option value="Campus 2">Campus 2</option>
-                                                                        <option value="Campus 3">Campus 3</option>
-                                                                        <option value="Campus 4">Campus 4</option>
-                                                                        <option value="Campus 5">Campus 5</option>
-                                                                    </Form.Select>
+                                                                    <Form.Control
+                                                                        type="text"
+                                                                        value={settings.matricule}
+                                                                        onChange={(e) => handleSettingsChange('matricule', e.target.value)}
+                                                                        className={styles.formControl}
+                                                                        placeholder="Exemple: GL2024001"
+                                                                    />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
                                                                         <FaBook /> Filière
                                                                     </Form.Label>
-                                                                    <Form.Select
+                                                                    <Form.Control
+                                                                        type="text"
                                                                         value={settings.filiere}
                                                                         onChange={(e) => handleSettingsChange('filiere', e.target.value)}
-                                                                        className={styles.formSelect}
-                                                                    >
-                                                                        <option value="Génie Logiciel">Génie Logiciel</option>
-                                                                        <option value="Réseaux et Télécoms">Réseaux et Télécoms</option>
-                                                                        <option value="Informatique Industrielle">Informatique Industrielle</option>
-                                                                        <option value="Data Science">Data Science</option>
-                                                                        <option value="Cybersécurité">Cybersécurité</option>
-                                                                        <option value="Marketing Digital">Marketing Digital</option>
-                                                                        <option value="Gestion d'Entreprise">Gestion d'Entreprise</option>
-                                                                        <option value="Finance">Finance</option>
-                                                                    </Form.Select>
+                                                                        className={styles.formControl}
+                                                                        placeholder="Exemple: Génie Logiciel"
+                                                                    />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
                                                                         <FaUsers /> Groupe
                                                                     </Form.Label>
-                                                                    <Form.Select
+                                                                    <Form.Control
+                                                                        type="text"
                                                                         value={settings.groupe}
                                                                         onChange={(e) => handleSettingsChange('groupe', e.target.value)}
-                                                                        className={styles.formSelect}
-                                                                    >
-                                                                        <option value="Cours du Jour">Cours du Jour</option>
-                                                                        <option value="Cours du Soir">Cours du Soir</option>
-                                                                        <option value="Weekend">Weekend</option>
-                                                                        <option value="En ligne">En ligne</option>
-                                                                    </Form.Select>
+                                                                        className={styles.formControl}
+                                                                        placeholder="Exemple: Cours du Soir"
+                                                                    />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
                                                                         <FaGraduationCap /> Niveau
                                                                     </Form.Label>
-                                                                    <Form.Select
+                                                                    <Form.Control
+                                                                        type="text"
                                                                         value={settings.niveau}
                                                                         onChange={(e) => handleSettingsChange('niveau', e.target.value)}
-                                                                        className={styles.formSelect}
-                                                                    >
-                                                                        <option value="1ère Année">1ère Année</option>
-                                                                        <option value="2ème Année">2ème Année</option>
-                                                                        <option value="3ème Année">3ème Année</option>
-                                                                        <option value="4ème Année">4ème Année</option>
-                                                                        <option value="5ème Année">5ème Année</option>
-                                                                    </Form.Select>
+                                                                        className={styles.formControl}
+                                                                        placeholder="Exemple: 1ère Année"
+                                                                    />
                                                                 </Form.Group>
                                                             </div>
                                                         </Tab>

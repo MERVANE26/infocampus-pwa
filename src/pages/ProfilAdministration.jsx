@@ -137,7 +137,8 @@ import {
     FaUserDoctor,
     FaUserTie as FaUserTieIcon2,
     FaUserGraduate as FaUserGraduateIcon2,
-    FaChalkboardTeacher as FaChalkboardTeacherIcon2
+    FaChalkboardTeacher as FaChalkboardTeacherIcon2,
+    FaBriefcase
 } from 'react-icons/fa';
 import { MdEmail, MdPhone, MdSchool, MdWarning, MdClose, MdMenu, MdPhotoCamera, MdPhotoLibrary, MdDelete, MdEdit, MdSave, MdCancel, MdArrowBack, MdArrowForward, MdHome, MdPerson, MdSettings, MdNotifications, MdLogout, MdDashboard, MdAssignment, MdClass, MdEvent, MdAnnouncement, MdForum, MdGroup, MdWork, MdLocationOn, MdDateRange, MdAccessTime, MdAttachFile, MdInsertPhoto, MdPictureAsPdf, MdDescription, MdInsertDriveFile, MdCloudUpload, MdCloudDone, MdCloudOff, MdAdminPanelSettings, MdSecurity, MdPrivacyTip, MdReport, MdWarning as MdWarningIcon, MdError, MdCheckCircle, MdInfo, MdLock, MdLockOpen, MdLockOutline } from 'react-icons/md';
 import { BsPersonBadge, BsPersonVcard, BsThreeDotsVertical, BsGenderMale, BsGenderFemale, BsGenderTrans, BsHeart, BsHeartFill, BsStar, BsStarFill, BsStarHalf, BsAward, BsTrophy, BsBookmark, BsBookmarkFill, BsBookmarkStar, BsBookmarkStarFill, BsBell, BsBellFill, BsBellSlash, BsBellSlashFill, BsGear, BsGearFill, BsPalette, BsPaletteFill, BsMoon, BsMoonFill, BsSun, BsSunFill, BsTranslate, BsGlobe, BsGlobe2, BsShield, BsShieldFill, BsShieldShaded, BsShieldLock, BsShieldLockFill, BsShieldCheck, BsShieldFillCheck } from 'react-icons/bs';
@@ -150,9 +151,6 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
 import Image from 'react-bootstrap/Image';
 import ListGroup from 'react-bootstrap/ListGroup';
@@ -170,6 +168,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Table from 'react-bootstrap/Table';
 import styles from './ProfilAdministration.module.css';
+import AppNavbar from '../composants/AppNavbar';
 
 // Import de nos composants de boutons personnalisés
 import { 
@@ -223,38 +222,20 @@ const ProfilAdministration = () => {
     
     // États
     const [currentAdmin, setCurrentAdmin] = useState({
-        id: "ADM001",
-        fullName: "FOSTO FRID",
-        firstName: "Fosto",
-        lastName: "Frid",
-        title: "CHARGE DE LA COMMUNICATION",
-        email: localStorage.getItem('adminEmail') || "admin@iug.cm",
-        phone: localStorage.getItem('adminPhone') || "+237 699 123 456",
-        department: localStorage.getItem('adminDepartment') || "Communication",
-        photo: "https://i.pravatar.cc/150?img=8",
-        role: "Administrateur",
-        universite: "Institut Universitaire du Golfe",
-        campus: "Campus Principal",
-        bureau: "Bâtiment Administratif, Bureau 101",
-        hireDate: "15/01/2022",
-        permissions: [
-            "Gestion des utilisateurs",
-            "Modération des publications",
-            "Statistiques globales",
-            "Gestion des annonces",
-            "Configuration système"
-        ],
-        stats: {
-            students: 1245,
-            teachers: 48,
-            activeUsers: 892,
-            totalPublications: 156,
-            pendingModeration: 12,
-            reports: 3
-        },
-        notifications: {
-            publications: localStorage.getItem('adminNotifications') || "all",
-            system: localStorage.getItem('adminSystemNotifications') || "all"
+        _id: "",
+        firstName: "Administrateur",
+        lastName: "Utilisateur",
+        email: "admin@university.cm",
+        phoneNumber: "",
+        photoUrl: "",
+        roles: ["admin"],
+        status: "admin",
+        verificationStatus: "pending",
+        adminInfo: {
+            service: "",
+            fonction: "",
+            departement: "",
+            notificationMode: "targeted"
         }
     });
 
@@ -268,11 +249,12 @@ const ProfilAdministration = () => {
     
     // États pour les paramètres
     const [settings, setSettings] = useState({
-        phone: currentAdmin.phone,
-        email: currentAdmin.email,
-        department: currentAdmin.department,
-        notifications: currentAdmin.notifications.publications,
-        systemNotifications: currentAdmin.notifications.system,
+        phoneNumber: currentAdmin.phoneNumber || "",
+        email: currentAdmin.email || "",
+        service: currentAdmin.adminInfo?.service || "",
+        fonction: currentAdmin.adminInfo?.fonction || "",
+        departement: currentAdmin.adminInfo?.departement || "",
+        notificationMode: currentAdmin.adminInfo?.notificationMode || "targeted",
         emailNotifications: true,
         pushNotifications: true,
         theme: 'light',
@@ -308,18 +290,20 @@ const ProfilAdministration = () => {
                 setCurrentAdmin(prev => ({
                     ...prev,
                     ...user,
-                    fullName: user.firstName + ' ' + user.lastName || prev.fullName,
-                    photo: user.photo || prev.photo,
-                    phone: user.phone || prev.phone,
-                    email: user.email || prev.email,
-                    department: user.department || prev.department
+                    adminInfo: user.adminInfo || prev.adminInfo,
+                    photoUrl: user.photoUrl || user.photo || prev.photoUrl,
+                    phoneNumber: user.phoneNumber || prev.phoneNumber,
+                    email: user.email || prev.email
                 }));
                 
                 setSettings(prev => ({
                     ...prev,
-                    phone: user.phone || prev.phone,
-                    email: user.email || prev.email,
-                    department: user.department || prev.department
+                    phoneNumber: user.phoneNumber || prev.phoneNumber || "",
+                    email: user.email || prev.email || "",
+                    service: user.adminInfo?.service || prev.service || "",
+                    fonction: user.adminInfo?.fonction || prev.fonction || "",
+                    departement: user.adminInfo?.departement || prev.departement || "",
+                    notificationMode: user.adminInfo?.notificationMode || prev.notificationMode || "targeted"
                 }));
             }
         } catch (error) {
@@ -351,12 +335,12 @@ const ProfilAdministration = () => {
             reader.onload = (event) => {
                 setCurrentAdmin(prev => ({
                     ...prev,
-                    photo: event.target.result
+                    photoUrl: event.target.result
                 }));
                 
                 // Sauvegarder dans localStorage
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.photo = event.target.result;
+                user.photoUrl = event.target.result;
                 localStorage.setItem('user', JSON.stringify(user));
                 
                 showNotification('✅ Photo de profil mise à jour !', 'success');
@@ -379,38 +363,41 @@ const ProfilAdministration = () => {
             // Mettre à jour l'administrateur
             const updatedAdmin = {
                 ...currentAdmin,
-                phone: settings.phone,
+                phoneNumber: settings.phoneNumber,
                 email: settings.email,
-                department: settings.department,
-                notifications: {
-                    publications: settings.notifications,
-                    system: settings.systemNotifications
+                adminInfo: {
+                    ...currentAdmin.adminInfo,
+                    service: settings.service,
+                    fonction: settings.fonction,
+                    departement: settings.departement,
+                    notificationMode: settings.notificationMode
                 }
             };
 
             setCurrentAdmin(updatedAdmin);
 
             // Sauvegarder dans localStorage
-            localStorage.setItem('adminPhone', settings.phone);
-            localStorage.setItem('adminEmail', settings.email);
-            localStorage.setItem('adminDepartment', settings.department);
-            localStorage.setItem('adminNotifications', settings.notifications);
-            localStorage.setItem('adminSystemNotifications', settings.systemNotifications);
-
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            user.phone = settings.phone;
+            user.phoneNumber = settings.phoneNumber;
             user.email = settings.email;
-            user.department = settings.department;
+            user.adminInfo = {
+                ...user.adminInfo,
+                service: settings.service,
+                fonction: settings.fonction,
+                departement: settings.departement,
+                notificationMode: settings.notificationMode
+            };
             localStorage.setItem('user', JSON.stringify(user));
 
             // Envoyer à l'API
             await api.put('/user/profile', {
-                phone: settings.phone,
+                phoneNumber: settings.phoneNumber,
                 email: settings.email,
-                department: settings.department,
-                notifications: {
-                    publications: settings.notifications,
-                    system: settings.systemNotifications
+                adminInfo: {
+                    service: settings.service,
+                    fonction: settings.fonction,
+                    departement: settings.departement,
+                    notificationMode: settings.notificationMode
                 }
             });
 
@@ -499,78 +486,7 @@ const ProfilAdministration = () => {
                 </Toast>
             </ToastContainer>
 
-            {/* Barre de navigation */}
-            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                        <FaUniversity className={styles.brandIcon} />
-                        <div className={styles.brandText}>
-                            <span className={styles.brandName}>INFOcAMPUS</span>
-                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
-                        </div>
-                    </Navbar.Brand>
-
-                    <Navbar.Toggle aria-controls="basic-navbar-nav">
-                        <MdMenu />
-                    </Navbar.Toggle>
-                    
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link 
-                                as={Link} 
-                                to="/profil" 
-                                className={`${styles.navLink} ${activeTab === 'profile' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('profile')}
-                            >
-                                <FaUserCircle /> Profil
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/publications" 
-                                className={styles.navLink}
-                            >
-                                <FaBell /> Publications
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/parametres" 
-                                className={`${styles.navLink} ${activeTab === 'settings' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('settings')}
-                            >
-                                <FaCog /> Paramètres
-                            </Nav.Link>
-                        </Nav>
-
-                        <Dropdown align="end">
-                            <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div 
-                                    className={styles.userAvatar}
-                                    style={currentAdmin.photo ? { backgroundImage: `url(${currentAdmin.photo})` } : {}}
-                                >
-                                    {!currentAdmin.photo && getInitials()}
-                                </div>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentAdmin.fullName}</div>
-                                    <div className={styles.userRole}>{currentAdmin.role}</div>
-                                </div>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu className={styles.userDropdown}>
-                                <Dropdown.Item as={Link} to="/profil">
-                                    <FaUserCircle /> Mon profil
-                                </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/parametres">
-                                    <FaCog /> Paramètres
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={logout}>
-                                    <FaSignOutAlt /> Déconnexion
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+            <AppNavbar currentUser={currentAdmin} />
 
             {/* Contenu principal */}
             <Container className={styles.mainContent}>
@@ -698,10 +614,10 @@ const ProfilAdministration = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Informations professionnelles */}
+                                                    {/* Informations administratives */}
                                                     <div className={styles.infoSection}>
                                                         <h3 className={styles.sectionTitle}>
-                                                            <FaIdCard /> Informations professionnelles
+                                                            <FaIdCard /> Informations administratives
                                                         </h3>
                                                         <div className={styles.infoGrid}>
                                                             <div className={styles.infoItem}>
@@ -717,7 +633,23 @@ const ProfilAdministration = () => {
                                                                     <FaPhone /> Téléphone
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentAdmin.phone}
+                                                                    {currentAdmin.phoneNumber || 'Non défini'}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaBuilding /> Service
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentAdmin.adminInfo?.service || 'Non défini'}
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.infoItem}>
+                                                                <div className={styles.infoLabel}>
+                                                                    <FaBriefcase /> Fonction
+                                                                </div>
+                                                                <div className={styles.infoValue}>
+                                                                    {currentAdmin.adminInfo?.fonction || 'Non définie'}
                                                                 </div>
                                                             </div>
                                                             <div className={styles.infoItem}>
@@ -725,31 +657,15 @@ const ProfilAdministration = () => {
                                                                     <FaBuilding /> Département
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentAdmin.department}
+                                                                    {currentAdmin.adminInfo?.departement || 'Non défini'}
                                                                 </div>
                                                             </div>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaMapMarkerAlt /> Bureau
+                                                                    <FaBell /> Mode notification
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentAdmin.bureau}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <FaCalendarAlt /> Date d'embauche
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentAdmin.hireDate}
-                                                                </div>
-                                                            </div>
-                                                            <div className={styles.infoItem}>
-                                                                <div className={styles.infoLabel}>
-                                                                    <FaBuilding /> Campus
-                                                                </div>
-                                                                <div className={styles.infoValue}>
-                                                                    {currentAdmin.campus}
+                                                                    {currentAdmin.adminInfo?.notificationMode || 'targeted'}
                                                                 </div>
                                                             </div>
                                                         </div>
