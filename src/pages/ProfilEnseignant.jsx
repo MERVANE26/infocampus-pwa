@@ -134,10 +134,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
+import AppNavbar from '../composants/AppNavbar';
 import Image from 'react-bootstrap/Image';
 import ListGroup from 'react-bootstrap/ListGroup';
 import ProgressBar from 'react-bootstrap/ProgressBar';
@@ -209,43 +207,22 @@ const ProfilEnseignant = () => {
     
     // États
     const [currentTeacher, setCurrentTeacher] = useState({
-        id: "TCH001",
-        fullName: "Dr. Ngo Bassong",
-        firstName: "Ngo",
-        lastName: "Bassong",
-        title: "Maître de Conférences",
-        email: "n.bassong@iug.cm",
-        phone: localStorage.getItem('teacherPhone') || "+237 699 123 456",
-        department: "Informatique",
-        experience: "8 ans",
-        photo: "https://i.pravatar.cc/150?img=58",
-        role: "Enseignant",
-        subjects: JSON.parse(localStorage.getItem('teacherSubjects')) || [
-            "Algorithmique",
-            "Base de données",
-            "Intelligence Artificielle",
-            "Réseaux Informatiques"
-        ],
-        stats: {
-            students: 245,
-            publications: 18,
-            courses: 4,
-            research: 12
-        },
-        universite: "Institut Universitaire du Golfe",
-        campus: "Campus 2",
-        bureau: "Bâtiment A, Bureau 204",
-        specialite: "Intelligence Artificielle",
-        diplomes: [
-            "Doctorat en Informatique - Université Paris-Saclay",
-            "Master en IA - Université de Montréal",
-            "Licence en Mathématiques - Université de Yaoundé I"
-        ],
-        publications: [
-            "Deep Learning pour la reconnaissance d'images médicales (2024)",
-            "Optimisation des réseaux de neurones (2023)",
-            "Algorithmes génétiques appliqués à la robotique (2022)"
-        ]
+        _id: "",
+        firstName: "Enseignant",
+        lastName: "Utilisateur",
+        email: "teacher@university.cm",
+        phoneNumber: "",
+        photoUrl: "",
+        roles: ["teacher"],
+        status: "teacher",
+        verificationStatus: "pending",
+        teacherUniversityIds: [],
+        teacherInfo: {
+            matricule: "",
+            subjects: [],
+            status: "permanent",
+            notificationMode: "targeted"
+        }
     });
 
     const [loading, setLoading] = useState(false);
@@ -260,13 +237,13 @@ const ProfilEnseignant = () => {
     
     // États pour les paramètres
     const [settings, setSettings] = useState({
-        phone: currentTeacher.phone,
+        phoneNumber: currentTeacher.phoneNumber || "",
+        notificationMode: currentTeacher.teacherInfo?.notificationMode || "targeted",
+        status: currentTeacher.teacherInfo?.status || "permanent",
         emailNotifications: true,
         pushNotifications: true,
         theme: 'light',
-        language: 'fr',
-        showEmail: true,
-        showPhone: true
+        language: 'fr'
     });
 
     // Effets
@@ -298,14 +275,15 @@ const ProfilEnseignant = () => {
                 setCurrentTeacher(prev => ({
                     ...prev,
                     ...user,
-                    fullName: user.firstName + ' ' + user.lastName || prev.fullName,
-                    photo: user.photo || prev.photo,
-                    phone: user.phone || prev.phone
+                    teacherInfo: user.teacherInfo || prev.teacherInfo,
+                    photoUrl: user.photoUrl || user.photo || prev.photoUrl
                 }));
                 
                 setSettings(prev => ({
                     ...prev,
-                    phone: user.phone || prev.phone
+                    phoneNumber: user.phoneNumber || prev.phoneNumber || "",
+                    notificationMode: user.teacherInfo?.notificationMode || prev.notificationMode || "targeted",
+                    status: user.teacherInfo?.status || prev.status || "permanent"
                 }));
             }
         } catch (error) {
@@ -337,12 +315,12 @@ const ProfilEnseignant = () => {
             reader.onload = (event) => {
                 setCurrentTeacher(prev => ({
                     ...prev,
-                    photo: event.target.result
+                    photoUrl: event.target.result
                 }));
                 
                 // Sauvegarder dans localStorage
                 const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.photo = event.target.result;
+                user.photoUrl = event.target.result;
                 localStorage.setItem('user', JSON.stringify(user));
                 
                 showNotification('✅ Photo de profil mise à jour !', 'success');
@@ -357,14 +335,17 @@ const ProfilEnseignant = () => {
             return;
         }
 
-        if (currentTeacher.subjects.includes(newSubject.trim())) {
+        if (currentTeacher.teacherInfo?.subjects?.includes(newSubject.trim())) {
             showNotification('❌ Cette matière existe déjà', 'error');
             return;
         }
 
         setCurrentTeacher(prev => ({
             ...prev,
-            subjects: [...prev.subjects, newSubject.trim()]
+            teacherInfo: {
+                ...prev.teacherInfo,
+                subjects: [...(prev.teacherInfo?.subjects || []), newSubject.trim()]
+            }
         }));
 
         setNewSubject('');
@@ -375,7 +356,10 @@ const ProfilEnseignant = () => {
         if (window.confirm(`Supprimer la matière "${subjectToRemove}" ?`)) {
             setCurrentTeacher(prev => ({
                 ...prev,
-                subjects: prev.subjects.filter(s => s !== subjectToRemove)
+                teacherInfo: {
+                    ...prev.teacherInfo,
+                    subjects: (prev.teacherInfo?.subjects || []).filter(s => s !== subjectToRemove)
+                }
             }));
             showNotification('🗑️ Matière supprimée', 'info');
         }
@@ -395,24 +379,35 @@ const ProfilEnseignant = () => {
             // Mettre à jour l'enseignant
             const updatedTeacher = {
                 ...currentTeacher,
-                phone: settings.phone
+                phoneNumber: settings.phoneNumber,
+                teacherInfo: {
+                    ...currentTeacher.teacherInfo,
+                    status: settings.status,
+                    notificationMode: settings.notificationMode
+                }
             };
 
             setCurrentTeacher(updatedTeacher);
 
             // Sauvegarder dans localStorage
-            localStorage.setItem('teacherPhone', settings.phone);
-            localStorage.setItem('teacherSubjects', JSON.stringify(currentTeacher.subjects));
-
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            user.phone = settings.phone;
-            user.subjects = currentTeacher.subjects;
+            user.phoneNumber = settings.phoneNumber;
+            user.teacherInfo = {
+                ...user.teacherInfo,
+                status: settings.status,
+                notificationMode: settings.notificationMode,
+                subjects: currentTeacher.teacherInfo?.subjects || []
+            };
             localStorage.setItem('user', JSON.stringify(user));
 
             // Envoyer à l'API
             await api.put('/user/profile', {
-                phone: settings.phone,
-                subjects: currentTeacher.subjects
+                phoneNumber: settings.phoneNumber,
+                teacherInfo: {
+                    status: settings.status,
+                    notificationMode: settings.notificationMode,
+                    subjects: currentTeacher.teacherInfo?.subjects || []
+                }
             });
 
             showNotification('✅ Paramètres enregistrés avec succès !', 'success');
@@ -477,9 +472,6 @@ const ProfilEnseignant = () => {
     };
 
     const getInitials = () => {
-        if (currentTeacher.fullName) {
-            return currentTeacher.fullName.split(' ').map(n => n[0]).join('');
-        }
         return currentTeacher.firstName?.[0] + currentTeacher.lastName?.[0] || 'EN';
     };
 
@@ -498,77 +490,7 @@ const ProfilEnseignant = () => {
             </ToastContainer>
 
             {/* Barre de navigation */}
-            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                        <FaUniversity className={styles.brandIcon} />
-                        <div className={styles.brandText}>
-                            <span className={styles.brandName}>INFOcAMPUS</span>
-                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
-                        </div>
-                    </Navbar.Brand>
-
-                    <Navbar.Toggle aria-controls="basic-navbar-nav">
-                        <MdMenu />
-                    </Navbar.Toggle>
-                    
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link 
-                                as={Link} 
-                                to="/profil" 
-                                className={`${styles.navLink} ${activeTab === 'profile' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('profile')}
-                            >
-                                <FaUserCircle /> Profil
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/publications" 
-                                className={styles.navLink}
-                            >
-                                <FaBell /> Publications
-                            </Nav.Link>
-                            <Nav.Link 
-                                as={Link} 
-                                to="/parametres" 
-                                className={`${styles.navLink} ${activeTab === 'settings' ? styles.active : ''}`}
-                                onClick={() => setActiveTab('settings')}
-                            >
-                                <FaCog /> Paramètres
-                            </Nav.Link>
-                        </Nav>
-
-                        <Dropdown align="end">
-                            <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div 
-                                    className={styles.userAvatar}
-                                    style={currentTeacher.photo ? { backgroundImage: `url(${currentTeacher.photo})` } : {}}
-                                >
-                                    {!currentTeacher.photo && getInitials()}
-                                </div>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentTeacher.fullName}</div>
-                                    <div className={styles.userRole}>{currentTeacher.role}</div>
-                                </div>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu className={styles.userDropdown}>
-                                <Dropdown.Item as={Link} to="/profil">
-                                    <FaUserCircle /> Mon profil
-                                </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/parametres">
-                                    <FaCog /> Paramètres
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={logout}>
-                                    <FaSignOutAlt /> Déconnexion
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+            <AppNavbar currentUser={currentTeacher} />
 
             {/* Contenu principal */}
             <Container className={styles.mainContent}>
@@ -600,9 +522,9 @@ const ProfilEnseignant = () => {
                                                         <div className={styles.avatarWrapper}>
                                                             <div 
                                                                 className={styles.avatar}
-                                                                style={currentTeacher.photo ? { backgroundImage: `url(${currentTeacher.photo})` } : {}}
+                                                                style={currentTeacher.photoUrl ? { backgroundImage: `url(${currentTeacher.photoUrl})` } : {}}
                                                             >
-                                                                {!currentTeacher.photo && getInitials()}
+                                                                {!currentTeacher.photoUrl && getInitials()}
                                                             </div>
                                                             <OverlayTrigger
                                                                 placement="bottom"
@@ -621,54 +543,15 @@ const ProfilEnseignant = () => {
                                                                 style={{ display: 'none' }}
                                                             />
                                                         </div>
-                                                        <h2 className={styles.teacherName}>{currentTeacher.fullName}</h2>
+                                                        <h2 className={styles.teacherName}>{currentTeacher.firstName} {currentTeacher.lastName}</h2>
                                                         <div className={styles.teacherTitle}>
-                                                            <FaChalkboardTeacher /> {currentTeacher.title}
+                                                            <FaChalkboardTeacher /> {currentTeacher.teacherInfo?.status || 'Enseignant'}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
-                                                            <FaUniversity /> {currentTeacher.universite}
+                                                            <FaUniversity /> {currentTeacher.teacherUniversityIds?.join(', ') || 'Université inconnue'}
                                                         </Badge>
                                                     </div>
 
-                                                    {/* Statistiques */}
-                                                    <div className={styles.statsGrid}>
-                                                        <div className={styles.statCard}>
-                                                            <FaUsers className={styles.statIcon} />
-                                                            <div className={styles.statContent}>
-                                                                <span className={styles.statNumber}>
-                                                                    {currentTeacher.stats.students}
-                                                                </span>
-                                                                <span className={styles.statLabel}>Étudiants</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className={styles.statCard}>
-                                                            <FaBell className={styles.statIcon} />
-                                                            <div className={styles.statContent}>
-                                                                <span className={styles.statNumber}>
-                                                                    {currentTeacher.stats.publications}
-                                                                </span>
-                                                                <span className={styles.statLabel}>Publications</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className={styles.statCard}>
-                                                            <FaBook className={styles.statIcon} />
-                                                            <div className={styles.statContent}>
-                                                                <span className={styles.statNumber}>
-                                                                    {currentTeacher.stats.courses}
-                                                                </span>
-                                                                <span className={styles.statLabel}>Cours</span>
-                                                            </div>
-                                                        </div>
-                                                        <div className={styles.statCard}>
-                                                            <FaFlask className={styles.statIcon} />
-                                                            <div className={styles.statContent}>
-                                                                <span className={styles.statNumber}>
-                                                                    {currentTeacher.stats.research}
-                                                                </span>
-                                                                <span className={styles.statLabel}>Recherches</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
 
                                                     {/* Informations professionnelles */}
                                                     <div className={styles.infoSection}>
@@ -733,7 +616,7 @@ const ProfilEnseignant = () => {
                                                             <FaBook /> Matières enseignées
                                                         </h3>
                                                         <div className={styles.subjectsList}>
-                                                            {currentTeacher.subjects.map((subject, index) => (
+                                                            {(currentTeacher.teacherInfo?.subjects || []).map((subject, index) => (
                                                                 <Badge 
                                                                     key={index}
                                                                     className={styles.subjectTag}
@@ -744,35 +627,7 @@ const ProfilEnseignant = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Diplômes */}
-                                                    <div className={styles.diplomasSection}>
-                                                        <h3 className={styles.sectionTitle}>
-                                                            <FaGraduationCap /> Diplômes
-                                                        </h3>
-                                                        <ListGroup variant="flush" className={styles.diplomasList}>
-                                                            {currentTeacher.diplomes.map((diplome, index) => (
-                                                                <ListGroup.Item key={index} className={styles.diplomaItem}>
-                                                                    <FaCheckCircle className={styles.diplomaIcon} />
-                                                                    {diplome}
-                                                                </ListGroup.Item>
-                                                            ))}
-                                                        </ListGroup>
-                                                    </div>
 
-                                                    {/* Publications */}
-                                                    <div className={styles.publicationsSection}>
-                                                        <h3 className={styles.sectionTitle}>
-                                                            <FaFileAlt /> Publications récentes
-                                                        </h3>
-                                                        <ListGroup variant="flush" className={styles.publicationsList}>
-                                                            {currentTeacher.publications.map((pub, index) => (
-                                                                <ListGroup.Item key={index} className={styles.publicationItem}>
-                                                                    <FaFilePdf className={styles.publicationIcon} />
-                                                                    {pub}
-                                                                </ListGroup.Item>
-                                                            ))}
-                                                        </ListGroup>
-                                                    </div>
 
                                                     {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
@@ -849,12 +704,42 @@ const ProfilEnseignant = () => {
                                                                         </InputGroup.Text>
                                                                         <Form.Control
                                                                             type="tel"
-                                                                            value={settings.phone}
-                                                                            onChange={(e) => handleSettingsChange('phone', e.target.value)}
+                                                                            value={settings.phoneNumber}
+                                                                            onChange={(e) => handleSettingsChange('phoneNumber', e.target.value)}
                                                                             placeholder="+237 6XX XXX XXX"
                                                                             className={styles.formInput}
                                                                         />
                                                                     </InputGroup>
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        Statut enseignant
+                                                                    </Form.Label>
+                                                                    <Form.Select
+                                                                        value={settings.status}
+                                                                        onChange={(e) => handleSettingsChange('status', e.target.value)}
+                                                                        className={styles.formSelect}
+                                                                    >
+                                                                        <option value="permanent">Permanent</option>
+                                                                        <option value="assistant">Assistant</option>
+                                                                        <option value="vacataire">Vacataire</option>
+                                                                    </Form.Select>
+                                                                </Form.Group>
+
+                                                                <Form.Group className={styles.formGroup}>
+                                                                    <Form.Label className={styles.formLabel}>
+                                                                        Mode de notification
+                                                                    </Form.Label>
+                                                                    <Form.Select
+                                                                        value={settings.notificationMode}
+                                                                        onChange={(e) => handleSettingsChange('notificationMode', e.target.value)}
+                                                                        className={styles.formSelect}
+                                                                    >
+                                                                        <option value="all">Tout</option>
+                                                                        <option value="targeted">Ciblé</option>
+                                                                        <option value="none">Aucun</option>
+                                                                    </Form.Select>
                                                                 </Form.Group>
                                                             </div>
                                                         </Tab>
@@ -901,7 +786,7 @@ const ProfilEnseignant = () => {
                                                                         Mes matières actuelles
                                                                     </Form.Label>
                                                                     <div className={styles.subjectsList}>
-                                                                        {currentTeacher.subjects.map((subject, index) => (
+                                                                        {(currentTeacher.teacherInfo?.subjects || []).map((subject, index) => (
                                                                             <BoutonMatiere
                                                                                 key={index}
                                                                                 type="subject"

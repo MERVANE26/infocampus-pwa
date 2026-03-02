@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import AppNavbar from '../composants/AppNavbar';
 import {
     FaPen,
     FaSave,
@@ -23,17 +25,18 @@ import {
 } from 'react-icons/fa';
 import { Container, Row, Col, Card, Form, Button, Alert, Badge } from 'react-bootstrap';
 import styles from './FairePublication.module.css';
+import { api } from '../lib/api';
 
 const FairePublication = () => {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
-    
+
     // États
     const [currentUser, setCurrentUser] = useState({
         id: "PROF001",
         name: "Pr. Amadou Diallo",
         avatar: "PD",
-        role: "Enseignant",
+        roles: ["Enseignant"],
         department: "Informatique",
         filiere: "Genie Logiciel",
         campus: "Campus 2"
@@ -58,6 +61,10 @@ const FairePublication = () => {
     const [notification, setNotification] = useState(null);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [userUniversities, setUserUniversities] = useState([]); // normalized list {id,name,campuses[]}
+    const [selectedUniversityId, setSelectedUniversityId] = useState("");
+    const [availableCampuses, setAvailableCampuses] = useState([]); // campuses for currently selected university
+
 
     const MAX_CHARS = 1500;
     const WARNING_CHARS = 1100;
@@ -70,6 +77,46 @@ const FairePublication = () => {
         updateCharCount();
     }, []);
 
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await api.get('/universities/list');
+                let unis = res.data.universities || [];
+
+                // normalize every entry to {id,name,campuses}
+                // unis = unis.map(u => {
+                //     // some endpoints wrap under universityId
+                //     const base = u.id;
+                //     return {
+                //         id: base.id ,
+                //         name: u.name ,
+                //         campuses: u.campuses || base.campuses || []
+                //     };
+                // });
+
+                // if teacher, restrict to the set of universities in user object
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+                    if (user.roles && user.roles.includes('teacher') && Array.isArray(user.teacherUniversityIds)) {
+                        unis = unis.filter(u => user.teacherUniversityIds.includes(u.id));
+                    }
+                }
+
+                setUserUniversities(unis);
+                if (unis.length === 1) {
+                    setSelectedUniversityId(unis[0].id);
+                }
+            } catch (err) {
+                console.error('Erreur récupération universités :', err);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
+
     useEffect(() => {
         updateCharCount();
     }, [publication.content]);
@@ -79,11 +126,19 @@ const FairePublication = () => {
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
+                // keep teacher universities list if present
+                const extra = {};
+                if (user.teacherUniversityIds) {
+                    extra.teacherUniversityIds = user.teacherUniversityIds;
+                }
                 setCurrentUser(prev => ({
                     ...prev,
                     ...user,
-                    name: user.firstName + ' ' + user.lastName?.slice(0,1).toUpperCase(),
-                    avatar: user.firstName?.[0] + user.lastName?.[0] || prev.avatar
+                    ...extra,
+                    id: user._id || user.id,
+                    name: user.firstName + ' ' + user.lastName?.slice(0, 1).toUpperCase(),
+                    avatar: user.firstName?.[0] + user.lastName?.[0] || prev.avatar,
+                    roles: user.roles
                 }));
             } catch (error) {
                 console.error('Erreur chargement utilisateur:', error);
@@ -107,6 +162,9 @@ const FairePublication = () => {
                         allowComments: draft.allowComments !== false,
                         isUrgent: draft.urgent || false
                     });
+                    if (draft.universityId) {
+                        setSelectedUniversityId(draft.universityId);
+                    }
                     showNotification('Brouillon chargé avec succès', 'success');
                 }
             }
@@ -118,7 +176,7 @@ const FairePublication = () => {
     const updateCharCount = () => {
         const length = publication.content.length;
         setCharCount(length);
-        
+
         if (length > ERROR_CHARS) {
             setCharWarning('error');
         } else if (length > WARNING_CHARS) {
@@ -137,7 +195,7 @@ const FairePublication = () => {
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        
+
         // Vérifier la taille
         const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
         if (oversizedFiles.length > 0) {
@@ -162,7 +220,7 @@ const FairePublication = () => {
 
         setSelectedFiles(prev => [...prev, ...newFiles]);
         showNotification(`✅ ${files.length} fichier(s) ajouté(s)`, 'success');
-        
+
         // Réinitialiser l'input
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -189,7 +247,7 @@ const FairePublication = () => {
     };
 
     const getFileIcon = (type) => {
-        switch(type) {
+        switch (type) {
             case 'pdf': return <FaFilePdf />;
             case 'image': return <FaFileImage />;
             default: return <FaFileAlt />;
@@ -208,17 +266,27 @@ const FairePublication = () => {
         setShowPreview(true);
     };
 
+    // whenever university selection or list changes update campuses and clear campus filter
+    useEffect(() => {
+        const uni = userUniversities.find(u => u.id === selectedUniversityId);
+        setAvailableCampuses(uni?.campuses || []);
+        // reset campus filter when university switches
+        if (publication.campus !== 'tous') {
+            handleChange('campus', 'tous');
+        }
+    }, [selectedUniversityId, userUniversities]);
+
     useEffect(() => {
         updateTargetingPreview();
-    }, [publication.audience, publication.filiere, publication.niveau, 
-        publication.campus, publication.groupe, publication.staffTarget]);
+    }, [publication.audience, publication.filiere, publication.niveau,
+    publication.campus, publication.groupe, publication.staffTarget]);
 
     const getTargetingBadges = () => {
         const badges = [];
-        
+
         if (publication.audience === 'students' || publication.audience === 'both') {
             badges.push({ icon: <FaUserGraduate />, text: 'Étudiants', type: 'student' });
-            
+
             if (publication.filiere !== 'tous') {
                 badges.push({ icon: '🎓', text: publication.filiere, type: 'student' });
             }
@@ -226,25 +294,26 @@ const FairePublication = () => {
                 badges.push({ icon: '📚', text: publication.niveau, type: 'student' });
             }
             if (publication.campus !== 'tous') {
-                badges.push({ icon: <FaBuilding />, text: publication.campus, type: 'student' });
+                const campusObj = availableCampuses.find(c => (c.id || c) === publication.campus);
+                badges.push({ icon: <FaBuilding />, text: campusObj ? campusObj.name || publication.campus : publication.campus, type: 'student' });
             }
             if (publication.groupe !== 'tous') {
                 badges.push({ icon: '⏰', text: publication.groupe, type: 'student' });
             }
         }
-        
+
         if (publication.audience === 'staff' || publication.audience === 'both') {
             badges.push({ icon: <FaChalkboardTeacher />, text: 'Personnel', type: 'staff' });
-            
+
             if (publication.staffTarget) {
                 badges.push({ icon: <FaBuilding />, text: publication.staffTarget, type: 'staff' });
             }
         }
-        
+
         if (publication.audience === 'both') {
             badges.unshift({ icon: <FaGlobe />, text: 'Tout le monde', type: 'both' });
         }
-        
+
         return badges;
     };
 
@@ -253,80 +322,142 @@ const FairePublication = () => {
             showNotification('❌ Veuillez rédiger le contenu de votre publication', 'error');
             return false;
         }
+        if (!selectedUniversityId) {
+            showNotification('❌Veuillez sélectionner une université', 'error');
+            return false;
+        }
         return true;
     };
 
-    const publishNow = () => {
+    const publishNow = async () => {
         if (!validatePublication()) return;
-        
+
         setLoading(true);
-        
-        // Simulation de publication
-        setTimeout(() => {
-            const newPublication = {
-                id: Date.now(),
-                author: currentUser.name,
-                authorAvatar: currentUser.avatar,
-                authorRole: currentUser.role,
-                content: publication.content,
-                date: 'À l\'instant',
-                likes: 0,
-                dislikes: 0,
-                comments: 0,
-                urgent: publication.isUrgent,
-                attachments: selectedFiles.map(f => ({
-                    type: f.type,
-                    name: f.name,
-                    size: formatFileSize(f.size),
-                    url: '#'
-                })),
-                settings: {
-                    allowComments: publication.allowComments
-                },
-                target: {
-                    audience: publication.audience,
-                    filiere: publication.filiere,
-                    niveau: publication.niveau,
-                    campus: publication.campus,
-                    groupe: publication.groupe
+
+        try {
+            const userStr = localStorage.getItem("user");
+            if (!userStr) {
+                showNotification("Utilisateur non authentifié", "error");
+                setLoading(false);
+                return;
+            }
+
+            const user = JSON.parse(userStr);
+
+            // 🔥 Map audience to PostSchema target.type (singular values)
+            const mapAudience = () => {
+                switch (publication.audience) {
+                    case "students":
+                        return "student";
+                    case "staff":
+                        return user.roles[0] === "admin" ? "admin" : "teacher";
+                    case "both":
+                        return "all";
+                    default:
+                        return "all";
                 }
             };
-            
-            // Sauvegarder
-            const publications = JSON.parse(localStorage.getItem('publications')) || [];
-            publications.unshift(newPublication);
-            localStorage.setItem('publications', JSON.stringify(publications));
-            
-            // Supprimer le brouillon
-            localStorage.removeItem('teacherDraft');
-            
-            let message = '';
-            if (publication.audience === 'students') {
-                message = '✅ Publication créée pour les étudiants !';
-            } else if (publication.audience === 'staff') {
-                message = '✅ Publication interne créée pour le personnel !';
-            } else {
-                message = '✅ Publication créée pour tout le campus !';
+
+            const basePayload = {
+                universityId: selectedUniversityId,
+
+                authorId: user._id,
+                authorName: `${user.firstName} ${user.lastName}`,
+                authorAvatar: currentUser.avatar,
+                authorRole: user.roles[0],
+
+                content: publication.content,
+
+                images: [],
+
+                target: {
+                    type: mapAudience(),
+
+                    campusIds:
+                        publication.campus !== "tous"
+                            ? [publication.campus]
+                            : [],
+
+                    filieres:
+                        publication.filiere !== "tous"
+                            ? [publication.filiere]
+                            : [],
+
+                    niveaux:
+                        publication.niveau !== "tous"
+                            ? [publication.niveau]
+                            : [],
+
+                    groupes:
+                        publication.groupe !== "tous"
+                            ? [publication.groupe]
+                            : []
+                },
+
+                options: {
+                    allowComments: publication.allowComments,
+                    allowReactions: true,
+                    pinned: false,
+                    urgent: publication.isUrgent
+                }
+            };
+
+            // decide whether to use multipart/form-data
+            let requestData = basePayload;
+            let config = {};
+
+            if (selectedFiles.length > 0) {
+                const formData = new FormData();
+                // append all simple fields
+                Object.entries(basePayload).forEach(([key, val]) => {
+                    if (typeof val === 'object') {
+                        formData.append(key, JSON.stringify(val));
+                    } else {
+                        formData.append(key, val);
+                    }
+                });
+                // add each file under attachments
+                selectedFiles.forEach(fileObj => {
+                    formData.append('attachments', fileObj.file);
+                });
+                requestData = formData;
+                config = {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                };
             }
-            
-            showNotification(message, 'success');
-            
-            setLoading(false);
-            
+
+            console.log("🚀 Sending:", basePayload, selectedFiles);
+
+            await api.post("/posts/", requestData, config);
+
+            localStorage.removeItem("teacherDraft");
+
+            showNotification("✅ Publication créée avec succès", "success");
+
             setTimeout(() => {
-                navigate('/publications');
-            }, 2000);
-        }, 1500);
+                navigate("/publications");
+            }, 1500);
+
+        } catch (error) {
+            console.error(error);
+            showNotification("Erreur lors de la publication", "error");
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const saveAsDraft = () => {
         if (!publication.content.trim()) {
             showNotification('Le brouillon est vide', 'error');
             return;
         }
-        
+
         setSavingDraft(true);
-        
+
         setTimeout(() => {
             const draft = {
                 message: publication.content,
@@ -338,9 +469,10 @@ const FairePublication = () => {
                 groupe: publication.groupe,
                 urgent: publication.isUrgent,
                 allowComments: publication.allowComments,
+                universityId: selectedUniversityId,
                 date: new Date().toISOString()
             };
-            
+
             localStorage.setItem('teacherDraft', JSON.stringify(draft));
             showNotification('✅ Brouillon enregistré avec succès', 'success');
             setSavingDraft(false);
@@ -352,11 +484,13 @@ const FairePublication = () => {
         setTimeout(() => setNotification(null), 3000);
     };
 
+
+
     return (
         <div className={styles.pageContainer}>
             {/* Notification */}
             {notification && (
-                <Alert 
+                <Alert
                     variant={notification.type === 'success' ? 'success' : notification.type === 'error' ? 'danger' : 'info'}
                     className={styles.notification}
                     onClose={() => setNotification(null)}
@@ -367,29 +501,7 @@ const FairePublication = () => {
             )}
 
             {/* En-tête */}
-            <header className={styles.header}>
-                <div className={styles.headerContent}>
-                    <div className={styles.logoSection}>
-                        <div className={styles.logoText}>
-                            <span className={styles.logoMain}>INFOcAMPUS</span>
-                            <span className={styles.logoSubtitle}>CONNECTING UNIVERSITIES</span>
-                        </div>
-                        <Badge bg="warning" className={styles.teacherBadge}>
-                            <FaChalkboardTeacher /> ENSEIGNANT
-                        </Badge>
-                    </div>
-
-                    <div className={styles.userSection}>
-                        <div className={styles.userAvatar}>
-                            {currentUser.avatar}
-                        </div>
-                        <div className={styles.userInfo}>
-                            <div className={styles.userName}>{currentUser.name}</div>
-                            <div className={styles.userRole}>{currentUser.role} - {currentUser.department}</div>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <AppNavbar currentUser={currentUser} />
 
             {/* Contenu principal */}
             <Container className={styles.mainContent}>
@@ -397,8 +509,8 @@ const FairePublication = () => {
                     <Col lg={8}>
                         {/* En-tête de page */}
                         <div className={styles.pageHeader}>
-                            <Button 
-                                variant="link" 
+                            <Button
+                                variant="link"
                                 className={styles.backButton}
                                 onClick={() => navigate('/publications')}
                             >
@@ -418,7 +530,7 @@ const FairePublication = () => {
                                 <FaExclamationTriangle /> Publication réservée au personnel
                             </Alert.Heading>
                             <p>
-                                En tant qu'enseignant ou membre de l'administration, 
+                                En tant qu'enseignant ou membre de l'administration,
                                 vous pouvez publier pour vos collègues ou pour les étudiants.
                             </p>
                         </Alert>
@@ -435,7 +547,7 @@ const FairePublication = () => {
                                         <div className={styles.publisherName}>
                                             {currentUser.name}
                                             <Badge bg="warning" className={styles.publisherBadge}>
-                                                <FaChalkboardTeacher /> {currentUser.role}
+                                                <FaChalkboardTeacher /> {currentUser.roles[0]}
                                             </Badge>
                                         </div>
                                         <div className={styles.publisherRole}>
@@ -463,8 +575,8 @@ const FairePublication = () => {
                                         <div className={styles.charCounter}>
                                             <span className={
                                                 charWarning === 'error' ? styles.counterError :
-                                                charWarning === 'warning' ? styles.counterWarning :
-                                                styles.counterNormal
+                                                    charWarning === 'warning' ? styles.counterWarning :
+                                                        styles.counterNormal
                                             }>
                                                 {charCount}/{MAX_CHARS} caractères
                                             </span>
@@ -479,7 +591,26 @@ const FairePublication = () => {
                                         <div className={styles.sectionTitle}>
                                             <FaGlobe /> Ciblage du public
                                         </div>
-                                        
+
+                                        {userUniversities.length > 0 && (
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Select University</Form.Label>
+                                                <Form.Select
+                                                    value={selectedUniversityId}
+                                                    onChange={(e) => setSelectedUniversityId(e.target.value)}
+                                                    required
+                                                >
+                                                    <option value="">Choose university</option>
+                                                    {userUniversities.map((u) => (
+                                                        <option key={u.id} value={u.id}>
+                                                            {u.name}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                        )}
+
+
                                         <p className={styles.sectionDescription}>
                                             Sélectionnez à qui est destinée votre publication.
                                         </p>
@@ -572,9 +703,11 @@ const FairePublication = () => {
                                                                 className={styles.targetSelect}
                                                             >
                                                                 <option value="tous">Tous les campus</option>
-                                                                <option value="Campus 1">Campus A</option>
-                                                                <option value="Campus 2">Campus B</option>
-                                                                <option value="Campus 3">Campus C</option>
+                                                                {availableCampuses.map(c => (
+                                                                    <option key={c._id || c} value={c._id || c}>
+                                                                        {c.name || c}
+                                                                    </option>
+                                                                ))}
                                                             </Form.Select>
                                                         </Form.Group>
                                                     </Col>
@@ -606,7 +739,7 @@ const FairePublication = () => {
                                                 </div>
                                                 <div className={styles.previewBadges}>
                                                     {getTargetingBadges().map((badge, index) => (
-                                                        <Badge 
+                                                        <Badge
                                                             key={index}
                                                             className={`${styles.targetBadge} ${styles[badge.type]}`}
                                                         >
@@ -623,7 +756,7 @@ const FairePublication = () => {
                                         <div className={styles.attachmentsTitle}>
                                             <FaPaperclip /> Pièces jointes (facultatif)
                                         </div>
-                                        
+
                                         <div className={styles.fileInputContainer}>
                                             <input
                                                 type="file"
@@ -672,7 +805,7 @@ const FairePublication = () => {
                                         <div className={styles.optionsTitle}>
                                             ⚙️ Options de publication
                                         </div>
-                                        
+
                                         <Form.Check
                                             type="checkbox"
                                             id="allowComments"
@@ -681,7 +814,7 @@ const FairePublication = () => {
                                             label="Autoriser les commentaires"
                                             className={styles.optionCheckbox}
                                         />
-                                        
+
                                         <Form.Check
                                             type="checkbox"
                                             id="markUrgent"
@@ -715,7 +848,7 @@ const FairePublication = () => {
                                                 <><FaSave className="me-2" />Brouillon</>
                                             )}
                                         </Button>
-                                        
+
                                         <Button
                                             variant="success"
                                             className={styles.publishButton}
