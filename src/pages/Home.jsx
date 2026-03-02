@@ -90,7 +90,7 @@ const Home = () => {
                         S'inscrire
                     </Link>
                     
-                    <Link to="/login" className={`${styles.mainBtn} ${styles.btnLogin}`}>
+                    <Link to="/connexion" className={`${styles.mainBtn} ${styles.btnLogin}`}>
                         <span className={styles.btnIcon}>
                             <FaLock />
                         </span>

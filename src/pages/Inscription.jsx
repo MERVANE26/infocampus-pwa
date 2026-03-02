@@ -450,7 +450,7 @@ const Inscription = () => {
                 </Form>
 
                 <div className={styles.toggleForm}>
-                  Déjà un compte ? <Link to="/login">Se connecter</Link>
+                  Déjà un compte ? <Link to="/connexion">Se connecter</Link>
                 </div>
 
               </Card.Body>
