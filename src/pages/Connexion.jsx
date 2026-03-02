@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -9,267 +11,252 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
-import styles from './Connexion.module.css';
+import InputGroup from 'react-bootstrap/InputGroup';
 import { api } from '../lib/api';
+import styles from './Connexion.module.css';
 
 const Connexion = () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && user) navigate('/profile');
+  }, [navigate]);
 
+  const validateForm = () => {
+    const { email, password } = formData;
+    if (!email || !password) {
+      setError(t('auth.fillAllFields'));
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError(t('auth.invalidEmail'));
+      return false;
+    }
+    if (password.length < 6) {
+      setError(t('auth.passwordTooShort'));
+      return false;
+    }
+    return true;
+  };
 
-    useEffect(() => {
-        // Vérifier si l'utilisateur est déjà connecté
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
-        
-        if (token && user) {
-            navigate('/profile');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await api.post('/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      if (response.data?.token && response.data?.user) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('loginTime', new Date().toISOString());
+
+        if (rememberMe) {
+          localStorage.setItem('rememberEmail', formData.email);
         }
 
-        // Service Worker (Workbox)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker enregistré:', registration);
-                    })
-                    .catch(error => {
-                        console.log('❌ Service Worker error:', error);
-                    });
-            });
-        }
-    }, [navigate]);
+        const redirectMap = {
+          'student': '/profil-etudiant',
+          'teacher': '/profil-enseignant',
+          'admin': '/profil-administration'
+        };
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        setError('');
-    };
+        setTimeout(() => {
+          navigate(redirectMap[response.data.user.roles?.[0]] || '/profile');
+        }, 500);
+      } else {
+        setError(t('auth.loginSuccess') === 'Login successful!' ? 'Invalid credentials' : response.data?.message);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || t('errors.networkError'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const validateForm = () => {
-        const { email, password } = formData;
-        
-        if (!email || !password) {
-            setError('Veuillez remplir tous les champs');
-            return false;
-        }
-        
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError('Veuillez entrer un email valide');
-            return false;
-        }
-        
-        if (password.length < 6) {
-            setError('Le mot de passe doit contenir au moins 6 caractères');
-            return false;
-        }
-        
-        return true;
-    };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!validateForm()) return;
-        
-        setLoading(true);
-        setError('');
+  return (
+    <div className={styles.loginContainer}>
+      <Container fluid className={styles.containerWrapper}>
+        <Row className="align-items-center min-vh-100 g-4">
+          {/* Illustation / Features Column */}
+          <Col lg={6} xs={12} className={`${styles.featuresColumn} d-none d-lg-flex`}>
+            <div className={styles.featuresContent}>
+              <h1 className={styles.featuresTitle}>{t('common.appName')}</h1>
+              <p className={styles.featuresSubtitle}>
+                Connecting Universities, Empowering Communities
+              </p>
+              
+              <div className={styles.featuresList}>
+                <div className={styles.featureItem}>
+                  <div className={styles.featureIcon}>✓</div>
+                  <div>
+                    <h6>{t('publication.title')}</h6>
+                    <p>{t('publication.comments')}</p>
+                  </div>
+                </div>
+                <div className={styles.featureItem}>
+                  <div className={styles.featureIcon}>✓</div>
+                  <div>
+                    <h6>{t('profile.academicInfo')}</h6>
+                    <p>{t('profile.personalInfo')}</p>
+                  </div>
+                </div>
+                <div className={styles.featureItem}>
+                  <div className={styles.featureIcon}>✓</div>
+                  <div>
+                    <h6>{t('nav.universities')}</h6>
+                    <p>Connect with your institution</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Col>
 
-        const data = {
-            email: formData.email,
-            password: formData.password
-        }
+          {/* Login Form Column */}
+          <Col lg={6} xs={12} className={styles.formColumn}>
+            <Card className={styles.loginCard}>
+              <Card.Body className={styles.cardBody}>
+                <div className={styles.headerSection}>
+                  <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                  <p className={styles.formSubtitle}>{t('auth.fillAllFields')}</p>
+                </div>
 
-        try {
-            const response = await api.post('/auth/login', data);
+                {error && (
+                  <Alert variant="danger" dismissible onClose={() => setError('')} className={styles.alert}>
+                    {error}
+                  </Alert>
+                )}
 
-            if (response.data?.user) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-                localStorage.setItem('loginTime', new Date().toISOString());
+                <Form onSubmit={handleSubmit}>
+                  {/* Email Field */}
+                  <Form.Group className="mb-4">
+                    <Form.Label className={styles.label}>{t('auth.email')}</Form.Label>
+                    <InputGroup className={styles.inputGroup}>
+                      <InputGroup.Text className={styles.inputIcon}>
+                        <FaEnvelope />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={styles.input}
+                      />
+                    </InputGroup>
+                  </Form.Group>
 
-                // Notification PWA
-                if (Notification.permission === 'granted') {
-                    new Notification('Connexion réussie!', {
-                        body: `Bienvenue ${response.data?.user?.email || 'utilisateur'}`,
-                        icon: '/icon-192x192.png'
-                    });
-                }
+                  {/* Password Field */}
+                  <Form.Group className="mb-3">
+                    <Form.Label className={styles.label}>{t('auth.password')}</Form.Label>
+                    <InputGroup className={styles.inputGroup}>
+                      <InputGroup.Text className={styles.inputIcon}>
+                        <FaLock />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={styles.input}
+                      />
+                      <Button
+                        variant="outline-secondary"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className={styles.passwordToggle}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </Button>
+                    </InputGroup>
+                  </Form.Group>
 
-                const redirectMap = {
-                    'student': '/profil-etudiant',
-                    'teacher': '/profil-enseignant',
-                    'admin': '/profil-administration'
-                };
+                  {/* Remember Me & Forgot Password */}
+                  <div className={`d-flex justify-content-between align-items-center mb-4 ${styles.optionsRow}`}>
+                    <Form.Check
+                      type="checkbox"
+                      label={t('auth.rememberMe')}
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className={styles.checkbox}
+                    />
+                    <Link to="#" className={styles.forgotLink}>
+                      {t('auth.forgotPassword')}
+                    </Link>
+                  </div>
 
-                const path = redirectMap[response.data?.user?.roles[0]] || '/dashboard';
-                
-                setTimeout(() => {
-                    navigate('/dashboard');
-                }, 1000);
-            } else {
-                setError(response.data?.message || 'Email ou mot de passe incorrect');
-            }
+                  {/* Submit Button */}
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    disabled={loading}
+                    className={styles.submitButton}
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner animation="border" size="sm" className="me-2" />
+                        {t('common.loading')}
+                      </>
+                    ) : (
+                      <>
+                        {t('auth.login')}
+                        <FaArrowRight className="ms-2" />
+                      </>
+                    )}
+                  </Button>
+                </Form>
 
-        } catch (err) {
-            if (err.code === 'ECONNABORTED') {
-                setError('Délai de connexion dépassé. Vérifiez votre connexion.');
-            } else if (err.response) {
-                setError(err.response.data.message || `Erreur ${err.response.status}`);
-            } else if (err.request) {
-                setError('Serveur indisponible. Vérifiez que le backend est lancé');
-            } else {
-                setError('Erreur de connexion: ' + err.message);
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+                {/* Sign Up Link */}
+                <p className={styles.signupText}>
+                  {t('auth.dontHaveAccount')}{' '}
+                  <Link to="/register" className={styles.signupLink}>
+                    {t('auth.register')}
+                  </Link>
+                </p>
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
+                {/* Additional Links */}
+                <div className={styles.footerLinks}>
+                  <Link to="/about" className={styles.footerLink}>About</Link>
+                  <span>•</span>
+                  <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
+                  <span>•</span>
+                  <Link to="/terms" className={styles.footerLink}>Terms</Link>
+                </div>
+              </Card.Body>
+            </Card>
 
-    return (
-        <div className={styles.pageContainer}>
-            {/* <div className={styles.background}></div> */}
-            
-            <Container className={styles.container}>
-                <Row className="justify-content-center align-items-center min-vh-100">
-                    <Col md={6} lg={5} xl={4}>
-                        <Card className={styles.loginCard}>
-                            <Card.Body className="p-4 p-sm-5">
-                                {/* Logo et titre */}
-                                <div className={styles.header}>
-                                    <div className={styles.logoWrapper}>
-                                        <span className={styles.mainLogo}>INFO</span>
-                                    </div>
-                                    <h1 className={styles.title}>INFOcAMPUS</h1>
-                                    <p className={styles.subtitle}>
-                                        L'éducation connectée
-                                    </p>
-                                </div>
-
-                                {/* Formulaire */}
-                                <Form onSubmit={handleSubmit} className={styles.form}>
-                                    {/* Email */}
-                                    <Form.Group className="mb-4">
-                                        <Form.Label className={styles.label}>
-                                            Email universitaire
-                                        </Form.Label>
-                                        <div className={styles.inputGroup}>
-                                            <Form.Control
-                                                type="email"
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                placeholder="prenom.nom@universite.cm"
-                                                disabled={loading}
-                                                className={styles.input}
-                                                required
-                                            />
-                                        </div>
-                                    </Form.Group>
-
-                                    {/* Mot de passe */}
-                                    <Form.Group className="mb-4">
-                                        <Form.Label className={styles.label}>
-                                            Mot de passe
-                                        </Form.Label>
-                                        <div className={styles.inputGroup}>
-                                            <Form.Control
-                                                type={showPassword ? "text" : "password"}
-                                                name="password"
-                                                value={formData.password}
-                                                onChange={handleChange}
-                                                placeholder="Votre mot de passe"
-                                                disabled={loading}
-                                                className={styles.input}
-                                                required
-                                            />
-                                            <Button
-                                                variant="link"
-                                                onClick={togglePasswordVisibility}
-                                                className={styles.passwordToggle}
-                                            >
-                                                {showPassword ? "Cacher" : "Afficher"}
-                                            </Button>
-                                        </div>
-                                    </Form.Group>
-
-                                    {/* Message d'erreur */}
-                                    {error && (
-                                        <Alert 
-                                            variant="danger" 
-                                            className={styles.alert}
-                                            dismissible
-                                            onClose={() => setError('')}
-                                        >
-                                            <Alert.Heading as="p" className="mb-0">
-                                                {error}
-                                            </Alert.Heading>
-                                        </Alert>
-                                    )}
-
-                                    {/* Bouton de connexion */}
-                                    <Button
-                                        type="submit"
-                                        className={styles.loginButton}
-                                        disabled={loading}
-                                        size="lg"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <Spinner
-                                                    as="span"
-                                                    animation="border"
-                                                    size="sm"
-                                                    role="status"
-                                                    aria-hidden="true"
-                                                    className="me-2"
-                                                />
-                                                Connexion en cours...
-                                            </>
-                                        ) : (
-                                            "Se connecter"
-                                        )}
-                                    </Button>
-
-                                    {/* Liens supplémentaires */}
-                                    <div className={styles.links}>
-                                        <Link to="/forgot-password" className={styles.link}>
-                                            Mot de passe oublié ?
-                                        </Link>
-                                        <Link to="/register" className={styles.link}>
-                                            Pas encore inscrit ?
-                                        </Link>
-                                    </div>
-                                </Form>
-
-                                {/* Section information */}
-                                <div className={styles.infoSection}>
-                                    <div className={styles.divider}></div>
-                                    <p className={styles.infoText}>
-                                        Pour les universités africaines - Plateforme de communication intelligente
-                                    </p>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        </div>
-    );
+            {/* Mobile Features (visible on small screens) */}
+            <div className={`${styles.mobileFeatures} d-lg-none mt-4`}>
+              <small className="text-muted text-center d-block">
+                {t('common.appName')} - Connecting Universities Worldwide
+              </small>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
 };
 
 export default Connexion;

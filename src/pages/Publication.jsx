@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { 
-    FaUniversity,
     FaBell,
     FaExclamationTriangle,
     FaInfoCircle,
@@ -10,22 +9,18 @@ import {
     FaFilePdf,
     FaFileImage,
     FaFileAlt,
-    FaComments,
     FaThumbsUp,
     FaThumbsDown,
     FaDownload,
-    FaRegComments,
-    FaRegThumbsUp,
-    FaRegThumbsDown,
-    FaTimes,
     FaSearch,
     FaClock,
-    FaUserCircle,
-    FaCog,
-    FaSignOutAlt,
+    FaArrowLeft,
+    FaArrowRight,
+    FaComments,
+    FaShare,
+    FaEllipsisH
 } from 'react-icons/fa';
-import { MdEmail, MdPhone, MdSchool, MdWarning, MdClose, MdMenu } from 'react-icons/md';
-import { BsPersonBadge, BsPersonVcard, BsThreeDotsVertical } from 'react-icons/bs';
+import { MdFavoriteBorder, MdFavorite } from 'react-icons/md';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -35,26 +30,16 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
 import Image from 'react-bootstrap/Image';
-import ListGroup from 'react-bootstrap/ListGroup';
-import ProgressBar from 'react-bootstrap/ProgressBar';
 import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
 import InputGroup from 'react-bootstrap/InputGroup';
 import styles from './Publication.module.css';
-import { 
-    BoutonAction, 
-    BoutonTelecharger,  
-    BoutonCommentaire
-} from '../composants/Index';  
+import AppNavbar from '../composants/AppNavbar';
 import { api } from '../lib/api';
 
 
@@ -71,7 +56,6 @@ const Publication = () => {
     });
 
     const [publications, setPublications] = useState([]);
-    const [filteredPublications, setFilteredPublications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [notification, setNotification] = useState(null);
@@ -91,6 +75,18 @@ const Publication = () => {
     const [filterType, setFilterType] = useState('all');
     const [sortBy, setSortBy] = useState('recent');
     const [searchTerm, setSearchTerm] = useState('');
+    
+    // États pour la pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        limit: 10,
+        total: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+    });
     
     // États pour les toasts
     const [showToast, setShowToast] = useState(false);
@@ -127,9 +123,11 @@ const Publication = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+    // Trigger API reload when filters change
     useEffect(() => {
-        filterAndSortPublications();
-    }, [publications, filterType, sortBy, searchTerm]);
+        setCurrentPage(1);
+        loadPublications(1);
+    }, [filterType, sortBy]);
 
     const loadUserData = async () => {
         try {
@@ -147,24 +145,70 @@ const Publication = () => {
         }
     };
 
-    const loadPublications = async () => {
+    const loadPublications = async (pageNum = 1) => {
         setLoading(true);
         try {
-            // Essayer de charger depuis l'API
-            const response = await api.get('/posts/all');
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            
+            // Build query parameters based on filters
+            const params = new URLSearchParams();
+            
+            // Add pagination
+            params.append('page', pageNum);
+            params.append('limit', pageSize);
+            
+            // Add current user's university
+            if (user && (user.studentUniversityId || user.teacherUniversitiesIds[0])) {
+                params.append('universityId', user.studentUniversityId);
+            }
+            
+            // Map filterType to API parameters
+            if (filterType === 'urgent') {
+                params.append('urgent', 'true');
+            } else if (filterType === 'teacher') {
+                params.append('authorRole', 'teacher');
+            } else if (filterType === 'admin') {
+                params.append('authorRole', 'admin');
+            } else if (filterType === 'student') {
+                params.append('targetType', 'student');
+            }
+            
+            // Map sortBy to API parameter
+            let sortParam = '-createdAt'; // default: most recent
+            if (sortBy === 'popular') {
+                sortParam = '-likes'; // backend can't calculate popularity, use likes as proxy
+            } else if (sortBy === 'likes') {
+                sortParam = '-likes';
+            } else if (sortBy === 'recent') {
+                sortParam = '-createdAt';
+            }
+            params.append('sortBy', sortParam);
+            
+            // Fetch from API
+            const response = await api.get(`/posts/all?${params.toString()}`);
+            
             if (response.data.success) {
-                setPublications(response.data?.data);
+                setPublications(response.data.data || []);
+                setPagination(response.data.pagination || {
+                    currentPage: pageNum,
+                    totalPages: 1,
+                    limit: pageSize,
+                    total: 0,
+                    hasNextPage: false,
+                    hasPrevPage: false,
+                });
+                setCurrentPage(pageNum);
+            } else {
+                throw new Error('API returned success: false');
             }
         } catch (error) {
             console.error('Erreur chargement publications:', error);
             
-            // Fallback: charger depuis localStorage ou données mock
+            // Fallback to localStorage
             const localPublications = JSON.parse(localStorage.getItem('publications')) || [];
             if (localPublications.length > 0) {
                 setPublications(localPublications);
-            } else {
-                // Données mockées
-                setPublications(mockPublications);
             }
             
             showNotification('📱 Mode hors-ligne : chargement des publications locales', 'warning');
@@ -173,66 +217,37 @@ const Publication = () => {
         }
     };
 
-    const filterAndSortPublications = () => {
-        let filtered = [...publications];
 
-        // Filtre par type
-        if (filterType !== 'all') {
-            filtered = filtered.filter(p => {
-                if (filterType === 'urgent') return p.urgent;
-                if (filterType === 'teacher') return p.authorRole === 'Enseignant';
-                if (filterType === 'admin') return p.authorRole === 'Administration';
-                if (filterType === 'student') return p.authorRole === 'Étudiant';
-                return true;
-            });
-        }
-
-        // Recherche
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(p => 
-                p.content.toLowerCase().includes(term) ||
-                p.author.toLowerCase().includes(term) ||
-                p.authorRole.toLowerCase().includes(term)
-            );
-        }
-
-        // Tri
-        filtered.sort((a, b) => {
-            if (sortBy === 'recent') {
-                return new Date(b.date) - new Date(a.date);
-            }
-            if (sortBy === 'popular') {
-                return (b.likes + b.comments) - (a.likes + a.comments);
-            }
-            if (sortBy === 'likes') {
-                return b.likes - a.likes;
-            }
-            return 0;
-        });
-
-        setFilteredPublications(filtered);
-    };
-
-    const handleReaction = async (publicationId, reactionType) => {
+    const handleReaction = async (postId, reactionType) => {
         try {
             const updatedPublications = publications.map(pub => {
-                if (pub.id === publicationId) {
+                if (pub._id === postId) {
                     const newPub = { ...pub };
                     
-                    // Annuler la réaction si c'est la même
-                    if (pub.userReaction === reactionType) {
-                        newPub[reactionType === 'like' ? 'likes' : 'dislikes']--;
+                    // Check if user already reacted
+                    const userReactedWith = pub.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?. reaction;
+                    
+                    if (userReactedWith === reactionType) {
+                        // Toggle off: remove the reaction
                         newPub.userReaction = null;
+                        newPub.userReactions = newPub.userReactions?.filter(r => r.userId !== (currentUser._id || currentUser.id)) || [];
+                        newPub[reactionType === 'like' ? 'likes' : 'dislikes']--;
                         showNotification(`Réaction retirée`, 'info');
                     } else {
-                        // Supprimer l'ancienne réaction
-                        if (pub.userReaction) {
-                            newPub[pub.userReaction === 'like' ? 'likes' : 'dislikes']--;
+                        // Toggle on with new reaction
+                        // Remove old reaction if exists
+                        if (userReactedWith) {
+                            newPub[userReactedWith === 'like' ? 'likes' : 'dislikes']--;
+                            newPub.userReactions = newPub.userReactions?.filter(r => r.userId !== (currentUser._id || currentUser.id)) || [];
                         }
-                        // Ajouter la nouvelle
+                        // Add new reaction
                         newPub[reactionType === 'like' ? 'likes' : 'dislikes']++;
                         newPub.userReaction = reactionType;
+                        newPub.userReactions = newPub.userReactions || [];
+                        newPub.userReactions.push({
+                            userId: currentUser._id || currentUser.id,
+                            reaction: reactionType
+                        });
                         showNotification(`Vous avez ${reactionType === 'like' ? 'aimé' : 'disliké'} cette publication`, 'success');
                     }
                     
@@ -242,48 +257,80 @@ const Publication = () => {
             });
 
             setPublications(updatedPublications);
-            
-            // Sauvegarder dans localStorage
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
-            // Envoyer à l'API
-            await api.post(`/posts/${publicationId}/react`, {
-                reaction: reactionType
-            });
+              const config = {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                };
+
+            // Send to API
+            await api.patch(`/posts/${postId}/react`, {
+                reaction: reactionType,
+                userId: currentUser._id || currentUser.id
+            }, config);
 
         } catch (error) {
-            console.error('Erreur réaction:', error);
+            console.error('Erreur réaction:', error.response.data.message || error.message);
             showNotification('❌ Erreur lors de la réaction', 'error');
         }
     };
 
-    const handleCommentReaction = (publicationId, commentId, reactionType) => {
+    const handleCommentReaction = async (postId, commentId, reactionType) => {
         setPublications(prev => prev.map(pub => {
-            if (pub.id === publicationId) {
-                const updatedComments = pub.commentsData.map(comment => {
-                    if (comment.id === commentId) {
+            if (pub._id === postId) {
+                const updatedComments = pub.commentsData?.map(comment => {
+                    if (comment._id === commentId) {
                         const newComment = { ...comment };
-                        
-                        if (comment.userReaction === reactionType) {
-                            newComment[reactionType === 'like' ? 'likes' : 'dislikes']--;
+                        const userReactedWith = comment.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?. reaction;
+
+                        if (userReactedWith === reactionType) {
+                            // Toggle off
                             newComment.userReaction = null;
+                            newComment.userReactions = newComment.userReactions?.filter(r => r.userId !== (currentUser._id || currentUser.id)) || [];
+                            newComment[reactionType === 'like' ? 'likes' : 'dislikes']--;
                         } else {
-                            if (comment.userReaction) {
-                                newComment[comment.userReaction === 'like' ? 'likes' : 'dislikes']--;
+                            // Toggle on with change
+                            if (userReactedWith) {
+                                newComment[userReactedWith === 'like' ? 'likes' : 'dislikes']--;
+                                newComment.userReactions = newComment.userReactions?.filter(r => r.userId !== (currentUser._id || currentUser.id)) || [];
                             }
                             newComment[reactionType === 'like' ? 'likes' : 'dislikes']++;
                             newComment.userReaction = reactionType;
+                            newComment.userReactions = newComment.userReactions || [];
+                            newComment.userReactions.push({
+                                userId: currentUser._id || currentUser.id,
+                                reaction: reactionType
+                            });
                         }
                         
                         return newComment;
                     }
                     return comment;
-                });
+                }) || [];
                 
                 return { ...pub, commentsData: updatedComments };
             }
             return pub;
         }));
+
+         const config = {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                };
+
+        // send to API after optimistic update
+        try {
+            await api.patch(`/posts/${postId}/comment/${commentId}/react`, {
+                reaction: reactionType,
+                userId: currentUser._id || currentUser.id
+            }, config);
+        } catch (err) {
+            console.error('Erreur réaction commentaire:', err);
+            showNotification('❌ Erreur lors de la réaction au commentaire', 'error');
+        }
     };
 
     const handleAddComment = async () => {
@@ -291,19 +338,21 @@ const Publication = () => {
 
         try {
             const comment = {
-                id: Date.now(),
-                author: currentUser.firstName + ' ' + currentUser.lastName,
-                avatar: currentUser.avatar,
-                role: currentUser.roles[0],
+                _id: Date.now().toString(),
+                authorName: currentUser.firstName + ' ' + currentUser.lastName,
+                authorAvatar: currentUser.avatar,
+                authorRole: Array.isArray(currentUser.roles) ? currentUser.roles[0] : currentUser.role,
                 text: newComment,
-                date: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
                 likes: 0,
                 dislikes: 0,
+                authorId: currentUser._id || currentUser.id,
+                userReactions: [],
                 userReaction: null
             };
 
             const updatedPublications = publications.map(pub => {
-                if (pub.id === currentPublication.id) {
+                if (pub._id === currentPublication._id) {
                     return {
                         ...pub,
                         commentsData: [comment, ...pub.commentsData],
@@ -319,10 +368,33 @@ const Publication = () => {
             // Sauvegarder dans localStorage
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
+             const config = {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                };
+
             // Envoyer à l'API
-            await api.post(`/posts/${currentPublication.id}/comments`, {
-                comment: newComment
-            });
+            const response = await api.post(`/posts/${currentPublication._id}/comment`, {
+                text: newComment,
+                authorId: currentUser._id || currentUser.id
+            }, config);
+
+            // Update comment._id from API response if available
+            if (response?.data?._id) {
+                comment._id = response.data._id;
+                const finalUpdatedPublications = publications.map(pub => {
+                    if (pub._id === currentPublication._id) {
+                        return {
+                            ...pub,
+                            commentsData: pub.commentsData.map(c => c._id === comment._id ? comment : c)
+                        };
+                    }
+                    return pub;
+                });
+                setPublications(finalUpdatedPublications);
+                localStorage.setItem('publications', JSON.stringify(finalUpdatedPublications));
+            }
 
             showNotification('✅ Commentaire ajouté !', 'success');
 
@@ -335,24 +407,13 @@ const Publication = () => {
         } catch (error) {
             console.error('Erreur ajout commentaire:', error);
             showNotification('❌ Erreur lors de l\'ajout du commentaire', 'error');
+            // optionally queue the comment for later sync
         }
     };
 
     const openComments = (publication) => {
         setCurrentPublication(publication);
         setShowCommentsModal(true);
-    };
-
-    const openLightbox = (imageUrl) => {
-        setSelectedImage(imageUrl);
-        setShowLightbox(true);
-    };
-
-    const handleDownload = (fileName) => {
-        showNotification(`📥 Téléchargement de "${fileName}" démarré`, 'success');
-        
-        // Simuler un suivi de téléchargement
-        console.log(`Fichier téléchargé: ${fileName} - Utilisateur: ${currentUser.name}`);
     };
 
     const showNotification = (message, type = 'info') => {
@@ -363,22 +424,6 @@ const Publication = () => {
         setTimeout(() => {
             setShowToast(false);
         }, 3000);
-    };
-
-    const getAvatarClass = (role) => {
-        switch(role) {
-            case 'Administration': return styles.avatarAdmin;
-            case 'Enseignant': return styles.avatarTeacher;
-            default: return styles.avatarStudent;
-        }
-    };
-
-    const getCommentAvatarClass = (role) => {
-        switch(role) {
-            case 'Administration': return styles.commentAvatarAdmin;
-            case 'Enseignant': return styles.commentAvatarTeacher;
-            default: return styles.commentAvatarStudent;
-        }
     };
 
     const formatDate = (dateString) => {
@@ -406,7 +451,7 @@ const Publication = () => {
 
     return (
         <div className={styles.pageContainer}>
-            {/* Toast Container pour les notifications */}
+            {/* Toast Notification */}
             <ToastContainer position="top-end" className={styles.toastContainer}>
                 <Toast 
                     show={showToast} 
@@ -418,342 +463,280 @@ const Publication = () => {
                 </Toast>
             </ToastContainer>
 
-            {/* Barre de navigation */}
-            <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
-                <Container>
-                    <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                        <FaUniversity className={styles.brandIcon} />
-                        <div className={styles.brandText}>
-                            <span className={styles.brandName}>INFOcAMPUS</span>
-                            <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
-                        </div>
-                    </Navbar.Brand>
+            {/* Navigation */}
+            <AppNavbar currentUser={currentUser} />
 
-                    <Navbar.Toggle aria-controls="basic-navbar-nav">
-                        <MdMenu />
-                    </Navbar.Toggle>
-                    
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mx-auto">
-                            <Nav.Link as={Link} to="/profile" className={styles.navLink}>
-                                <FaUserCircle /> Profil
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/publications" className={`${styles.navLink} ${styles.active}`}>
-                                <FaBell /> Publications
-                            </Nav.Link>
-                            <Nav.Link as={Link} to="/parametres" className={styles.navLink}>
-                                <FaCog /> Paramètres
-                            </Nav.Link>
-                        </Nav>
-
-                        <Dropdown align="end">
-                            <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div className={styles.userAvatar}>
-                                    {currentUser.avatar}
-                                </div>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.userName}>{currentUser.firstName + ' ' + currentUser.lastName?.slice(0,1).toUpperCase()}</div>
-                                    <div className={styles.userRole}>{currentUser.roles[0]}</div>
-                                </div>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu className={styles.userDropdown}>
-                                <Dropdown.Item as={Link} to="/profil">
-                                    <FaUserCircle /> Mon profil
-                                </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/parametres">
-                                    <FaCog /> Paramètres
-                                </Dropdown.Item>
-                                <Dropdown.Divider />
-                                <Dropdown.Item onClick={() => navigate('/login')}>
-                                    <FaSignOutAlt /> Déconnexion
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-
-            {/* Contenu principal */}
-            <Container className={styles.mainContent}>
+            {/* Main Feed */}
+            <Container fluid className={styles.mainContent}>
                 <Row className="justify-content-center">
-                    <Col lg={8}>
-                        {/* Message informatif pour étudiants */}
-                        {currentUser.roles[0] === 'student' && (
-                            <Alert variant="info" className={styles.infoMessage}>
-                                <FaInfoCircle className="me-2" />
-                                <Alert.Heading as="h2" className={styles.infoTitle}>
-                                    📢 Publications du Campus
-                                </Alert.Heading>
-                                <p>
-                                    Les publications sont réservées aux enseignants et à l'administration. 
-                                    En tant qu'étudiant, vous pouvez consulter, réagir et commenter les publications.
-                                </p>
-                            </Alert>
-                        )}
-
-                        {/* Barre de recherche et filtres */}
+                    {/* Feed Column */}
+                    <Col lg={6} md={8} xs={12} className={styles.feedColumn}>
+                        {/* Search & Filters */}
                         <Card className={styles.filterCard}>
-                            <Card.Body>
-                                <Row>
-                                    <Col md={6}>
-                                        <InputGroup className={styles.searchInput}>
-                                            <InputGroup.Text>
-                                                <FaSearch />
-                                            </InputGroup.Text>
-                                            <Form.Control
-                                                placeholder="Rechercher une publication..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </InputGroup>
-                                    </Col>
-                                    <Col md={3}>
-                                        <Form.Select 
+                            <Card.Body className="p-3">
+                                <InputGroup className="mb-3" size="sm">
+                                    <InputGroup.Text className={styles.searchIcon}>
+                                        <FaSearch />
+                                    </InputGroup.Text>
+                                    <Form.Control
+                                        placeholder="Rechercher une publication..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className={styles.searchInput}
+                                    />
+                                </InputGroup>
+
+                                <Row className="g-2">
+                                    <Col xs={6} sm={4}>
+                                        <Form.Select
                                             value={filterType}
                                             onChange={(e) => setFilterType(e.target.value)}
-                                            className={styles.filterSelect}
+                                            size="sm"
                                         >
-                                            <option value="all">Toutes</option>
-                                            <option value="urgent">Urgentes</option>
+                                            <option value="all">Tous</option>
+                                            <option value="urgent">Urgent</option>
                                             <option value="teacher">Enseignants</option>
-                                            <option value="admin">Administration</option>
-                                            <option value="student">Étudiants</option>
+                                            <option value="admin">Admin</option>
                                         </Form.Select>
                                     </Col>
-                                    <Col md={3}>
-                                        <Form.Select 
+                                    <Col xs={6} sm={4}>
+                                        <Form.Select
                                             value={sortBy}
                                             onChange={(e) => setSortBy(e.target.value)}
-                                            className={styles.filterSelect}
+                                            size="sm"
                                         >
-                                            <option value="recent">Plus récentes</option>
-                                            <option value="popular">Plus populaires</option>
-                                            <option value="likes">Plus aimées</option>
+                                            <option value="recent">Plus récent</option>
+                                            <option value="popular">Populaire</option>
+                                            <option value="likes">Plus aimé</option>
                                         </Form.Select>
                                     </Col>
                                 </Row>
                             </Card.Body>
                         </Card>
 
-                        {/* Liste des publications */}
-                        {loading ? (
-                            <div className={styles.loadingContainer}>
+                        {/* Loading State */}
+                        {loading && (
+                            <div className={styles.centerContent}>
                                 <Spinner animation="border" variant="primary" />
-                                <p>Chargement des publications...</p>
                             </div>
-                        ) : filteredPublications.length === 0 ? (
+                        )}
+
+                        {/* Publications Feed */}
+                        {!loading && publications.length === 0 ? (
                             <Card className={styles.emptyState}>
-                                <Card.Body className="text-center">
-                                    <FaBell className={styles.emptyIcon} />
-                                    <h3>Aucune publication</h3>
-                                    <p>Aucune publication ne correspond à vos critères</p>
+                                <Card.Body className="text-center py-5">
+                                    <FaBell size={32} className="text-muted mb-3" />
+                                    <p className="text-muted">Aucune publication</p>
                                 </Card.Body>
                             </Card>
                         ) : (
-                            <div className={styles.publicationsList}>
-                                {filteredPublications.map((post) => (
-                                    <Card key={post.id} className={styles.publicationCard}>
-                                        <Card.Body>
-                                            {/* En-tête de la publication */}
-                                            <div className={styles.publisherInfo}>
-                                                <div className={`${styles.publisherAvatar} ${getAvatarClass(post.authorRole)}`}>
-                                                    {post.authorAvatar}
-                                                </div>
-                                                <div className={styles.publisherDetails}>
-                                                    <div className={styles.publisherName}>
-                                                        {post.author}
-                                                        {post.urgent && (
-                                                            <Badge bg="danger" className={styles.urgentBadge}>
-                                                                <FaExclamationTriangle /> URGENT
-                                                            </Badge>
-                                                        )}
+                            <div className={styles.feedList}>
+                                {publications.map((post) => (
+                                    <Card key={post._id} className={styles.postCard}>
+                                        {/* Post Header */}
+                                        <Card.Body className={styles.postHeader}>
+                                            <div className="d-flex justify-content-between align-items-start">
+                                                <div className="d-flex align-items-center gap-2 flex-grow-1">
+                                                    <div className={styles.postAvatar}>
+                                                        {post.authorAvatar || post.authorName?.charAt(0)}
                                                     </div>
-                                                    <div className={styles.publisherMeta}>
-                                                        <span className={styles.publisherRole}>{post.authorRole}</span>
-                                                        <span className={styles.publisherDate}>
-                                                            <FaClock /> {formatDate(post.date)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Contenu */}
-                                            <div className={styles.publicationContent}>
-                                                {post.content.split('\n').map((line, i) => (
-                                                    <p key={i}>{line}</p>
-                                                ))}
-                                            </div>
-
-                                            {/* Pièces jointes */}
-                                            {post.attachments?.length > 0 && (
-                                                <div className={styles.attachmentsSection}>
-                                                    <div className={styles.attachmentsTitle}>
-                                                        <FaPaperclip /> Pièces jointes ({post.attachments.length})
-                                                    </div>
-                                                    <div className={styles.attachmentsGrid}>
-                                                        {post.attachments.map((attachment, index) => (
-                                                            <a
-                                                                key={index}
-                                                                href={attachment.url}
-                                                                className={styles.attachmentItem}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                onClick={() => handleDownload(attachment.name)}
-                                                            >
-                                                                <div className={`${styles.attachmentIcon} ${styles[attachment.type + 'Icon']}`}>
-                                                                    {attachment.type === 'pdf' && <FaFilePdf />}
-                                                                    {attachment.type === 'image' && <FaFileImage />}
-                                                                    {attachment.type !== 'pdf' && attachment.type !== 'image' && <FaFileAlt />}
-                                                                </div>
-                                                                <div className={styles.attachmentInfo}>
-                                                                    <div className={styles.attachmentName}>
-                                                                        {attachment.name}
-                                                                    </div>
-                                                                    <div className={styles.attachmentMeta}>
-                                                                        <span>{formatFileSize(attachment.size)}</span>
-                                                                        <span>• {attachment.type.toUpperCase()}</span>
-                                                                    </div>
-                                                                </div>
-                                                                <Button variant="link" className={styles.downloadButton}>
-                                                                    <FaDownload />
-                                                                </Button>
-                                                            </a>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Images */}
-                                            {post.images?.length > 0 && (
-                                                <div className={styles.imagesSection}>
-                                                    {post.images.map((image, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className={styles.imagePreview}
-                                                            onClick={() => openLightbox(image.url)}
-                                                        >
-                                                            <Image src={image.url} alt={image.caption} fluid />
-                                                            {image.caption && (
-                                                                <div className={styles.imageCaption}>
-                                                                    {image.caption}
-                                                                </div>
+                                                    <div className={styles.authorInfo}>
+                                                        <h6 className={styles.authorName}>
+                                                            {post.authorName}
+                                                            {post.urgent && (
+                                                                <Badge bg="danger" className={styles.urgentBadge}>
+                                                                    <FaExclamationTriangle /> URGENT
+                                                                </Badge>
                                                             )}
+                                                        </h6>
+                                                        <small className="text-muted">
+                                                            <FaClock size={12} className="me-1" />
+                                                            {formatDate(post.updatedAt)}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <Button variant="link" size="sm" className={styles.moreBtn}>
+                                                    <FaEllipsisH />
+                                                </Button>
+                                            </div>
+                                        </Card.Body>
+
+                                        {/* Post Content */}
+                                        <Card.Body className={styles.postContent}>
+                                            <p>{post.content}</p>
+
+                                            {/* Attachments */}
+                                            {post.attachments?.length > 0 && (
+                                                <div className={styles.attachmentsPreview}>
+                                                    {post.attachments.map((file, idx) => (
+                                                        <div key={idx} className={styles.attachmentItem}>
+                                                            <span className={styles.fileIcon}>
+                                                                {file.type === 'pdf' && <FaFilePdf />}
+                                                                {file.type === 'image' && <FaFileImage />}
+                                                                {['pdf', 'image'].indexOf(file.type) === -1 && <FaFileAlt />}
+                                                            </span>
+                                                            <span className={styles.fileName}>{file.name}</span>
                                                         </div>
                                                     ))}
                                                 </div>
                                             )}
 
-                                            {/* Statistiques */}
-                                            <div className={styles.publicationStats}>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.likes} personnes aiment</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaThumbsUp /> {post.likes}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.dislikes} personnes n'aiment pas</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaThumbsDown /> {post.dislikes}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                <OverlayTrigger
-                                                    placement="top"
-                                                    overlay={<Tooltip>{post.comments} commentaires</Tooltip>}
-                                                >
-                                                    <span className={styles.statItem}>
-                                                        <FaComments /> {post.comments}
-                                                    </span>
-                                                </OverlayTrigger>
-                                                {post.attachments?.length > 0 && (
-                                                    <OverlayTrigger
-                                                        placement="top"
-                                                        overlay={<Tooltip>{post.attachments.length} pièces jointes</Tooltip>}
-                                                    >
-                                                        <span className={styles.statItem}>
-                                                            <FaPaperclip /> {post.attachments.length}
-                                                        </span>
-                                                    </OverlayTrigger>
-                                                )}
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className={styles.publicationActions}>
-                                                <Button
-                                                    variant="link"
-                                                    className={`${styles.actionButton} ${post.userReaction === 'like' ? styles.activeLike : ''}`}
-                                                    onClick={() => handleReaction(post.id, 'like')}
-                                                >
-                                                    {post.userReaction === 'like' ? <FaThumbsUp /> : <FaRegThumbsUp />}
-                                                    <span>J'aime</span>
-                                                </Button>
-                                                <Button
-                                                    variant="link"
-                                                    className={`${styles.actionButton} ${post.userReaction === 'dislike' ? styles.activeDislike : ''}`}
-                                                    onClick={() => handleReaction(post.id, 'dislike')}
-                                                >
-                                                    {post.userReaction === 'dislike' ? <FaThumbsDown /> : <FaRegThumbsDown />}
-                                                    <span>Je n'aime pas</span>
-                                                </Button>
-                                                <Button
-                                                    variant="link"
-                                                    className={styles.actionButton}
-                                                    onClick={() => openComments(post)}
-                                                >
-                                                    <FaRegComments />
-                                                    <span>Commenter</span>
-                                                </Button>
-                                            </div>
+                                            {/* Images */}
+                                            {post.images?.length > 0 && (
+                                                <div className={styles.imagesGrid}>
+                                                    {post.images.map((img, idx) => (
+                                                        <div key={idx} className={styles.imageItem}>
+                                                            <img src={img.url} alt={img.caption} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </Card.Body>
+
+                                        {/* Stats */}
+                                        <div className={styles.postStats}>
+                                            <span><FaThumbsUp size={12} /> {post.likes}</span>
+                                            <span><FaComments size={12} /> {post.comments}</span>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className={styles.postActions}>
+                                            <Button
+                                                variant="link"
+                                                className={`${styles.actionBtn} ${post.userReaction === 'like' ? styles.active : ''}`}
+                                                onClick={() => handleReaction(post._id, 'like')}
+                                            >
+                                                {post.userReaction === 'like' ? (
+                                                    <MdFavorite className={styles.iconActive} />
+                                                ) : (
+                                                    <MdFavoriteBorder />
+                                                )}
+                                                <span>J'aime</span>
+                                            </Button>
+                                            <Button
+                                                variant="link"
+                                                className={styles.actionBtn}
+                                                onClick={() => openComments(post)}
+                                            >
+                                                <FaComments />
+                                                <span>Commenter</span>
+                                            </Button>
+                                            <Button variant="link" className={styles.actionBtn}>
+                                                <FaShare />
+                                                <span>Partager</span>
+                                            </Button>
+                                        </div>
+
+                                        {/* Comments Modal Trigger */}
+                                        {showCommentsModal && currentPublication?._id === post._id && (
+                                            <div className={styles.commentsPreview}>
+                                                <small className="text-muted d-block mb-2">
+                                                    {post.comments} commentaires
+                                                </small>
+                                            </div>
+                                        )}
                                     </Card>
                                 ))}
+
+                                {/* Pagination */}
+                                {pagination.totalPages > 1 && (
+                                    <div className={styles.paginationContainer}>
+                                        <ButtonGroup>
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                disabled={!pagination.hasPrevPage || loading}
+                                                onClick={() => loadPublications(pagination.currentPage - 1)}
+                                            >
+                                                <FaArrowLeft /> Précédent
+                                            </Button>
+                                            <Button variant="outline-secondary" disabled size="sm">
+                                                {pagination.currentPage} / {pagination.totalPages}
+                                            </Button>
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                disabled={!pagination.hasNextPage || loading}
+                                                onClick={() => loadPublications(pagination.currentPage + 1)}
+                                            >
+                                                Suivant <FaArrowRight />
+                                            </Button>
+                                        </ButtonGroup>
+                                    </div>
+                                )}
                             </div>
                         )}
+                    </Col>
+
+                    {/* Sidebar */}
+                    <Col lg={3} className={`d-none d-lg-block ${styles.sidebar}`}>
+                        {/* User Info Card */}
+                        <Card className={styles.userCard}>
+                            <Card.Body className="text-center">
+                                <div className={styles.largeAvatar}>
+                                    {currentUser.avatar || `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
+                                </div>
+                                <h6 className="mt-3 mb-1">
+                                    {currentUser.firstName} {currentUser.lastName}
+                                </h6>
+                                <p className="text-muted small mb-2">{currentUser.email}</p>
+                                <Badge bg="primary">
+                                    {Array.isArray(currentUser.roles) ? currentUser.roles[0] : currentUser.role}
+                                </Badge>
+                            </Card.Body>
+                        </Card>
+
+                        {/* Stats Card */}
+                        <Card className={styles.statsCard}>
+                            <Card.Body>
+                                <h6 className="mb-3">Aujourd'hui</h6>
+                                <div className={styles.statItem}>
+                                    <span>Publications</span>
+                                    <strong>{publications.length}</strong>
+                                </div>
+                                <div className={styles.statItem}>
+                                    <span>Réactions</span>
+                                    <strong>
+                                        {publications.reduce((sum, p) => sum + (p.likes || 0), 0)}
+                                    </strong>
+                                </div>
+                            </Card.Body>
+                        </Card>
                     </Col>
                 </Row>
             </Container>
 
-            {/* Modal des commentaires */}
+            {/* Comments Modal */}
             <Modal
                 show={showCommentsModal}
                 onHide={() => {
                     setShowCommentsModal(false);
                     setCurrentPublication(null);
-                    setNewComment('');
                 }}
                 centered
                 size="lg"
                 className={styles.commentsModal}
             >
-                <Modal.Header closeButton className={styles.modalHeader}>
+                <Modal.Header closeButton>
                     <Modal.Title>
-                        <FaComments /> Commentaires
-                        {currentPublication && (
-                            <Badge bg="secondary" className="ms-2">
-                                {currentPublication.comments}
-                            </Badge>
-                        )}
+                        <FaComments className="me-2" />
+                        Commentaires ({currentPublication?.comments || 0})
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={styles.modalBody}>
-                    {/* Formulaire de commentaire */}
-                    <div className={styles.commentForm}>
-                        <div className={styles.commentAvatar}>
-                            {currentUser.avatar}
+                    {/* Add Comment */}
+                    <div className={styles.addCommentForm}>
+                        <div className={styles.smallAvatar}>
+                            {currentUser.avatar || `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                         </div>
-                        <div className={styles.commentInputContainer}>
+                        <InputGroup size="sm">
                             <Form.Control
                                 as="textarea"
                                 rows={2}
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Écrivez votre commentaire..."
-                                className={styles.commentInput}
+                                placeholder="Écrivez un commentaire..."
+                                className={styles.commentInputField}
                                 onKeyPress={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
@@ -761,67 +744,61 @@ const Publication = () => {
                                     }
                                 }}
                             />
-                            <Button
-                                variant="success"
-                                onClick={handleAddComment}
-                                disabled={!newComment.trim()}
-                                className={styles.commentSubmit}
-                            >
-                                Commenter
-                            </Button>
-                        </div>
+                        </InputGroup>
+                        <Button
+                            size="sm"
+                            className={styles.submitBtn}
+                            onClick={handleAddComment}
+                            disabled={!newComment.trim()}
+                        >
+                            Envoyer
+                        </Button>
                     </div>
 
-                    {/* Liste des commentaires */}
+                    {/* Comments List */}
                     <div className={styles.commentsList}>
                         {currentPublication?.commentsData?.length === 0 ? (
-                            <div className={styles.emptyComments}>
-                                <FaRegComments className={styles.emptyIcon} />
-                                <p>Aucun commentaire</p>
-                                <small>Soyez le premier à commenter</small>
-                            </div>
+                            <p className="text-muted text-center py-4">Aucun commentaire</p>
                         ) : (
                             currentPublication?.commentsData?.map((comment) => (
-                                <div key={comment.id} className={styles.commentItem}>
-                                    <div className={`${styles.commentAvatar} ${getCommentAvatarClass(comment.role)}`}>
-                                        {comment.avatar}
+                                <div key={comment._id} className={styles.commentItem}>
+                                    <div className={styles.smallAvatar}>
+                                        {comment.authorAvatar || comment.authorName?.charAt(0)}
                                     </div>
-                                    <div className={styles.commentContent}>
-                                        <div className={styles.commentHeader}>
-                                            <div className={styles.commentAuthor}>
-                                                {comment.author}
-                                                <Badge bg="secondary" className={styles.commentRole}>
-                                                    {comment.role}
-                                                </Badge>
-                                            </div>
-                                            <OverlayTrigger
-                                                placement="top"
-                                                overlay={<Tooltip>{new Date(comment.date).toLocaleString('fr-FR')}</Tooltip>}
-                                            >
-                                                <span className={styles.commentDate}>
-                                                    <FaClock /> {formatDate(comment.date)}
-                                                </span>
-                                            </OverlayTrigger>
+                                    <div className={styles.commentData}>
+                                        <div className={styles.commentMeta}>
+                                            <strong>{comment.authorName}</strong>
+                                            <small className="text-muted">
+                                                {formatDate(comment.updatedAt)}
+                                            </small>
                                         </div>
-                                        <div className={styles.commentText}>
-                                            {comment.text}
-                                        </div>
-                                        <div className={styles.commentActions}>
+                                        <p className={styles.commentText}>{comment.text}</p>
+                                        <div className={styles.commentReactions}>
                                             <Button
                                                 variant="link"
-                                                className={`${styles.commentAction} ${comment.userReaction === 'like' ? styles.activeLike : ''}`}
-                                                onClick={() => handleCommentReaction(currentPublication.id, comment.id, 'like')}
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleCommentReaction(
+                                                        currentPublication._id,
+                                                        comment._id,
+                                                        'like'
+                                                    )
+                                                }
                                             >
-                                                {comment.userReaction === 'like' ? <FaThumbsUp /> : <FaRegThumbsUp />}
-                                                <span>{comment.likes}</span>
+                                                <MdFavorite size={14} /> {comment.likes}
                                             </Button>
                                             <Button
                                                 variant="link"
-                                                className={`${styles.commentAction} ${comment.userReaction === 'dislike' ? styles.activeDislike : ''}`}
-                                                onClick={() => handleCommentReaction(currentPublication.id, comment.id, 'dislike')}
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleCommentReaction(
+                                                        currentPublication._id,
+                                                        comment._id,
+                                                        'dislike'
+                                                    )
+                                                }
                                             >
-                                                {comment.userReaction === 'dislike' ? <FaThumbsDown /> : <FaRegThumbsDown />}
-                                                <span>{comment.dislikes}</span>
+                                                <FaThumbsDown size={12} /> {comment.dislikes}
                                             </Button>
                                         </div>
                                     </div>
@@ -831,163 +808,8 @@ const Publication = () => {
                     </div>
                 </Modal.Body>
             </Modal>
-
-            {/* Lightbox pour les images */}
-            <Modal
-                show={showLightbox}
-                onHide={() => setShowLightbox(false)}
-                centered
-                size="xl"
-                className={styles.lightboxModal}
-                contentClassName={styles.lightboxContent}
-            >
-                <Modal.Body className={styles.lightboxBody}>
-                    <Button
-                        variant="link"
-                        className={styles.lightboxClose}
-                        onClick={() => setShowLightbox(false)}
-                    >
-                        <FaTimes />
-                    </Button>
-                    {selectedImage && (
-                        <Image
-                            src={selectedImage}
-                            alt=""
-                            className={styles.lightboxImage}
-                            fluid
-                        />
-                    )}
-                </Modal.Body>
-            </Modal>
         </div>
     );
-};
-
-// Données mockées
-const mockPublications = [
-    {
-        id: 1,
-        author: "Dr. Ngo Bassong",
-        authorAvatar: "NB",
-        authorRole: "Enseignant",
-        content: "📚 Supports de cours pour la semaine 15\n\nJe partage avec vous les supports de cours pour la semaine prochaine. Veuillez télécharger les documents suivants avant le prochain cours.\n\n• Algorithmique Avancée - Chapitre 4\n• Exercices d'application\n• Corrigés des TP précédents",
-        date: new Date(Date.now() - 30 * 60000).toISOString(),
-        likes: 12,
-        dislikes: 0,
-        comments: 3,
-        userReaction: null,
-        urgent: true,
-        attachments: [
-            {
-                type: "pdf",
-                name: "Algorithmique_Avancee_Chap4.pdf",
-                size: 4.2 * 1024 * 1024,
-                icon: "📕",
-                url: "#"
-            },
-            {
-                type: "pdf", 
-                name: "Exercices_Application_Semaine15.pdf",
-                size: 2.8 * 1024 * 1024,
-                icon: "📘",
-                url: "#"
-            }
-        ],
-        images: [],
-        commentsData: [
-            {
-                id: 1,
-                author: "Marie Tanga",
-                avatar: "MT",
-                role: "Étudiante",
-                text: "Merci pour les documents ! Est-ce qu'il y aura un QCM cette semaine ?",
-                date: new Date(Date.now() - 25 * 60000).toISOString(),
-                likes: 2,
-                dislikes: 0,
-                userReaction: null
-            },
-            {
-                id: 2,
-                author: "Luc Ndongo",
-                avatar: "LN",
-                role: "Étudiant", 
-                text: "Les exercices semblent intéressants, j'ai hâte de les tester !",
-                date: new Date(Date.now() - 20 * 60000).toISOString(),
-                likes: 1,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    },
-    {
-        id: 2,
-        author: "Prof. Sarah Johnson",
-        authorAvatar: "SJ",
-        authorRole: "Enseignant",
-        content: "🏆 Photo du gagnant du concours d'algorithmique\n\nFélicitations à Thomas Mbala qui a remporté le concours d'algorithmique organisé cette semaine !",
-        date: new Date(Date.now() - 2 * 3600000).toISOString(),
-        likes: 28,
-        dislikes: 0,
-        comments: 7,
-        userReaction: "like",
-        urgent: false,
-        attachments: [],
-        images: [
-            {
-                url: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop",
-                caption: "Thomas Mbala recevant son prix pour le concours d'algorithmique"
-            }
-        ],
-        commentsData: [
-            {
-                id: 1,
-                author: "Thomas Mbala",
-                avatar: "TM",
-                role: "Étudiant",
-                text: "Merci beaucoup professeur ! C'était un vrai défi, j'ai beaucoup appris.",
-                date: new Date(Date.now() - 1 * 3600000).toISOString(),
-                likes: 5,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    },
-    {
-        id: 3,
-        author: "Administration",
-        authorAvatar: "AD",
-        authorRole: "Administration",
-        content: "📋 Informations importantes pour les examens de fin de semestre\n\n• Dates des examens : 15-20 décembre\n• Salles attribuées : consulter le PDF\n• Matériel autorisé : calculatrice scientifique uniquement\n• Pièce d'identité obligatoire",
-        date: new Date(Date.now() - 24 * 3600000).toISOString(),
-        likes: 42,
-        dislikes: 5,
-        comments: 12,
-        userReaction: null,
-        urgent: false,
-        attachments: [
-            {
-                type: "pdf",
-                name: "Planning_Examens_Decembre.pdf",
-                size: 1.8 * 1024 * 1024,
-                icon: "📅",
-                url: "#"
-            }
-        ],
-        images: [],
-        commentsData: [
-            {
-                id: 1,
-                author: "Jean Dupont",
-                avatar: "JD",
-                role: "Étudiant",
-                text: "Est-ce que les salles seront chauffées ? Il fait très froid en ce moment.",
-                date: new Date(Date.now() - 23 * 3600000).toISOString(),
-                likes: 8,
-                dislikes: 0,
-                userReaction: null
-            }
-        ]
-    }
-];
+}
 
 export default Publication;
