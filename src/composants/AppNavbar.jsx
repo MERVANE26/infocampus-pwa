@@ -19,7 +19,7 @@ const AppNavbar = ({ currentUser = {} }) => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('loginTime');
-        navigate('/login');
+        navigate('/connexion');
     };
 
     // Determine active link

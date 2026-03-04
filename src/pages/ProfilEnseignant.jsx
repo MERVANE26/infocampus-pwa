@@ -457,7 +457,7 @@ const ProfilEnseignant = () => {
             }
             
             // Rediriger vers la page de connexion
-            navigate('/login');
+            navigate('/connexion');
         }
     };
 
