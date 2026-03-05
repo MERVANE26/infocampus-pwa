@@ -22,7 +22,15 @@
     "settings": "Paramètres",
     "profile": "Profil",
     "home": "Accueil",
-    "language": "Langue"
+    "language": "Langue",
+    "slogan": "Connecting Universities, Empowering Communities",
+    "connectInstitution": "Connectez-vous avec votre établissement",
+    "about": "À propos",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "legal": "Mentions légales",
+    "madeInAfrica": "Une solution made in Africa 🌍",
+    "allRightsReserved": "Tous droits réservés."
   },
   "nav": {
     "publications": "Publications",
@@ -62,7 +70,8 @@
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "emailRequired": "L'email est obligatoire",
     "passwordRequired": "Le mot de passe est obligatoire",
-    "fillAllFields": "Veuillez remplir tous les champs obligatoires"
+    "fillAllFields": "Veuillez remplir tous les champs obligatoires",
+    "registrationStep": "Étape {{current}}/{{total}} - Inscription"
   },
   "publication": {
     "title": "Publications",
@@ -140,5 +149,48 @@
     "title": "Vous êtes hors-ligne",
     "message": "Certaines fonctionnalités peuvent ne pas être disponibles",
     "cachedData": "Affichage des données en cache"
+  }
+  ,
+  "validation": {
+    "title": "Code de validation",
+    "instructions": "Entrez le code à 6 chiffres reçu par email",
+    "invalidLength": "Veuillez entrer le code à 5 chiffres.",
+    "incorrect": "Code incorrect. Veuillez vérifier et réessayer.",
+    "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
+    "registerSuccessMessage": "Compte créé avec succès ! Vous pouvez maintenant vous connecter.",
+    "timerPrefix": "Code valide pendant :",
+    "validateButton": {
+      "loading": "Validation...",
+      "label": "Valider le code"
+    },
+    "resend": {
+      "label": "Renvoyer le code",
+      "disabled": "Renvoyer le code dans {{time}}",
+      "error": "Erreur lors de l'envoi du code."
+    },
+    "modifyEmail": "← Modifier l'email"
+  },
+  "about": {
+    "title": "À propos d'InfoCampus",
+    "missionTitle": "Notre mission",
+    "missionText1": "INFOcAMPUS est né pour améliorer la circulation des informations dans les universités : connecter intelligemment les universités africaines pour faciliter la communication entre les étudiants, les enseignants et l'administration de chaque université.",
+    "missionText2": "Dans un monde de plus en plus connecté, les universités ont besoin d'outils modernes, adaptés à leurs réalités et à leurs défis. INFOcAMPUS répond à ce besoin en offrant une plateforme intuitive, sécurisée et pensée non seulement pour le contexte universitaire africain, mais aussi pour toutes les universités du monde entier.",
+    "valuesTitle": "Nos valeurs",
+    "value1Title": "Communauté",
+    "value1Text": "Créer des liens durables entre tous les acteurs de l'éducation",
+    "value2Title": "Africanité",
+    "value2Text": "Des solutions adaptées aux réalités et aux besoins du continent",
+    "value3Title": "Innovation",
+    "value3Text": "Toujours à la pointe de la technologie éducative",
+    "value4Title": "Intégrité",
+    "value4Text": "Respect, transparence et confiance au cœur de nos actions",
+    "teamTitle": "Notre équipe",
+    "teamText1": "INFOcAMPUS est développé par une équipe passionnée de développeurs, NDEMEN LAURENDA et ARTHUR TATCHOU, qui travaillent sans relâche pour vous offrir la meilleure expérience possible.",
+    "teamText2": "Basés principalement au Cameroun, nous travaillons en étroite collaboration avec des enseignants et des étudiants pour nous assurer que notre plateforme répond parfaitement à leurs besoins quotidiens.",
+    "contactTitle": "Nous contacter",
+    "contactText": "Vous avez des questions, des suggestions ou souhaitez rejoindre l'aventure INFOcAMPUS ? N'hésitez pas à nous contacter :",
+    "contactEmail": "Email : ndemenlaurenda@gmail.com",
+    "contactPhone": "Téléphone : +237 652 22 98 00",
+    "contactAddress": "Adresse : Douala - Cameroun"
   }
 }

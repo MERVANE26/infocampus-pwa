@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import AppNavbar from '../composants/AppNavbar';
@@ -28,6 +29,7 @@ import styles from './FairePublication.module.css';
 import { api } from '../lib/api';
 
 const FairePublication = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 

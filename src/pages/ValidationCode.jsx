@@ -11,6 +11,7 @@ import { Container, Card, Alert, Button } from 'react-bootstrap';
 import CodeInput from '../composants/CodeInput/CodeInput';
 import styles from './ValidationCode.module.css';
 import { api } from '../lib/api';
+import { useTranslation } from 'react-i18next';
 
 const ValidationCode = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const ValidationCode = () => {
     const [success, setSuccess] = useState(false);
     const [timeLeft, setTimeLeft] = useState(300); // 5 minutes en secondes
     const [canResend, setCanResend] = useState(false);
+    const { t } = useTranslation();
 
     // Récupérer l'email depuis l'URL
     useEffect(() => {
@@ -68,7 +70,7 @@ const ValidationCode = () => {
         const fullCode = code.join('');
 
         if (fullCode.length !== 5) {
-            setError('Veuillez entrer le code à 5 chiffres.');
+            setError(t('validation.invalidLength'));
             return;
         }
 
@@ -100,15 +102,15 @@ const ValidationCode = () => {
                 setTimeout(() => {
                     navigate('/profile', {
                         state: {
-                            message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
+                            message: t('validation.registerSuccessMessage')
                         }
                     });
                 }, 2000);
             } else {
-                setError('Code incorrect. Veuillez vérifier et réessayer.');
+                setError(t('validation.incorrect'));
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.');
+            setError(err.response?.data?.message || t('validation.errorGeneric'));
         } finally {
             setLoading(false);
         }
@@ -129,7 +131,7 @@ const ValidationCode = () => {
             setError('');
 
         } catch (err) {
-            setError('Erreur lors de l\'envoi du code.');
+            setError(t('validation.resend.error'));
         } finally {
             setLoading(false);
         }
@@ -154,7 +156,7 @@ const ValidationCode = () => {
 
                             {/* Titre */}
                             <h2 className={styles.title}>
-                                Code de validation
+                                {t('validation.title')}
                             </h2>
 
                             {/* Email */}
@@ -164,13 +166,13 @@ const ValidationCode = () => {
 
                             {/* Instructions */}
                             <p className={styles.instructions}>
-                                Entrez le code à 6 chiffres reçu par email
+                                {t('validation.instructions')}
                             </p>
 
                             {/* Timer */}
                             {!canResend && (
                                 <div className={styles.timer}>
-                                    Code valide pendant : {formatTime(timeLeft)}
+                                    {t('validation.timerPrefix')} {formatTime(timeLeft)}
                                 </div>
                             )}
 
@@ -204,12 +206,12 @@ const ValidationCode = () => {
                                 {loading ? (
                                     <>
                                         <span className="spinner-border spinner-border-sm me-2" />
-                                        Validation...
+                                        {t('validation.validateButton.loading')}
                                     </>
                                 ) : (
                                     <>
                                         <FaCheckCircle className="me-2" />
-                                        Valider le code
+                                        {t('validation.validateButton.label')}
                                     </>
                                 )}
                             </Button>
@@ -222,11 +224,11 @@ const ValidationCode = () => {
                                         onClick={resendCode}
                                         disabled={loading}
                                     >
-                                        <FaRedo /> Renvoyer le code
+                                        <FaRedo /> {t('validation.resend.label')}
                                     </button>
                                 ) : (
                                     <span className={styles.resendDisabled}>
-                                        Renvoyer le code dans {formatTime(timeLeft)}
+                                        {t('validation.resend.disabled', { time: formatTime(timeLeft) })}
                                     </span>
                                 )}
                             </div>
@@ -234,7 +236,7 @@ const ValidationCode = () => {
                             {/* Lien retour */}
                             <div className={styles.backLink}>
                                 <a href="#" onClick={() => navigate(-1)}>
-                                    ← Modifier l'email
+                                    {t('validation.modifyEmail')}
                                 </a>
                             </div>
                         </Card.Body>

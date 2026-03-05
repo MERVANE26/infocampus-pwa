@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../composants/LanguageSwitcher';
 import {
   FaUniversity,
   FaUserGraduate,
@@ -25,6 +27,7 @@ import TeacherUniversityMultiSelect from "../composants/InscriptionForm/TeacherU
 
 const Inscription = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [role, setRole] = useState('student');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -304,7 +307,7 @@ const Inscription = () => {
                 </div>
 
                 <div className={styles.stepBadge}>
-                  <FaGraduationCap /> Étape 1/2 - Inscription
+                  <FaGraduationCap /> {t('auth.registrationStep', { current: 1, total: 2 })}
                 </div>
 
                 <Form onSubmit={handleSubmit}>
@@ -438,10 +441,10 @@ const Inscription = () => {
                     className={`${styles.submitButton} mt-4`}
                     disabled={loading}
                   >
-                    {loading ? 'Traitement...' : (
+                    {loading ? t('common.loading') : (
                       <>
                         <FaEnvelope className="me-2" />
-                        Recevoir le code
+                        {t('validation.validateButton.label')}
                         <FaArrowRight className="ms-2" />
                       </>
                     )}
@@ -450,7 +453,10 @@ const Inscription = () => {
                 </Form>
 
                 <div className={styles.toggleForm}>
-                  Déjà un compte ? <Link to="/login">Se connecter</Link>
+                  {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.login')}</Link>
+                  <span style={{ marginLeft: '20px' }}>
+                    <LanguageSwitcher />
+                  </span>
                 </div>
 
               </Card.Body>

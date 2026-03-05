@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import LanguageSwitcher from '../composants/LanguageSwitcher';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -104,7 +105,7 @@ const Connexion = () => {
             <div className={styles.featuresContent}>
               <h1 className={styles.featuresTitle}>{t('common.appName')}</h1>
               <p className={styles.featuresSubtitle}>
-                Connecting Universities, Empowering Communities
+                {t('common.slogan')}
               </p>
               
               <div className={styles.featuresList}>
@@ -126,7 +127,7 @@ const Connexion = () => {
                   <div className={styles.featureIcon}>✓</div>
                   <div>
                     <h6>{t('nav.universities')}</h6>
-                    <p>Connect with your institution</p>
+                    <p>{t('common.connectInstitution')}</p>
                   </div>
                 </div>
               </div>
@@ -138,7 +139,10 @@ const Connexion = () => {
             <Card className={styles.loginCard}>
               <Card.Body className={styles.cardBody}>
                 <div className={styles.headerSection}>
-                  <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                    <LanguageSwitcher />
+                  </div>
                   <p className={styles.formSubtitle}>{t('auth.fillAllFields')}</p>
                 </div>
 
@@ -237,11 +241,14 @@ const Connexion = () => {
 
                 {/* Additional Links */}
                 <div className={styles.footerLinks}>
-                  <Link to="/about" className={styles.footerLink}>About</Link>
+                  <Link to="/about" className={styles.footerLink}>{t('common.about')}</Link>
                   <span>•</span>
-                  <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
+                  <Link to="/privacy" className={styles.footerLink}>{t('common.privacy')}</Link>
                   <span>•</span>
-                  <Link to="/terms" className={styles.footerLink}>Terms</Link>
+                  <Link to="/terms" className={styles.footerLink}>{t('common.terms')}</Link>
+                  {/* language toggle in footer for small screens */}
+                  <span>•</span>
+                  <LanguageSwitcher />
                 </div>
               </Card.Body>
             </Card>

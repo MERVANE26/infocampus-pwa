@@ -152,6 +152,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Table from 'react-bootstrap/Table';
 import styles from './ProfilEnseignant.module.css';
+import { useTranslation } from 'react-i18next';
 
 // Import de nos composants de boutons personnalisés
 import { 
@@ -201,6 +202,7 @@ api.interceptors.response.use(
 );
 
 const ProfilEnseignant = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
     const subjectInputRef = useRef(null);
@@ -509,7 +511,7 @@ const ProfilEnseignant = () => {
                                         eventKey="profile" 
                                         title={
                                             <span className={styles.tabTitle}>
-                                                <FaUserCircle /> Profil
+                                                <FaUserCircle /> {t('profile.title')}
                                             </span>
                                         }
                                     >
@@ -655,7 +657,7 @@ const ProfilEnseignant = () => {
                                         eventKey="settings" 
                                         title={
                                             <span className={styles.tabTitle}>
-                                                <FaCog /> Paramètres
+                                                <FaCog /> {t('settings.title')}
                                             </span>
                                         }
                                     >
@@ -685,7 +687,7 @@ const ProfilEnseignant = () => {
                                                             eventKey="personal" 
                                                             title={
                                                                 <span>
-                                                                    <FaUser /> Informations
+                                                                    <FaUser /> {t('profile.personalInfo')}
                                                                 </span>
                                                             }
                                                         >
@@ -754,8 +756,11 @@ const ProfilEnseignant = () => {
                                                         >
                                                             <div className={styles.settingsForm}>
                                                                 <h3 className={styles.sectionSubtitle}>
-                                                                    Gestion des matières enseignées
-                                                                </h3>
+                                                                        {t('profile.subjects')}
+                                                                    </h3>
+                                                                    <h3 className={styles.sectionSubtitle}>
+                                                                        {t('profile.subjects')}
+                                                                    </h3>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>

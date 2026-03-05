@@ -596,6 +596,7 @@ const Publication = () => {
                                         {/* Stats */}
                                         <div className={styles.postStats}>
                                             <span><FaThumbsUp size={12} /> {post.likes}</span>
+                                            <span><FaThumbsDown size={12} /> {post.dislikes}</span>
                                             <span><FaComments size={12} /> {post.comments}</span>
                                         </div>
 
@@ -720,7 +721,7 @@ const Publication = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>
                         <FaComments className="me-2" />
-                        Commentaires ({currentPublication?.comments || 0})
+                        Commentaires ({currentPublication?.commentsData?.length || 0})
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={styles.modalBody}>

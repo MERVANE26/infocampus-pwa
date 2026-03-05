@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
@@ -193,6 +194,7 @@ api.interceptors.response.use(
 );
 
 const ProfilEtudiant = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
     

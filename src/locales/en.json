@@ -22,7 +22,15 @@
     "settings": "Settings",
     "profile": "Profile",
     "home": "Home",
-    "language": "Language"
+    "language": "Language",
+    "slogan": "Connecting Universities, Empowering Communities",
+    "connectInstitution": "Connect with your institution",
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "legal": "Legal",
+    "madeInAfrica": "A solution made in Africa 🌍",
+    "allRightsReserved": "All rights reserved."
   },
   "nav": {
     "publications": "Publications",
@@ -62,7 +70,8 @@
     "passwordMismatch": "Passwords do not match",
     "emailRequired": "Email is required",
     "passwordRequired": "Password is required",
-    "fillAllFields": "Please fill all required fields"
+    "fillAllFields": "Please fill all required fields",
+    "registrationStep": "Step {{current}}/{{total}} - Registration"
   },
   "publication": {
     "title": "Publications",
@@ -140,5 +149,48 @@
     "title": "You are offline",
     "message": "Some features may not be available",
     "cachedData": "Showing cached data"
+  }
+  ,
+  "validation": {
+    "title": "Validation Code",
+    "instructions": "Enter the 6-digit code sent to your email",
+    "invalidLength": "Please enter the 5-digit code.",
+    "incorrect": "Incorrect code. Please check and try again.",
+    "errorGeneric": "An error occurred. Please try again.",
+    "registerSuccessMessage": "Account created successfully! You can now log in.",
+    "timerPrefix": "Code valid for",
+    "validateButton": {
+      "loading": "Validating...",
+      "label": "Validate code"
+    },
+    "resend": {
+      "label": "Resend code",
+      "disabled": "Resend code in {{time}}",
+      "error": "Error sending the code."
+    },
+    "modifyEmail": "← Change email"
+  },
+  "about": {
+    "title": "About InfoCampus",
+    "missionTitle": "Our mission",
+    "missionText1": "InfoCampus was created to improve information flow in universities: connecting African universities intelligently to facilitate communication between students, teachers and administration.",
+    "missionText2": "In an increasingly connected world, universities need modern tools tailored to their realities and challenges. InfoCampus meets this need by offering an intuitive, secure platform designed for the African university context and beyond.",
+    "valuesTitle": "Our values",
+    "value1Title": "Community",
+    "value1Text": "Building lasting connections between all education stakeholders",
+    "value2Title": "Africanity",
+    "value2Text": "Solutions adapted to the realities and needs of the continent",
+    "value3Title": "Innovation",
+    "value3Text": "Always at the forefront of educational technology",
+    "value4Title": "Integrity",
+    "value4Text": "Respect, transparency and trust at the heart of our actions",
+    "teamTitle": "Our team",
+    "teamText1": "InfoCampus is developed by a passionate team of developers, NDEMEN LAURENDA and ARTHUR TATCHOU, who work tirelessly to give you the best experience possible.",
+    "teamText2": "Based mainly in Cameroon, we work closely with teachers and students to ensure our platform meets their daily needs.",
+    "contactTitle": "Contact us",
+    "contactText": "Have questions, suggestions or want to join the InfoCampus adventure? Feel free to contact us:",
+    "contactEmail": "Email: ndemenlaurenda@gmail.com",
+    "contactPhone": "Phone: +237 652 22 98 00",
+    "contactAddress": "Address: Douala - Cameroon"
   }
 }
