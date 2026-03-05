@@ -28,13 +28,23 @@ import AccessDenied from './pages/AccessDenied';
 // COMPOSANT DE PROTECTION DES ROUTES
 // ============================================
 const PrivateRoute = ({ children }) => {
+  // This component guards access to routes by checking for a valid token and user
+  // stored in localStorage. The original development override (commented below)
+  // can be temporarily re-enabled if you need to bypass auth while working on
+  // UI or routing. Make sure to remove or recomment it before pushing changes.
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!token || !user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/connexion" />;
   }
 
+  /*
+  // DEVELOPMENT: allow access to all routes without authentication.
+  // To disable the guard during development, uncomment the block above and
+  // comment out the real checks. e.g.: 
+  // if (!token || !user) return <Navigate to="/connexion" />;
+  */
   return children;
 };
 
@@ -45,7 +55,7 @@ const RoleBasedProfil = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/connexion" />;
   }
 
   switch (user.roles[0]) {
@@ -71,7 +81,7 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
   const user = userStr ? JSON.parse(userStr) : null;
 
   if (!token || !user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/connexion" />;
   }
 
   const userRoles = user.roles || [];
@@ -97,7 +107,7 @@ function App() {
                 ROUTES PUBLIQUES (accessibles sans connexion)
                 ======================================== */}
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Connexion />} />
+            <Route path="/connexion" element={<Connexion />} />
             <Route path="/register" element={<Inscription />} />
             <Route path="/create-university" element={<CreationUniversite />} />
             <Route path="/otp-validation" element={<ValidationCode />} />

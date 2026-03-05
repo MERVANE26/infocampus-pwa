@@ -420,7 +420,7 @@ const ProfilEtudiant = () => {
             }
             
             // Rediriger vers la page de connexion
-            navigate('/login');
+            navigate('/connexion');
         }
     };
 
