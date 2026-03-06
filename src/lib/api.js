@@ -14,7 +14,7 @@ export const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,8 +25,8 @@ api.interceptors.request.use(
 
 // Logout helper and JWT expiry check
 function logoutDueToExpiredToken() {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('user_data');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
   window.location.href = '/auth';
 }
 
@@ -54,7 +54,7 @@ function isTokenExpired(token) {
 // Request interceptor: check token expiry before sending
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem('token');
     if (token) {
       if (isTokenExpired(token)) {
         logoutDueToExpiredToken();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -18,7 +18,8 @@ import {
     FaArrowRight,
     FaComments,
     FaShare,
-    FaEllipsisH
+    FaEllipsisH,
+    FaFilter
 } from 'react-icons/fa';
 import { MdFavoriteBorder, MdFavorite } from 'react-icons/md';
 import Container from 'react-bootstrap/Container';
@@ -78,6 +79,15 @@ const Publication = () => {
     const [filterType, setFilterType] = useState('all');
     const [sortBy, setSortBy] = useState('recent');
     const [searchTerm, setSearchTerm] = useState('');
+    const [onlyMine, setOnlyMine] = useState(false);
+    const [hasAttachments, setHasAttachments] = useState(false);
+    const [hasImages, setHasImages] = useState(false);
+
+    // Sticky filter header (hide on scroll down on desktop, toggle on mobile)
+    const [filterVisible, setFilterVisible] = useState(true);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const lastScrollYRef = useRef(0);
+    const didMountRef = useRef(false);
     
     // États pour la pagination
     const [currentPage, setCurrentPage] = useState(1);
@@ -141,6 +151,53 @@ const Publication = () => {
         loadPublications(1);
     }, [filterType, sortBy]);
 
+    // Trigger API reload (debounced) when the search term changes
+    useEffect(() => {
+        if (!didMountRef.current) {
+            didMountRef.current = true;
+            return;
+        }
+
+        const debounce = setTimeout(() => {
+            setCurrentPage(1);
+            loadPublications(1);
+        }, 500);
+
+        return () => clearTimeout(debounce);
+    }, [searchTerm]);
+
+    // Track screen size to toggle mobile behavior
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth <= 768;
+            setIsMobile(mobile);
+            if (!mobile) {
+                setFilterVisible(true); // keep visible on desktop
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Hide filter bar on scroll down; show on scroll up
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentY = window.scrollY;
+            // only hide after some scroll so UI doesn't jump on small movements
+            if (currentY > lastScrollYRef.current && currentY > 120) {
+                setFilterVisible(false);
+            } else {
+                setFilterVisible(true);
+            }
+            lastScrollYRef.current = currentY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     const loadUserData = async () => {
         try {
             const userStr = localStorage.getItem('user');
@@ -196,6 +253,11 @@ const Publication = () => {
                 sortParam = '-createdAt';
             }
             params.append('sortBy', sortParam);
+
+            // Add search term (supported by backend if available)
+            if (searchTerm.trim()) {
+                params.append('search', searchTerm.trim());
+            }
             
             // Fetch from API
             const response = await api.get(`/posts/all?${params.toString()}`);
@@ -543,6 +605,28 @@ const Publication = () => {
         }
     };
 
+    // Client-side filtering for advanced search/control
+    const filteredPublications = publications.filter((post) => {
+        const term = searchTerm.trim().toLowerCase();
+        const matchesSearch =
+            !term ||
+            post.content?.toLowerCase().includes(term) ||
+            post.authorName?.toLowerCase().includes(term);
+
+        if (!matchesSearch) return false;
+
+        const currentUserId = currentUser?._id || currentUser?.id;
+        if (onlyMine && currentUserId) {
+            const postAuthorId = post.authorId?._id || post.authorId;
+            if (String(postAuthorId) !== String(currentUserId)) return false;
+        }
+
+        if (hasAttachments && !(post.attachments?.length > 0)) return false;
+        if (hasImages && !(post.images?.length > 0)) return false;
+
+        return true;
+    });
+
     return (
         <div className={styles.pageContainer}>
             {/* Toast Notification */}
@@ -601,47 +685,92 @@ const Publication = () => {
                             </Popover>
                         </Overlay>
                         {/* Search & Filters */}
-                        <Card className={styles.filterCard}>
-                            <Card.Body className="p-3">
-                                <InputGroup className="mb-3" size="sm">
-                                    <InputGroup.Text className={styles.searchIcon}>
-                                        <FaSearch />
-                                    </InputGroup.Text>
-                                    <Form.Control
-                                        placeholder={t('publication.searchPlaceholder')}
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className={styles.searchInput}
-                                    />
-                                </InputGroup>
+                        <div className={styles.filterContainer}>
+                            <div className={`${styles.filterWrapper} ${!filterVisible ? styles.filterHidden : ''}`}>
+                                <Card className={`${styles.filterCard} ${styles.filterSticky}`}>
+                                    <Card.Body className="p-3">
+                                    <InputGroup className="mb-3" size="sm">
+                                        <InputGroup.Text className={styles.searchIcon}>
+                                            <FaSearch />
+                                        </InputGroup.Text>
+                                        <Form.Control
+                                            placeholder={t('publication.searchPlaceholder')}
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className={styles.searchInput}
+                                        />
+                                    </InputGroup>
 
-                                <Row className="g-2">
-                                    <Col xs={6} sm={4}>
-                                        <Form.Select
-                                            value={filterType}
-                                            onChange={(e) => setFilterType(e.target.value)}
-                                            size="sm"
-                                        >
-                                            <option value="all">{t('publication.all')}</option>
-                                            <option value="urgent">{t('publication.urgent')}</option>
-                                            <option value="teacher">{t('publication.forTeachers')}</option>
-                                            <option value="admin">{t('publication.admin')}</option>
-                                        </Form.Select>
-                                    </Col>
-                                    <Col xs={6} sm={4}>
-                                        <Form.Select
-                                            value={sortBy}
-                                            onChange={(e) => setSortBy(e.target.value)}
-                                            size="sm"
-                                        >
-                                            <option value="recent">{t('publication.recent')}</option>
-                                            <option value="popular">{t('publication.popular')}</option>
-                                            <option value="likes">{t('publication.likes')}</option>
-                                        </Form.Select>
-                                    </Col>
-                                </Row>
-                            </Card.Body>
-                        </Card>
+                                    <Row className="g-2">
+                                        <Col xs={6} sm={4}>
+                                            <Form.Select
+                                                value={filterType}
+                                                onChange={(e) => setFilterType(e.target.value)}
+                                                size="sm"
+                                            >
+                                                <option value="all">{t('publication.all')}</option>
+                                                <option value="urgent">{t('publication.urgent')}</option>
+                                                <option value="teacher">{t('publication.forTeachers')}</option>
+                                                <option value="admin">{t('publication.admin')}</option>
+                                                <option value="student">{t('publication.forStudents')}</option>
+                                            </Form.Select>
+                                        </Col>
+                                        <Col xs={6} sm={4}>
+                                            <Form.Select
+                                                value={sortBy}
+                                                onChange={(e) => setSortBy(e.target.value)}
+                                                size="sm"
+                                            >
+                                                <option value="recent">{t('publication.recent')}</option>
+                                                <option value="popular">{t('publication.popular')}</option>
+                                                <option value="likes">{t('publication.likes')}</option>
+                                            </Form.Select>
+                                        </Col>
+                                    </Row>
+
+                                    <Row className="g-2 mt-2">
+                                        <Col xs={12} sm={6} md={4}>
+                                            <Form.Check
+                                                type="checkbox"
+                                                id="filter_my_posts"
+                                                label={t('publication.onlyMine')}
+                                                checked={onlyMine}
+                                                onChange={(e) => setOnlyMine(e.target.checked)}
+                                            />
+                                        </Col>
+                                        <Col xs={12} sm={6} md={4}>
+                                            <Form.Check
+                                                type="checkbox"
+                                                id="filter_has_attachments"
+                                                label={t('publication.hasAttachments')}
+                                                checked={hasAttachments}
+                                                onChange={(e) => setHasAttachments(e.target.checked)}
+                                            />
+                                        </Col>
+                                        <Col xs={12} sm={6} md={4}>
+                                            <Form.Check
+                                                type="checkbox"
+                                                id="filter_has_images"
+                                                label={t('publication.hasImages')}
+                                                checked={hasImages}
+                                                onChange={(e) => setHasImages(e.target.checked)}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
+                        </div>
+
+                        {!filterVisible && (
+                            <Button
+                                variant="light"
+                                className={styles.filterFloatingToggle}
+                                onClick={() => setFilterVisible(true)}
+                            >
+                                <FaFilter />
+                            </Button>
+                        )}
+                    </div>
 
                         {/* Loading State */}
                         {loading && (
@@ -651,16 +780,20 @@ const Publication = () => {
                         )}
 
                         {/* Publications Feed */}
-                        {!loading && publications.length === 0 ? (
+                        {!loading && filteredPublications.length === 0 ? (
                             <Card className={styles.emptyState}>
                                 <Card.Body className="text-center py-5">
                                     <FaBell size={32} className="text-muted mb-3" />
-                                    <p className="text-muted">{t('publication.noPublications')}</p>
+                                    <p className="text-muted">
+                                        {publications.length === 0
+                                            ? t('publication.noPublications')
+                                            : t('publication.noResults')}
+                                    </p>
                                 </Card.Body>
                             </Card>
                         ) : (
                             <div className={styles.feedList}>
-                                {publications.map((post) => (
+                                {filteredPublications.map((post) => (
                                     <Card id={post._id} key={post._id} className={styles.postCard}>
                                         {/* Post Header */}
                                         <Card.Body className={styles.postHeader}>

@@ -22,9 +22,10 @@ import {
     FaGlobe,
     FaComments,
     FaExclamationCircle,
-    FaUniversity
+    FaUniversity,
+    FaSearch
 } from 'react-icons/fa';
-import { Container, Row, Col, Card, Form, Button, Alert, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Alert, Badge, InputGroup } from 'react-bootstrap';
 import styles from './FairePublication.module.css';
 import { api } from '../lib/api';
 
@@ -66,6 +67,19 @@ const FairePublication = () => {
     const [userUniversities, setUserUniversities] = useState([]); // normalized list {id,name,campuses[]}
     const [selectedUniversityId, setSelectedUniversityId] = useState("");
     const [availableCampuses, setAvailableCampuses] = useState([]); // campuses for currently selected university
+
+    // Post feed (for search & filter preview)
+    const [posts, setPosts] = useState([]);
+    const [postsLoading, setPostsLoading] = useState(false);
+    const [postsError, setPostsError] = useState(null);
+    const [postSearch, setPostSearch] = useState('');
+    const [postFilterAudience, setPostFilterAudience] = useState('all');
+    const [postFilterUrgent, setPostFilterUrgent] = useState(false);
+    const [postFilterFiliere, setPostFilterFiliere] = useState('tous');
+    const [postFilterNiveau, setPostFilterNiveau] = useState('tous');
+    const [postFilterCampus, setPostFilterCampus] = useState('tous');
+    const [postFilterGroupe, setPostFilterGroupe] = useState('tous');
+    const postSearchDebounce = useRef(null);
 
 
     const MAX_CHARS = 1500;
@@ -283,6 +297,106 @@ const FairePublication = () => {
     }, [publication.audience, publication.filiere, publication.niveau,
     publication.campus, publication.groupe, publication.staffTarget]);
 
+    // Fetch recent posts to help users avoid duplicates (search + filters)
+    const loadPosts = async (pageNum = 1) => {
+        setPostsLoading(true);
+        setPostsError(null);
+        try {
+            const params = new URLSearchParams();
+            params.append('page', pageNum);
+            params.append('limit', 20);
+
+            if (selectedUniversityId) {
+                params.append('universityId', selectedUniversityId);
+            }
+
+            if (postSearch.trim()) {
+                params.append('search', postSearch.trim());
+            }
+
+            if (postFilterUrgent) {
+                params.append('urgent', 'true');
+            }
+
+            if (postFilterAudience && postFilterAudience !== 'all') {
+                params.append('targetType', postFilterAudience);
+            }
+
+            if (postFilterFiliere && postFilterFiliere !== 'tous') {
+                params.append('filiere', postFilterFiliere);
+            }
+            if (postFilterNiveau && postFilterNiveau !== 'tous') {
+                params.append('niveau', postFilterNiveau);
+            }
+            if (postFilterGroupe && postFilterGroupe !== 'tous') {
+                params.append('groupe', postFilterGroupe);
+            }
+            if (postFilterCampus && postFilterCampus !== 'tous') {
+                params.append('campusId', postFilterCampus);
+            }
+
+            const response = await api.get(`/posts/all?${params.toString()}`);
+            if (response.data.success) {
+                setPosts(response.data.data || []);
+            } else {
+                setPosts([]);
+            }
+        } catch (error) {
+            console.error('Erreur chargement des publications:', error);
+            setPostsError('Impossible de récupérer les publications');
+        } finally {
+            setPostsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        // Debounce search to avoid triggering API for every keystroke
+        if (postSearchDebounce.current) {
+            clearTimeout(postSearchDebounce.current);
+        }
+        postSearchDebounce.current = setTimeout(() => {
+            loadPosts();
+        }, 400);
+
+        return () => clearTimeout(postSearchDebounce.current);
+    }, [postSearch, postFilterAudience, postFilterUrgent, postFilterFiliere, postFilterNiveau, postFilterCampus, postFilterGroupe, selectedUniversityId]);
+
+    const filteredPosts = posts.filter((post) => {
+        const term = postSearch.trim().toLowerCase();
+        const matchesSearch =
+            !term ||
+            post.content?.toLowerCase().includes(term) ||
+            post.authorName?.toLowerCase().includes(term);
+        if (!matchesSearch) return false;
+
+        if (postFilterUrgent && !post.options?.urgent) return false;
+
+        if (postFilterAudience && postFilterAudience !== 'all') {
+            const targetType = post.target?.type;
+            if (targetType !== postFilterAudience) return false;
+        }
+
+        if (postFilterFiliere && postFilterFiliere !== 'tous') {
+            const filieres = post.target?.filieres || [];
+            if (!filieres.includes(postFilterFiliere)) return false;
+        }
+        if (postFilterNiveau && postFilterNiveau !== 'tous') {
+            const niveaux = post.target?.niveaux || [];
+            if (!niveaux.includes(postFilterNiveau)) return false;
+        }
+        if (postFilterGroupe && postFilterGroupe !== 'tous') {
+            const groupes = post.target?.groupes || [];
+            if (!groupes.includes(postFilterGroupe)) return false;
+        }
+        if (postFilterCampus && postFilterCampus !== 'tous') {
+            const campusIds = post.target?.campusIds || [];
+            const found = campusIds.some(id => String(id) === String(postFilterCampus));
+            if (!found) return false;
+        }
+
+        return true;
+    });
+
     const getTargetingBadges = () => {
         const badges = [];
 
@@ -426,7 +540,6 @@ const FairePublication = () => {
                 config = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 };
             }
@@ -440,7 +553,7 @@ const FairePublication = () => {
             showNotification("✅ Publication créée avec succès", "success");
 
             setTimeout(() => {
-                navigate("/publications");
+                navigate("/posts");
             }, 1500);
 
         } catch (error) {
@@ -867,6 +980,154 @@ const FairePublication = () => {
                                 </Form>
                             </Card.Body>
                         </Card>
+
+                        {/* Publications récentes (recherche / filtres) */}
+                        <div className={styles.postsSection}>
+                            <div className={styles.postsHeader}>
+                                <div className={styles.postsTitle}>
+                                    <FaUsers className="me-2" /> Publications récentes
+                                </div>
+                                <div className={styles.postsFilterBar}>
+                                    <InputGroup className={styles.postsSearchInput}>
+                                        <InputGroup.Text>
+                                            <FaSearch />
+                                        </InputGroup.Text>
+                                        <Form.Control
+                                            placeholder="Rechercher parmi les publications"
+                                            value={postSearch}
+                                            onChange={(e) => setPostSearch(e.target.value)}
+                                        />
+                                    </InputGroup>
+
+                                    <Form.Select
+                                        value={postFilterAudience}
+                                        onChange={(e) => setPostFilterAudience(e.target.value)}
+                                        className={styles.postsFilterSelect}
+                                    >
+                                        <option value="all">Tous</option>
+                                        <option value="student">Étudiants</option>
+                                        <option value="teacher">Personnel</option>
+                                        <option value="admin">Administrateurs</option>
+                                    </Form.Select>
+
+                                    <Form.Select
+                                        value={postFilterFiliere}
+                                        onChange={(e) => setPostFilterFiliere(e.target.value)}
+                                        className={styles.postsFilterSelect}
+                                    >
+                                        <option value="tous">Toutes les filières</option>
+                                        <option value="genie-logiciel">Génie Logiciel</option>
+                                        <option value="telecoms">TELECOMS</option>
+                                        <option value="reseaux">Réseaux et sécurité</option>
+                                        <option value="iia">IIA</option>
+                                    </Form.Select>
+
+                                    <Form.Select
+                                        value={postFilterNiveau}
+                                        onChange={(e) => setPostFilterNiveau(e.target.value)}
+                                        className={styles.postsFilterSelect}
+                                    >
+                                        <option value="tous">Tous les niveaux</option>
+                                        <option value="1ere annee">1ère année</option>
+                                        <option value="2eme annee">2ème année</option>
+                                        <option value="3eme annee">3ème année</option>
+                                        <option value="Master 1">Master 1</option>
+                                    </Form.Select>
+
+                                    <Form.Select
+                                        value={postFilterCampus}
+                                        onChange={(e) => setPostFilterCampus(e.target.value)}
+                                        className={styles.postsFilterSelect}
+                                    >
+                                        <option value="tous">Tous les campus</option>
+                                        {availableCampuses.map(c => (
+                                            <option key={c._id || c} value={c._id || c}>
+                                                {c.name || c}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+
+                                    <Form.Select
+                                        value={postFilterGroupe}
+                                        onChange={(e) => setPostFilterGroupe(e.target.value)}
+                                        className={styles.postsFilterSelect}
+                                    >
+                                        <option value="tous">Tous les groupes</option>
+                                        <option value="Cours du jour">Cours du jour</option>
+                                        <option value="Cours du soir">Cours du soir</option>
+                                    </Form.Select>
+
+                                    <Form.Check
+                                        type="checkbox"
+                                        id="filter-urgent"
+                                        label="Urgent uniquement"
+                                        checked={postFilterUrgent}
+                                        onChange={(e) => setPostFilterUrgent(e.target.checked)}
+                                        className={styles.postsFilterCheckbox}
+                                    />
+                                </div>
+                            </div>
+
+                            {postsLoading && (
+                                <div className={styles.postsLoading}>
+                                    <span className="spinner-border spinner-border-sm me-2" /> Chargement...
+                                </div>
+                            )}
+
+                            {postsError && (
+                                <Alert variant="danger" className="mt-3">
+                                    {postsError}
+                                </Alert>
+                            )}
+
+                            {!postsLoading && !postsError && filteredPosts.length === 0 && (
+                                <Card className={styles.emptyPosts}>
+                                    <Card.Body className="text-center py-4">
+                                        <FaBell size={20} className="text-muted mb-2" />
+                                        <p className="text-muted mb-0">Aucune publication trouvée.</p>
+                                    </Card.Body>
+                                </Card>
+                            )}
+
+                            {!postsLoading && !postsError && filteredPosts.length > 0 && (
+                                <div className={styles.postsList}>
+                                    {filteredPosts.map((post) => (
+                                        <Card key={post._id} className={styles.postItem}>
+                                            <Card.Body>
+                                                <div className="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <div className="fw-bold">{post.authorName}</div>
+                                                        <small className="text-muted">
+                                                            {new Date(post.createdAt).toLocaleString()}
+                                                        </small>
+                                                    </div>
+                                                    {post.options?.urgent && (
+                                                        <Badge bg="danger" className="text-uppercase">
+                                                            Urgent
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="mt-2 mb-2">{post.content}</div>
+                                                <div className="d-flex flex-wrap gap-2">
+                                                    {(post.target?.type && post.target.type !== 'all') && (
+                                                        <Badge bg="secondary">Cible: {post.target.type}</Badge>
+                                                    )}
+                                                    {post.target?.filieres?.map((f) => (
+                                                        <Badge bg="info" key={f}>Filière: {f}</Badge>
+                                                    ))}
+                                                    {post.target?.niveaux?.map((n) => (
+                                                        <Badge bg="info" key={n}>Niveau: {n}</Badge>
+                                                    ))}
+                                                    {post.target?.groupes?.map((g) => (
+                                                        <Badge bg="info" key={g}>Groupe: {g}</Badge>
+                                                    ))}
+                                                </div>
+                                            </Card.Body>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </Col>
                 </Row>
             </Container>

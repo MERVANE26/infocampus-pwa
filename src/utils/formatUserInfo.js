@@ -22,7 +22,7 @@ export function formatUserField(field, value, t) {
           .join(', ');
       }
       return t(`auth.campusName.${value}`, { defaultValue: value });
-    default:
+    default: 
       return value;
   }
 }
