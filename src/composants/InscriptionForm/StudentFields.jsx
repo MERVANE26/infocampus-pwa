@@ -1,18 +1,21 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaUniversity, FaCity, FaBook, FaGraduationCap, FaUsers } from 'react-icons/fa';
 import { Row, Col, Form } from 'react-bootstrap';
 import styles from './StudentFields.module.css';
 
 const StudentFields = ({ formData, onChange, universities }) => {
+    const { t } = useTranslation();
+
     return (
         <div className={styles.studentFields}>
             <h2 className={styles.sectionTitle}>
-                <FaGraduationCap /> Étudiant
+                <FaGraduationCap /> {t('auth.student')}
             </h2>
 
             <Form.Group className={styles.formGroup}>
                 <Form.Label>
-                    <FaUniversity /> Université <span className={styles.required}>*</span>
+                    <FaUniversity /> {t('auth.university')} <span className={styles.required}>*</span>
                 </Form.Label>
                 <Form.Select
                     id="student.university"
@@ -22,7 +25,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                     className={styles.select}
                 >
                     
-                    <option value="">Choisissez</option>
+                    <option value="">{t('auth.select')}</option>
                     {universities.map(u => (
                         <option key={u.id} value={u.id}>{u.name}</option>
                     ))}
@@ -33,7 +36,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                 <Col md={6}>
                     <Form.Group className={styles.formGroup}>
                         <Form.Label>
-                            <FaCity /> Campus <span className={styles.required}>*</span>
+                            <FaCity /> {t('auth.campus')} <span className={styles.required}>*</span>
                         </Form.Label>
                         <Form.Select
                             id="student.campus"
@@ -42,7 +45,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             required
                             className={styles.select}
                         >
-                            <option value="">Campus</option>
+                            <option value="">{t('auth.select')}</option>
                             <option value="esg">ESG</option>
                             <option value="ista">ISTA</option>
                             <option value="isa">ISA</option>
@@ -52,7 +55,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                 <Col md={6}>
                     <Form.Group className={styles.formGroup}>
                         <Form.Label>
-                            <FaBook /> Filière <span className={styles.required}>*</span>
+                            <FaBook /> {t('auth.filiere')} <span className={styles.required}>*</span>
                         </Form.Label>
                         <Form.Select
                             id="student.filiere"
@@ -61,10 +64,10 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             required
                             className={styles.select}
                         >
-                            <option value="">Filière</option>
-                            <option value="gl">Génie Logiciel</option>
-                            <option value="res">Réseaux</option>
-                            <option value="iia">IIA</option>
+                            <option value="">{t('auth.select')}</option>
+                            <option value="gl">{t('auth.field.softwareEngineering')}</option>
+                            <option value="res">{t('auth.field.networks')}</option>
+                            <option value="iia">{t('auth.field.ai')}</option>
                         </Form.Select>
                     </Form.Group>
                 </Col>
@@ -74,7 +77,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                 <Col md={6}>
                     <Form.Group className={styles.formGroup}>
                         <Form.Label>
-                            <FaGraduationCap /> Niveau <span className={styles.required}>*</span>
+                            <FaGraduationCap /> {t('auth.niveau')} <span className={styles.required}>*</span>
                         </Form.Label>
                         <Form.Select
                             id="student.niveau"
@@ -83,19 +86,19 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             required
                             className={styles.select}
                         >
-                            <option value="">Niveau</option>
-                            <option value="l1">Licence 1</option>
-                            <option value="l2">Licence 2</option>
-                            <option value="l3">Licence 3</option>
-                            <option value="m1">Master 1</option>
-                            <option value="m2">Master 2</option>
+                            <option value="">{t('auth.select')}</option>
+                            <option value="l1">{t('auth.level.l1')}</option>
+                            <option value="l2">{t('auth.level.l2')}</option>
+                            <option value="l3">{t('auth.level.l3')}</option>
+                            <option value="m1">{t('auth.level.m1')}</option>
+                            <option value="m2">{t('auth.level.m2')}</option>
                         </Form.Select>
                     </Form.Group>
                 </Col>
                 <Col md={6}>
                     <Form.Group className={styles.formGroup}>
                         <Form.Label>
-                            <FaUsers /> Groupe <span className={styles.required}>*</span>
+                            <FaUsers /> {t('auth.group')} <span className={styles.required}>*</span>
                         </Form.Label>
                         <Form.Select
                             id="student.groupe"
@@ -104,10 +107,10 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             required
                             className={styles.select}
                         >
-                            <option value="">Groupe</option>
-                            <option value="jours">Jours</option>
-                            <option value="soirs">Soirs</option>
-                            <option value="weekend">Week-end</option>
+                            <option value="">{t('auth.select')}</option>
+                            <option value="jours">{t('auth.groupOptions.day')}</option>
+                            <option value="soirs">{t('auth.groupOptions.evening')}</option>
+                            <option value="weekend">{t('auth.groupOptions.weekend')}</option>
                         </Form.Select>
                     </Form.Group>
                 </Col>

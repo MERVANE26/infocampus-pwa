@@ -1,18 +1,21 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaUserTie, FaUniversity, FaBuilding, FaBriefcase, FaBook } from 'react-icons/fa';
 import { Form } from 'react-bootstrap';
 import styles from './AdminFields.module.css';
 
-const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
+const AdminFields = ({ formData, onChange, onToggleTeacher, universities }) => {
+    const { t } = useTranslation();
+
     return (
         <div className={styles.adminFields}>
             <h2 className={styles.sectionTitle}>
-                <FaUserTie /> Administration
+                <FaUserTie /> {t('auth.administration')}
             </h2>
 
             <Form.Group className={styles.formGroup}>
                 <Form.Label>
-                    <FaUniversity /> Université <span className={styles.required}>*</span>
+                    <FaUniversity /> {t('auth.university')} <span className={styles.required}>*</span>
                 </Form.Label>
                 <Form.Select
                     id="admin.university"
@@ -21,22 +24,22 @@ const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
                     required
                     className={styles.select}
                 >
-                    <option value="">Choisissez</option>
-                    <option value="iug">Institut Universitaire du Golfe (IUG)</option>
-                    <option value="uy1">Université de Yaoundé I</option>
+                    {universities.map(u => (
+                        <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
                 </Form.Select>
             </Form.Group>
 
             <Form.Group className={styles.formGroup}>
                 <Form.Label>
-                    <FaBuilding /> Service <span className={styles.required}>*</span>
+                    <FaBuilding /> {t('auth.adminService')} <span className={styles.required}>*</span>
                 </Form.Label>
                 <Form.Control
                     type="text"
                     id="admin.service"
                     value={formData.service}
                     onChange={onChange}
-                    placeholder="Ex: Scolarité"
+                    placeholder={t('auth.adminServicePlaceholder')}
                     required
                     className={styles.input}
                 />
@@ -44,14 +47,14 @@ const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
 
             <Form.Group className={styles.formGroup}>
                 <Form.Label>
-                    <FaBriefcase /> Fonction <span className={styles.required}>*</span>
+                    <FaBriefcase /> {t('auth.adminFunction')} <span className={styles.required}>*</span>
                 </Form.Label>
                 <Form.Control
                     type="text"
                     id="admin.function"
                     value={formData.function}
                     onChange={onChange}
-                    placeholder="Ex: Chef de service"
+                    placeholder={t('auth.adminFunctionPlaceholder')}
                     required
                     className={styles.input}
                 />
@@ -64,23 +67,23 @@ const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
                     id="admin.hasTeacherRole"
                     checked={formData.hasTeacherRole}
                     onChange={onToggleTeacher}
-                    label="Je suis aussi enseignant"
+                    label={t('auth.adminAlsoTeacher')}
                 />
             </div>
 
             {formData.hasTeacherRole && (
                 <div className={styles.teacherFields}>
                     <h3 className={styles.subSectionTitle}>
-                        <FaBook /> Matières enseignées
+                        <FaBook /> {t('auth.adminTeacherSubjectsTitle')}
                     </h3>
-                    
+
                     <Form.Group className={styles.formGroup}>
                         <Form.Control
                             type="text"
                             id="admin.teacherRole.subjects"
                             value={formData.teacherRole.subjects}
                             onChange={onChange}
-                            placeholder="Programmation, Réseaux..."
+                            placeholder={t('auth.teacherSubjectsPlaceholder')}
                             className={styles.input}
                         />
                     </Form.Group>

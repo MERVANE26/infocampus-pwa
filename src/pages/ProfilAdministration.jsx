@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { 
+import {
     FaUniversity,
     FaChalkboardTeacher,
     FaUserTie,
@@ -171,7 +171,7 @@ import styles from './ProfilAdministration.module.css';
 import AppNavbar from '../composants/AppNavbar';
 
 // Import de nos composants de boutons personnalisés
-import { 
+import {
     BoutonProfil,
     BoutonFermer,
     BoutonAction,
@@ -219,7 +219,7 @@ api.interceptors.response.use(
 const ProfilAdministration = () => {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
-    
+
     // États
     const [currentAdmin, setCurrentAdmin] = useState({
         _id: "",
@@ -255,7 +255,7 @@ const ProfilAdministration = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('info');
-    
+
     // États pour les paramètres
     const [settings, setSettings] = useState({
         phoneNumber: currentAdmin.phoneNumber || "",
@@ -306,7 +306,7 @@ const ProfilAdministration = () => {
                     // ✅ GARDE LES STATS EXISTANTES OU UTILISE LES DÉFAUTS
                     stats: user.stats || prev.stats
                 }));
-                
+
                 setSettings(prev => ({
                     ...prev,
                     phoneNumber: user.phoneNumber || prev.phoneNumber || "",
@@ -329,34 +329,60 @@ const ProfilAdministration = () => {
         }
     };
 
-    const handlePhotoChange = (e) => {
+    const handlePhotoChange = async(e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification('❌ La photo ne doit pas dépasser 5 Mo', 'error');
-                return;
-            }
+        try {
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification('❌ La photo ne doit pas dépasser 5 Mo', 'error');
+                    return;
+                }
 
-            if (!file.type.startsWith('image/')) {
-                showNotification('❌ Veuillez sélectionner une image', 'error');
-                return;
-            }
+                if (!file.type.startsWith('image/')) {
+                    showNotification('❌ Veuillez sélectionner une image', 'error');
+                    return;
+                }
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setCurrentAdmin(prev => ({
-                    ...prev,
-                    photoUrl: event.target.result
-                }));
-                
-                // Sauvegarder dans localStorage
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.photoUrl = event.target.result;
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                showNotification('✅ Photo de profil mise à jour !', 'success');
-            };
-            reader.readAsDataURL(file);
+                const formData = new FormData();
+                formData.append('profilePic', file);
+                const response = await api.put('/auth/update-profile', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+
+                if (response.data && response.data.user) {
+                    setCurrentAdmin(prev => ({
+                        ...prev,
+                        photoUrl: response.data.user.photoUrl,
+                        adminInfo: {
+                            ...prev.adminInfo,
+                            matricule: response.data.user.adminInfo?.matricule || prev.adminInfo.matricule,
+                            service: response.data.user.adminInfo?.service || prev.adminInfo.service,
+                            fonction: response.data.user.adminInfo?.fonction || prev.adminInfo.fonction,
+                            departement: response.data.user.adminInfo?.departement || prev.adminInfo.departement
+                        }
+                        }));
+                    };
+                    // Mettre à jour localStorage avec la nouvelle URL de la photo
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    user.photoUrl = response.data.user.photoUrl;
+                    user.adminInfo = {
+                        ...user.adminInfo,
+                        matricule: response.data.user.adminInfo?.matricule || user.adminInfo?.matricule,
+                        service: response.data.user.adminInfo?.service || user.adminInfo?.service,
+                        fonction: response.data.user.adminInfo?.fonction || user.adminInfo?.fonction,
+                        departement: response.data.user.adminInfo?.departement || user.adminInfo?.departement
+                    };
+                    localStorage.setItem('user', JSON.stringify(user));
+                } else {
+                    showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
+                }
+
+            
+        } catch (error) {
+            showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
+            console.error('Erreur mise à jour photo:', error);
         }
     };
 
@@ -421,7 +447,7 @@ const ProfilAdministration = () => {
 
         } catch (error) {
             console.error('Erreur sauvegarde paramètres:', error);
-            
+
             if (error.code === 'ECONNABORTED') {
                 showNotification('❌ Délai de connexion dépassé', 'error');
             } else if (error.response) {
@@ -448,7 +474,7 @@ const ProfilAdministration = () => {
             // Effacer les données locales
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            
+
             // Notification PWA
             if (Notification.permission === 'granted') {
                 new Notification('Déconnexion', {
@@ -456,9 +482,9 @@ const ProfilAdministration = () => {
                     icon: '/icon-192x192.png'
                 });
             }
-            
+
             // Rediriger vers la page de connexion
-            navigate('/connexion');
+            navigate('/login');
         }
     };
 
@@ -466,7 +492,7 @@ const ProfilAdministration = () => {
         setToastMessage(message);
         setToastType(type);
         setShowToast(true);
-        
+
         setTimeout(() => {
             setShowToast(false);
         }, 3000);
@@ -480,15 +506,15 @@ const ProfilAdministration = () => {
     };
 
     const formatNumber = (num) => {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
     return (
         <div className={styles.pageContainer}>
             {/* Toast Container pour les notifications */}
             <ToastContainer position="top-end" className={styles.toastContainer}>
-                <Toast 
-                    show={showToast} 
+                <Toast
+                    show={showToast}
                     onClose={() => setShowToast(false)}
                     bg={toastType}
                     className={styles.toast}
@@ -512,8 +538,8 @@ const ProfilAdministration = () => {
                                     className={styles.tabs}
                                     fill
                                 >
-                                    <Tab 
-                                        eventKey="profile" 
+                                    <Tab
+                                        eventKey="profile"
                                         title={
                                             <span className={styles.tabTitle}>
                                                 <FaUserCircle /> Profil
@@ -527,11 +553,11 @@ const ProfilAdministration = () => {
                                                 <Card.Body>
                                                     <div className={styles.avatarSection}>
                                                         <div className={styles.avatarWrapper}>
-                                                            <div 
+                                                            <div
                                                                 className={styles.avatar}
-                                                                style={currentAdmin.photo ? { backgroundImage: `url(${currentAdmin.photo})` } : {}}
+                                                                style={currentAdmin.photoUrl ? { backgroundImage: `url(${currentAdmin.photoUrl})` } : {}}
                                                             >
-                                                                {!currentAdmin.photo && getInitials()}
+                                                                {!currentAdmin.photoUrl && getInitials()}
                                                             </div>
                                                             <OverlayTrigger
                                                                 placement="bottom"
@@ -565,7 +591,11 @@ const ProfilAdministration = () => {
                                                             <FaUsers className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
+<<<<<<< HEAD
                                                                     {formatNumber(currentAdmin.stats?.students ?? 0)}
+=======
+                                                                    {formatNumber(currentAdmin.status.students)}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Étudiants</span>
                                                             </div>
@@ -574,7 +604,11 @@ const ProfilAdministration = () => {
                                                             <FaChalkboardTeacher className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
+<<<<<<< HEAD
                                                                     {currentAdmin.stats?.teachers ?? 0}
+=======
+                                                                    {currentAdmin.status.teachers}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Enseignants</span>
                                                             </div>
@@ -583,7 +617,11 @@ const ProfilAdministration = () => {
                                                             <FaUserCheck className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
+<<<<<<< HEAD
                                                                     {formatNumber(currentAdmin.stats?.activeUsers ?? 0)}
+=======
+                                                                    {formatNumber(currentAdmin.status.activeUsers)}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Actifs</span>
                                                             </div>
@@ -592,7 +630,11 @@ const ProfilAdministration = () => {
                                                             <FaBell className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
+<<<<<<< HEAD
                                                                     {currentAdmin.stats?.totalPublications ?? 0}
+=======
+                                                                    {currentAdmin.status.totalPublications}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Publications</span>
                                                             </div>
@@ -608,7 +650,11 @@ const ProfilAdministration = () => {
                                                                     En attente de modération
                                                                 </span>
                                                                 <Badge bg="warning" className={styles.moderationBadge}>
+<<<<<<< HEAD
                                                                     {currentAdmin.stats?.pendingModeration ?? 0}
+=======
+                                                                    {currentAdmin.status.pendingModeration}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -619,7 +665,11 @@ const ProfilAdministration = () => {
                                                                     Signalements
                                                                 </span>
                                                                 <Badge bg="danger" className={styles.moderationBadge}>
+<<<<<<< HEAD
                                                                     {currentAdmin.stats?.reports ?? 0}
+=======
+                                                                    {currentAdmin.status.reports}
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -688,7 +738,11 @@ const ProfilAdministration = () => {
                                                             <FaShieldAlt /> Permissions
                                                         </h3>
                                                         <div className={styles.permissionsList}>
+<<<<<<< HEAD
                                                             {currentAdmin.permissions?.map((permission, index) => (
+=======
+                                                            {currentAdmin?.permissions?.map((permission, index) => (
+>>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 <Badge key={index} className={styles.permissionBadge}>
                                                                     <FaCheckCircle className={styles.permissionIcon} />
                                                                     {permission}
@@ -740,12 +794,12 @@ const ProfilAdministration = () => {
                                                             action="publication"
                                                             onClick={createPublication}
                                                         />
-                                                        
+
                                                         <BoutonProfil
                                                             action="modifier"
                                                             onClick={() => setActiveTab('settings')}
                                                         />
-                                                        
+
                                                         <BoutonProfil
                                                             action="deconnexion"
                                                             onClick={logout}
@@ -756,8 +810,8 @@ const ProfilAdministration = () => {
                                         </div>
                                     </Tab>
 
-                                    <Tab 
-                                        eventKey="settings" 
+                                    <Tab
+                                        eventKey="settings"
                                         title={
                                             <span className={styles.tabTitle}>
                                                 <FaCog /> Paramètres
@@ -786,8 +840,8 @@ const ProfilAdministration = () => {
                                                         defaultActiveKey="personal"
                                                         className={styles.settingsTabs}
                                                     >
-                                                        <Tab 
-                                                            eventKey="personal" 
+                                                        <Tab
+                                                            eventKey="personal"
                                                             title={
                                                                 <span>
                                                                     <FaUser /> Informations
@@ -840,7 +894,7 @@ const ProfilAdministration = () => {
                                                                         <FaBuilding /> Département
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.department}
+                                                                        value={settings.departement}
                                                                         onChange={(e) => handleSettingsChange('department', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
@@ -855,8 +909,8 @@ const ProfilAdministration = () => {
                                                             </div>
                                                         </Tab>
 
-                                                        <Tab 
-                                                            eventKey="notifications" 
+                                                        <Tab
+                                                            eventKey="notifications"
                                                             title={
                                                                 <span>
                                                                     <FaBell /> Notifications
@@ -873,7 +927,7 @@ const ProfilAdministration = () => {
                                                                         Notifications des publications
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.notifications}
+                                                                        value={settings.pushNotifications}
                                                                         onChange={(e) => handleSettingsChange('notifications', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
@@ -888,7 +942,7 @@ const ProfilAdministration = () => {
                                                                         Notifications système
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.systemNotifications}
+                                                                        value={settings.emailNotifications}
                                                                         onChange={(e) => handleSettingsChange('systemNotifications', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
@@ -922,8 +976,8 @@ const ProfilAdministration = () => {
                                                             </div>
                                                         </Tab>
 
-                                                        <Tab 
-                                                            eventKey="security" 
+                                                        <Tab
+                                                            eventKey="security"
                                                             title={
                                                                 <span>
                                                                     <FaShieldAlt /> Sécurité
@@ -967,8 +1021,8 @@ const ProfilAdministration = () => {
                                                             </div>
                                                         </Tab>
 
-                                                        <Tab 
-                                                            eventKey="appearance" 
+                                                        <Tab
+                                                            eventKey="appearance"
                                                             title={
                                                                 <span>
                                                                     <FaPalette /> Apparence
@@ -1040,7 +1094,7 @@ const ProfilAdministration = () => {
                                                                 </>
                                                             )}
                                                         </Button>
-                                                        
+
                                                         <Button
                                                             variant="outline-secondary"
                                                             className={styles.cancelButton}

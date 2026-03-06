@@ -1,10 +1,13 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
 import { FaUniversity, FaGithub, FaTwitter, FaLinkedin } from 'react-icons/fa';
+import LanguageSwitcher from '../LanguageSwitcher';
 import styles from './LegalLayout.module.css';
 
 const LegalLayout = ({ children, title, lastUpdated }) => {
+    const { t } = useTranslation();
     return (
         <div className={styles.pageContainer}>
             {/* Header avec navigation */}
@@ -62,10 +65,13 @@ const LegalLayout = ({ children, title, lastUpdated }) => {
                         </div>
                         
                         <div className={styles.footerLinks}>
-                            <Link to="/about">À propos</Link>
-                            <Link to="/terms">Conditions</Link>
-                            <Link to="/privacy">Confidentialité</Link>
-                            <Link to="/legal">Mentions légales</Link>
+                            <Link to="/about">{t('common.about')}</Link>
+                            <Link to="/terms">{t('common.terms')}</Link>
+                            <Link to="/privacy">{t('common.privacy')}</Link>
+                            <Link to="/legal">{t('common.legal')}</Link>
+                            <span style={{ marginLeft: '20px' }}>
+                                <LanguageSwitcher />
+                            </span>
                         </div>
 
                         <div className={styles.footerSocial}>
@@ -82,9 +88,9 @@ const LegalLayout = ({ children, title, lastUpdated }) => {
                     </div>
                     
                     <div className={styles.copyright}>
-                        <p>&copy; {new Date().getFullYear()} INFOcAMPUS. Tous droits réservés.</p>
+                        <p>&copy; {new Date().getFullYear()} INFOcAMPUS. {t('common.allRightsReserved') || 'Tous droits réservés'}</p>
                         <p className={styles.credit}>
-                            Une solution made in Africa 🌍
+                            {t('common.madeInAfrica')}
                         </p>
                     </div>
                 </Container>

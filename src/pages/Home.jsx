@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import BoutonInstallation from '../composants/BoutonInstallation/BoutonInstallation'; 
 import { 
@@ -16,6 +17,7 @@ import styles from './Home.module.css';
 
 
 const Home = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -91,7 +93,7 @@ const Home = () => {
                         S'inscrire
                     </Link>
                     
-                    <Link to="/connexion" className={`${styles.mainBtn} ${styles.btnLogin}`}>
+                    <Link to="/login" className={`${styles.mainBtn} ${styles.btnLogin}`}>
                         <span className={styles.btnIcon}>
                             <FaLock />
                         </span>

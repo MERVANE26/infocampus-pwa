@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { 
+import {
     FaUniversity,
     FaChalkboardTeacher,
     FaUserTie,
@@ -145,57 +146,28 @@ import Accordion from 'react-bootstrap/Accordion';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Table from 'react-bootstrap/Table';
 import styles from './ProfilEtudiant.module.css';
+import { formatUserField } from '../utils/formatUserInfo';
 
 // Import de nos composants de boutons personnalisés
-import { 
+import {
     BoutonProfil,
     BoutonFermer,
     BoutonAction
 } from '../composants/Index';
+import { api } from '../lib/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
-// Configuration Axios
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        console.log('🚀 Requête envoyée:', config.url);
-        return config;
-    },
-    error => {
-        console.error('❌ Erreur requête:', error);
-        return Promise.reject(error);
-    }
-);
-
-api.interceptors.response.use(
-    response => {
-        console.log('✅ Réponse reçue:', response.status);
-        return response;
-    },
-    error => {
-        console.error('❌ Erreur réponse:', error);
-        return Promise.reject(error);
-    }
-);
 
 const ProfilEtudiant = () => {
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
-    
+
+    const formatFieldValue = (field, value) => {
+        const formatted = formatUserField(field, value, t);
+        return formatted || t('common.unknown');
+    };
+
     // États
     const [currentUser, setCurrentUser] = useState({
         _id: "",
@@ -224,7 +196,7 @@ const ProfilEtudiant = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('info');
-    
+
     // États pour les paramètres
     const [settings, setSettings] = useState({
         matricule: currentUser.studentInfo?.matricule || "",
@@ -234,7 +206,7 @@ const ProfilEtudiant = () => {
         emailNotifications: true,
         pushNotifications: true,
         theme: 'light',
-        language: 'fr'
+        language: i18n.language || 'fr'
     });
 
     // États pour les statistiques
@@ -281,7 +253,7 @@ const ProfilEtudiant = () => {
                     studentInfo: user.studentInfo || prev.studentInfo,
                     photoUrl: user.photoUrl || user.photo || prev.photoUrl
                 }));
-                
+
                 setSettings(prev => ({
                     ...prev,
                     matricule: user.studentInfo?.matricule || prev.matricule || "",
@@ -302,34 +274,58 @@ const ProfilEtudiant = () => {
         }
     };
 
-    const handlePhotoChange = (e) => {
+    useEffect(() => {
+        if (!settings.language) return;
+        i18n.changeLanguage(settings.language);
+    }, [settings.language, i18n]);
+
+    const handlePhotoChange = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (file.size > 5 * 1024 * 1024) {
-                showNotification('❌ La photo ne doit pas dépasser 5 Mo', 'error');
-                return;
-            }
+        try {
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification(t('profile.photoTooLarge'), 'error');
+                    return;
+                }
 
-            if (!file.type.startsWith('image/')) {
-                showNotification('❌ Veuillez sélectionner une image', 'error');
-                return;
-            }
+                if (!file.type.startsWith('image/')) {
+                    showNotification(t('profile.photoInvalidFormat'), 'error');
+                    return;
+                }
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setCurrentUser(prev => ({
-                    ...prev,
-                    photoUrl: event.target.result
-                }));
-                
-                // Sauvegarder dans localStorage
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                user.photoUrl = event.target.result;
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                showNotification('✅ Photo de profil mise à jour !', 'success');
-            };
-            reader.readAsDataURL(file);
+                const formData = new FormData();
+                formData.append('profilePic', file);
+                const response = await api.put('/auth/update-profile', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+
+                if (response.data && response.data.user) {
+                    setCurrentUser(prev => ({
+                        ...prev,
+                        photoUrl: response.data.user.photoUrl,
+                        studentInfo: {
+                            ...prev.studentInfo,
+                            matricule: response.data.user.studentInfo?.matricule || prev.studentInfo.matricule,
+                        }
+                    }));
+                    // Mettre à jour localStorage avec la nouvelle URL de la photo
+                    const user = JSON.parse(localStorage.getItem('user') || '{}');
+                    user.photoUrl = response.data.user.photoUrl;
+                    user.studentInfo = {
+                        ...user.studentInfo,
+                        matricule: response.data.user.studentInfo?.matricule || user.studentInfo?.matricule
+                    };
+                    localStorage.setItem('user', JSON.stringify(user));
+                } else {
+                    showNotification(t('profile.photoUpdateError'), 'error');
+                }
+
+            }
+        } catch (error) {
+            showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
+            console.error('Erreur mise à jour photo:', error);
         }
     };
 
@@ -379,7 +375,7 @@ const ProfilEtudiant = () => {
                 }
             });
 
-            showNotification('✅ Paramètres enregistrés avec succès !', 'success');
+            showNotification(t('profile.updateSuccess'), 'success');
 
             // Retourner au profil après 1 seconde
             setTimeout(() => {
@@ -388,15 +384,15 @@ const ProfilEtudiant = () => {
 
         } catch (error) {
             console.error('Erreur sauvegarde paramètres:', error);
-            
+
             if (error.code === 'ECONNABORTED') {
-                showNotification('❌ Délai de connexion dépassé', 'error');
+                showNotification(t('profile.sessionExpired'), 'error');
             } else if (error.response) {
-                showNotification(`❌ ${error.response.data.error || 'Erreur serveur'}`, 'error');
+                showNotification(`${t('common.error')}: ${error.response?.data?.error || t('errors.serverError')}`, 'error');
             } else if (error.request) {
-                showNotification('❌ Mode hors-ligne : modifications sauvegardées localement', 'warning');
+                showNotification(t('profile.offlineSaved'), 'warning');
             } else {
-                showNotification('❌ Erreur de connexion', 'error');
+                showNotification(t('errors.networkError'), 'error');
             }
         } finally {
             setSaving(false);
@@ -408,7 +404,7 @@ const ProfilEtudiant = () => {
             // Effacer les données locales
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            
+
             // Notification PWA
             if (Notification.permission === 'granted') {
                 new Notification('Déconnexion', {
@@ -416,9 +412,9 @@ const ProfilEtudiant = () => {
                     icon: '/icon-192x192.png'
                 });
             }
-            
+
             // Rediriger vers la page de connexion
-            navigate('/connexion');
+            navigate('/login');
         }
     };
 
@@ -426,7 +422,7 @@ const ProfilEtudiant = () => {
         setToastMessage(message);
         setToastType(type);
         setShowToast(true);
-        
+
         setTimeout(() => {
             setShowToast(false);
         }, 3000);
@@ -446,7 +442,7 @@ const ProfilEtudiant = () => {
     };
 
     const getRoleIcon = () => {
-        switch(currentUser.role) {
+        switch (currentUser.role) {
             case 'Administration':
                 return <FaUserTieIcon />;
             case 'Enseignant':
@@ -460,8 +456,8 @@ const ProfilEtudiant = () => {
         <div className={styles.pageContainer}>
             {/* Toast Container pour les notifications */}
             <ToastContainer position="top-end" className={styles.toastContainer}>
-                <Toast 
-                    show={showToast} 
+                <Toast
+                    show={showToast}
                     onClose={() => setShowToast(false)}
                     bg={toastType}
                     className={styles.toast}
@@ -486,8 +482,8 @@ const ProfilEtudiant = () => {
                                     className={styles.tabs}
                                     fill
                                 >
-                                    <Tab 
-                                        eventKey="profile" 
+                                    <Tab
+                                        eventKey="profile"
                                         title={
                                             <span className={styles.tabTitle}>
                                                 <FaUserCircle /> Profil
@@ -501,7 +497,7 @@ const ProfilEtudiant = () => {
                                                 <Card.Body>
                                                     <div className={styles.avatarSection}>
                                                         <div className={styles.avatarWrapper}>
-                                                            <div 
+                                                            <div
                                                                 className={styles.avatar}
                                                                 style={currentUser.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})` } : {}}
                                                             >
@@ -526,10 +522,10 @@ const ProfilEtudiant = () => {
                                                         </div>
                                                         <h2 className={styles.studentName}>{currentUser.firstName} {currentUser.lastName}</h2>
                                                         <div className={styles.studentProgram}>
-                                                            <FaGraduationCap /> {currentUser.studentInfo?.filiere || 'Filière non définie'}
+                                                            <FaGraduationCap /> {formatFieldValue('filiere', currentUser.studentInfo?.filiere)}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
-                                                            <FaUniversity /> {currentUser.studentInfo?.campusId || 'Campus non défini'}
+                                                            <FaUniversity /> {formatFieldValue('campusId', currentUser.studentInfo?.campusId)}
                                                         </Badge>
                                                     </div>
 
@@ -546,56 +542,56 @@ const ProfilEtudiant = () => {
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaBuilding /> Campus ID
+                                                                <FaBuilding /> {t('auth.campus')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.studentInfo?.campusId || 'Non défini'}
+                                                                {formatFieldValue('campusId', currentUser.studentInfo?.campusId)}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaBook /> Filière
+                                                                <FaBook /> {t('auth.filiere')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.studentInfo?.filiere || 'Non définie'}
+                                                                {formatFieldValue('filiere', currentUser.studentInfo?.filiere)}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaUsers /> Groupe
+                                                                <FaUsers /> {t('auth.group')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.studentInfo?.groupe || 'Non défini'}
+                                                                {formatFieldValue('groupe', currentUser.studentInfo?.groupe)}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaGraduationCap /> Niveau
+                                                                <FaGraduationCap /> {t('auth.niveau')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {currentUser.studentInfo?.niveau || 'Non défini'}
+                                                                {formatFieldValue('niveau', currentUser.studentInfo?.niveau)}
                                                             </div>
                                                         </div>
 
                                                         <div className={styles.infoItem}>
                                                             <div className={styles.infoLabel}>
-                                                                <FaUserCheck /> Statut de vérification
+                                                                <FaUserCheck /> {t('profile.verificationStatus')}
                                                             </div>
                                                             <div className={styles.infoValue}>
                                                                 {currentUser.verificationStatus === 'verified' ? (
                                                                     <Badge bg="success">
-                                                                        <FaCheckCircle /> Vérifié
+                                                                        <FaCheckCircle /> {t('profile.verificationStatusValues.verified')}
                                                                     </Badge>
                                                                 ) : currentUser.verificationStatus === 'pending' ? (
                                                                     <Badge bg="warning">
-                                                                        <FaExclamationTriangle /> En attente
+                                                                        <FaExclamationTriangle /> {t('profile.verificationStatusValues.pending')}
                                                                     </Badge>
                                                                 ) : (
                                                                     <Badge bg="danger">
-                                                                        <FaTimes /> Rejeté
+                                                                        <FaTimes /> {t('profile.verificationStatusValues.rejected')}
                                                                     </Badge>
                                                                 )}
                                                             </div>
@@ -606,12 +602,12 @@ const ProfilEtudiant = () => {
                                                     {/* Informations personnelles */}
                                                     <div className={styles.personalInfo}>
                                                         <h3 className={styles.sectionTitle}>
-                                                            <FaUser /> Informations personnelles
+                                                            <FaUser /> {t('profile.personalInfo')}
                                                         </h3>
                                                         <div className={styles.infoGrid}>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaEnvelope /> Email universitaire
+                                                                    <FaEnvelope /> {t('profile.email')}
                                                                 </div>
                                                                 <div className={styles.infoValue}>
                                                                     {currentUser.email}
@@ -619,10 +615,10 @@ const ProfilEtudiant = () => {
                                                             </div>
                                                             <div className={styles.infoItem}>
                                                                 <div className={styles.infoLabel}>
-                                                                    <FaPhone /> Téléphone
+                                                                    <FaPhone /> {t('profile.phone')}
                                                                 </div>
                                                                 <div className={styles.infoValue}>
-                                                                    {currentUser.phoneNumber || 'Non défini'}
+                                                                    {currentUser.phoneNumber || t('common.unknown')}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -630,12 +626,12 @@ const ProfilEtudiant = () => {
 
                                                     {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
-                                                        
+
                                                         <BoutonProfil
                                                             action="modifier"
                                                             onClick={() => setActiveTab('settings')}
                                                         />
-                                                        
+
                                                         <BoutonProfil
                                                             action="deconnexion"
                                                             onClick={logout}
@@ -646,11 +642,11 @@ const ProfilEtudiant = () => {
                                         </div>
                                     </Tab>
 
-                                    <Tab 
-                                        eventKey="settings" 
+                                    <Tab
+                                        eventKey="settings"
                                         title={
                                             <span className={styles.tabTitle}>
-                                                <FaCog /> Paramètres
+                                                <FaCog /> {t('profile.settings')}
                                             </span>
                                         }
                                     >
@@ -664,10 +660,10 @@ const ProfilEtudiant = () => {
                                                             className={styles.backButton}
                                                             onClick={() => setActiveTab('profile')}
                                                         >
-                                                            <FaArrowLeft /> Retour au profil
+                                                            <FaArrowLeft /> {t('profile.backToProfile')}
                                                         </Button>
                                                         <h2 className={styles.settingsTitle}>
-                                                            <FaCog /> Paramètres
+                                                            <FaCog /> {t('profile.settings')}
                                                         </h2>
                                                         <div style={{ width: '100px' }}></div>
                                                     </div>
@@ -676,97 +672,97 @@ const ProfilEtudiant = () => {
                                                         defaultActiveKey="academic"
                                                         className={styles.settingsTabs}
                                                     >
-                                                        <Tab 
-                                                            eventKey="academic" 
+                                                        <Tab
+                                                            eventKey="academic"
                                                             title={
                                                                 <span>
-                                                                    <FaGraduationCap /> Académique
+                                                                    <FaGraduationCap /> {t('profile.academicInfo')}
                                                                 </span>
                                                             }
                                                         >
                                                             <div className={styles.settingsForm}>
                                                                 <h3 className={styles.sectionSubtitle}>
-                                                                    Informations académiques
-                                                                </h3>
+                                                            {t('profile.academicInfo')}
+</h3>   
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaIdCard /> Matricule
+                                                                        <FaIdCard /> {t('profile.matricule')}
                                                                     </Form.Label>
                                                                     <Form.Control
                                                                         type="text"
                                                                         value={settings.matricule}
                                                                         onChange={(e) => handleSettingsChange('matricule', e.target.value)}
                                                                         className={styles.formControl}
-                                                                        placeholder="Exemple: GL2024001"
+                                                                        placeholder={t('profile.placeholderMatricule')}
                                                                     />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaBook /> Filière
+                                                                        <FaBook /> {t('auth.filiere')}
                                                                     </Form.Label>
                                                                     <Form.Control
                                                                         type="text"
                                                                         value={settings.filiere}
                                                                         onChange={(e) => handleSettingsChange('filiere', e.target.value)}
                                                                         className={styles.formControl}
-                                                                        placeholder="Exemple: Génie Logiciel"
+                                                                        placeholder={t('profile.placeholderFiliere')}
                                                                     />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaUsers /> Groupe
+                                                                        <FaUsers /> {t('auth.group')}
                                                                     </Form.Label>
                                                                     <Form.Control
                                                                         type="text"
                                                                         value={settings.groupe}
                                                                         onChange={(e) => handleSettingsChange('groupe', e.target.value)}
                                                                         className={styles.formControl}
-                                                                        placeholder="Exemple: Cours du Soir"
+                                                                        placeholder={t('profile.placeholderGroup')}
                                                                     />
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaGraduationCap /> Niveau
+                                                                        <FaGraduationCap /> {t('auth.niveau')}
                                                                     </Form.Label>
                                                                     <Form.Control
                                                                         type="text"
                                                                         value={settings.niveau}
                                                                         onChange={(e) => handleSettingsChange('niveau', e.target.value)}
                                                                         className={styles.formControl}
-                                                                        placeholder="Exemple: 1ère Année"
+                                                                        placeholder={t('profile.placeholderLevel')}
                                                                     />
                                                                 </Form.Group>
                                                             </div>
                                                         </Tab>
 
-                                                        <Tab 
-                                                            eventKey="notifications" 
+                                                        <Tab
+                                                            eventKey="notifications"
                                                             title={
                                                                 <span>
-                                                                    <FaBell /> Notifications
+                                                                    <FaBell /> {t('profile.notifications')}
                                                                 </span>
                                                             }
                                                         >
                                                             <div className={styles.settingsForm}>
                                                                 <h3 className={styles.sectionSubtitle}>
-                                                                    Préférences de notification
+                                                                    {t('profile.notificationPreferences')}
                                                                 </h3>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Check
                                                                         type="switch"
                                                                         id="emailNotifications"
-                                                                        label="Notifications par email"
+                                                                        label={t('profile.emailNotifications')}
                                                                         checked={settings.emailNotifications}
                                                                         onChange={(e) => handleSettingsChange('emailNotifications', e.target.checked)}
                                                                         className={styles.switch}
                                                                     />
                                                                     <Form.Text className={styles.helpText}>
-                                                                        Recevoir les notifications importantes par email
+                                                                        {t('profile.notificationEmailHint')}
                                                                     </Form.Text>
                                                                 </Form.Group>
 
@@ -774,34 +770,34 @@ const ProfilEtudiant = () => {
                                                                     <Form.Check
                                                                         type="switch"
                                                                         id="pushNotifications"
-                                                                        label="Notifications push"
+                                                                        label={t('profile.pushNotifications')}
                                                                         checked={settings.pushNotifications}
                                                                         onChange={(e) => handleSettingsChange('pushNotifications', e.target.checked)}
                                                                         className={styles.switch}
                                                                     />
                                                                     <Form.Text className={styles.helpText}>
-                                                                        Recevoir les notifications dans votre navigateur
+                                                                        {t('profile.notificationPushHint')}
                                                                     </Form.Text>
                                                                 </Form.Group>
                                                             </div>
                                                         </Tab>
 
-                                                        <Tab 
-                                                            eventKey="appearance" 
+                                                        <Tab
+                                                            eventKey="appearance"
                                                             title={
                                                                 <span>
-                                                                    <FaPalette /> Apparence
+                                                                    <FaPalette /> {t('profile.appearance')}
                                                                 </span>
                                                             }
                                                         >
                                                             <div className={styles.settingsForm}>
                                                                 <h3 className={styles.sectionSubtitle}>
-                                                                    Thème et langue
+                                                                    {t('profile.themeAndLanguage')}
                                                                 </h3>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaPalette /> Thème
+                                                                        <FaPalette /> {t('profile.theme')}
                                                                     </Form.Label>
                                                                     <div className={styles.themeOptions}>
                                                                         <Button
@@ -809,30 +805,30 @@ const ProfilEtudiant = () => {
                                                                             className={styles.themeButton}
                                                                             onClick={() => handleSettingsChange('theme', 'light')}
                                                                         >
-                                                                            <FaSun /> Clair
+                                                                            <FaSun /> {t('profile.themeLight')}
                                                                         </Button>
                                                                         <Button
                                                                             variant={settings.theme === 'dark' ? 'primary' : 'outline-secondary'}
                                                                             className={styles.themeButton}
                                                                             onClick={() => handleSettingsChange('theme', 'dark')}
                                                                         >
-                                                                            <FaMoon /> Sombre
+                                                                            <FaMoon /> {t('profile.themeDark')}
                                                                         </Button>
                                                                     </div>
                                                                 </Form.Group>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>
-                                                                        <FaLanguage /> Langue
+                                                                        <FaLanguage /> {t('profile.language')}
                                                                     </Form.Label>
                                                                     <Form.Select
                                                                         value={settings.language}
                                                                         onChange={(e) => handleSettingsChange('language', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
-                                                                        <option value="fr">Français</option>
-                                                                        <option value="en">English</option>
-                                                                        <option value="es">Español</option>
+                                                                        <option value="fr">{t('profile.languageFrench')}</option>
+                                                                        <option value="en">{t('profile.languageEnglish')}</option>
+                                                                        <option value="es">{t('profile.languageSpanish')}</option>
                                                                     </Form.Select>
                                                                 </Form.Group>
                                                             </div>
@@ -850,23 +846,23 @@ const ProfilEtudiant = () => {
                                                             {saving ? (
                                                                 <>
                                                                     <Spinner size="sm" className="me-2" />
-                                                                    Sauvegarde...
+                                                                    {t('profile.saving')}
                                                                 </>
                                                             ) : (
                                                                 <>
                                                                     <FaSave className="me-2" />
-                                                                    Enregistrer les modifications
+                                                                    {t('profile.saveChanges')}
                                                                 </>
                                                             )}
                                                         </Button>
-                                                        
+
                                                         <Button
                                                             variant="outline-secondary"
                                                             className={styles.cancelButton}
                                                             onClick={() => setActiveTab('profile')}
                                                         >
                                                             <FaUndo className="me-2" />
-                                                            Annuler
+                                                            {t('common.cancel')}
                                                         </Button>
                                                     </div>
                                                 </Card.Body>

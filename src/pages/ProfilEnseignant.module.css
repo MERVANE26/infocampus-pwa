@@ -257,6 +257,32 @@
     gap: 8px;
 }
 
+.teacherMeta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.verificationBadge {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+}
+
+.matriculeLine {
+    color: #64748b;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
 .universityBadge {
     padding: 8px 16px !important;
     font-size: 0.9rem !important;

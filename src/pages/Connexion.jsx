@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import LanguageSwitcher from '../composants/LanguageSwitcher';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowRight } from 'react-icons/fa';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -17,7 +18,7 @@ import styles from './Connexion.module.css';
 
 const Connexion = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -81,7 +82,7 @@ const Connexion = () => {
           navigate(redirectMap[response.data.user.roles?.[0]] || '/profile');
         }, 500);
       } else {
-        setError(t('auth.loginSuccess') === 'Login successful!' ? 'Invalid credentials' : response.data?.message);
+        setError(t('auth.invalidCredentials'));
       }
     } catch (err) {
       setError(err.response?.data?.message || t('errors.networkError'));
@@ -104,7 +105,7 @@ const Connexion = () => {
             <div className={styles.featuresContent}>
               <h1 className={styles.featuresTitle}>{t('common.appName')}</h1>
               <p className={styles.featuresSubtitle}>
-                Connecting Universities, Empowering Communities
+                {t('common.slogan')}
               </p>
               
               <div className={styles.featuresList}>
@@ -126,7 +127,7 @@ const Connexion = () => {
                   <div className={styles.featureIcon}>✓</div>
                   <div>
                     <h6>{t('nav.universities')}</h6>
-                    <p>Connect with your institution</p>
+                    <p>{t('common.connectInstitution')}</p>
                   </div>
                 </div>
               </div>
@@ -138,7 +139,10 @@ const Connexion = () => {
             <Card className={styles.loginCard}>
               <Card.Body className={styles.cardBody}>
                 <div className={styles.headerSection}>
-                  <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                    <LanguageSwitcher />
+                  </div>
                   <p className={styles.formSubtitle}>{t('auth.fillAllFields')}</p>
                 </div>
 
@@ -159,7 +163,7 @@ const Connexion = () => {
                       <Form.Control
                         type="email"
                         name="email"
-                        placeholder="your@email.com"
+                        placeholder={t('auth.email')}
                         value={formData.email}
                         onChange={handleChange}
                         className={styles.input}
@@ -177,7 +181,7 @@ const Connexion = () => {
                       <Form.Control
                         type={showPassword ? 'text' : 'password'}
                         name="password"
-                        placeholder="••••••••"
+                        placeholder={t('auth.password')}
                         value={formData.password}
                         onChange={handleChange}
                         className={styles.input}
@@ -237,11 +241,14 @@ const Connexion = () => {
 
                 {/* Additional Links */}
                 <div className={styles.footerLinks}>
-                  <Link to="/about" className={styles.footerLink}>About</Link>
+                  <Link to="/about" className={styles.footerLink}>{t('common.about')}</Link>
                   <span>•</span>
-                  <Link to="/privacy" className={styles.footerLink}>Privacy</Link>
+                  <Link to="/privacy" className={styles.footerLink}>{t('common.privacy')}</Link>
                   <span>•</span>
-                  <Link to="/terms" className={styles.footerLink}>Terms</Link>
+                  <Link to="/terms" className={styles.footerLink}>{t('common.terms')}</Link>
+                  {/* language toggle in footer for small screens */}
+                  <span>•</span>
+                  <LanguageSwitcher />
                 </div>
               </Card.Body>
             </Card>
@@ -249,7 +256,7 @@ const Connexion = () => {
             {/* Mobile Features (visible on small screens) */}
             <div className={`${styles.mobileFeatures} d-lg-none mt-4`}>
               <small className="text-muted text-center d-block">
-                {t('common.appName')} - Connecting Universities Worldwide
+                {t('common.appName')} - {t('common.slogan')}
               </small>
             </div>
           </Col>

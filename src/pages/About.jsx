@@ -1,81 +1,70 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import LegalLayout from '../composants/LegalLayout/LegalLayout';
 import { FaUsers, FaGlobeAfrica, FaRocket, FaHandshake } from 'react-icons/fa';
 
 const About = () => {
+    const { t } = useTranslation();
     return (
         <LegalLayout 
-            title="À propos d'INFOcAMPUS" 
+            title={t('about.title')}
             lastUpdated="23 février 2026"
         >
             <section>
-                <h2>Notre mission</h2>
-                <p>
-                    INFOcAMPUS est né pour ameliorer la circulation des informations dans les universités : <strong>connecter intelligemment 
-                    les universités africaines</strong> pour faciliter la communication entre les étudiants, les enseignants et l'administration de chaque université. 
-                    Nous voulons ameliorer le systéme educatif en apportant notre contribution bien que modeste.
-                </p>
-                <p>
-                    Dans un monde de plus en plus connecté, les universités ont besoin d'outils 
-                    modernes, adaptés à leurs réalités et à leurs défis. INFOcAMPUS répond à ce besoin en 
-                    offrant une plateforme intuitive, sécurisée et pensée non seulement pour le contexte
-                    universitaire africain, mais aussi pour toutes les universités du monde entier.
-                </p>
+                <h2>{t('about.missionTitle')}</h2>
+                <p>{t('about.missionText1')}</p>
+                <p>{t('about.missionText2')}</p>
             </section>
 
             <section>
-                <h2>Nos valeurs</h2>
+                <h2>{t('about.valuesTitle')}</h2>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px', margin: '40px 0' }}>
                     <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
                         <FaUsers style={{ fontSize: '3rem', color: '#667eea', marginBottom: '15px' }} />
-                        <h3 style={{ marginBottom: '10px' }}>Communauté</h3>
-                        <p style={{ color: '#64748b' }}>Créer des liens durables entre tous les acteurs de l'éducation</p>
+                        <h3 style={{ marginBottom: '10px' }}>{t('about.value1Title')}</h3>
+                        <p style={{ color: '#64748b' }}>{t('about.value1Text')}</p>
                     </div>
                     
                     <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
                         <FaGlobeAfrica style={{ fontSize: '3rem', color: '#667eea', marginBottom: '15px' }} />
-                        <h3 style={{ marginBottom: '10px' }}>Africanité</h3>
-                        <p style={{ color: '#64748b' }}>Des solutions adaptées aux réalités et aux besoins du continent</p>
+                        <h3 style={{ marginBottom: '10px' }}>{t('about.value2Title')}</h3>
+                        <p style={{ color: '#64748b' }}>{t('about.value2Text')}</p>
                     </div>
                     
                     <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
                         <FaRocket style={{ fontSize: '3rem', color: '#667eea', marginBottom: '15px' }} />
-                        <h3 style={{ marginBottom: '10px' }}>Innovation</h3>
-                        <p style={{ color: '#64748b' }}>Toujours à la pointe de la technologie éducative</p>
+                        <h3 style={{ marginBottom: '10px' }}>{t('about.value3Title')}</h3>
+                        <p style={{ color: '#64748b' }}>{t('about.value3Text')}</p>
                     </div>
                     
                     <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
                         <FaHandshake style={{ fontSize: '3rem', color: '#667eea', marginBottom: '15px' }} />
-                        <h3 style={{ marginBottom: '10px' }}>Intégrité</h3>
-                        <p style={{ color: '#64748b' }}>Respect, transparence et confiance au cœur de nos actions</p>
+                        <h3 style={{ marginBottom: '10px' }}>{t('about.value4Title')}</h3>
+                        <p style={{ color: '#64748b' }}>{t('about.value4Text')}</p>
                     </div>
                 </div>
             </section>
 
             <section>
-                <h2>Notre équipe</h2>
+                <h2>{t('about.teamTitle')}</h2>
                 <p>
-                    INFOcAMPUS est développé par une équipe passionnée de développeurs, NDEMEN LAURENDA
-                    et ARTHUR TATCHOU, qui travaillent sans relâche pour vous offrir la meilleure experience possible.
+                    {t('about.teamText1')}
                 </p>
                 <p>
-                    Basés principalement au Cameroun, nous travaillons en étroite collaboration avec 
-                    des enseignants et des étudiants pour nous assurer que notre plateforme répond 
-                    parfaitement à leurs besoins quotidiens.
+                    {t('about.teamText2')}
                 </p>
             </section>
 
             <section>
-                <h2>Nous contacter</h2>
+                <h2>{t('about.contactTitle')}</h2>
                 <p>
-                    Vous avez des questions, des suggestions ou souhaitez rejoindre l'aventure INFOcAMPUS ? 
-                    N'hésitez pas à nous contacter :
+                    {t('about.contactText')}
                 </p>
                 <ul>
-                    <li><strong>Email :</strong> ndemenlaurenda@gmail.com</li>
-                    <li><strong>Téléphone :</strong> +237 652 22 98 00</li>
-                    <li><strong>Adresse :</strong> Douala - Cameroun</li>
+                    <li>{t('about.contactEmail')}</li>
+                    <li>{t('about.contactPhone')}</li>
+                    <li>{t('about.contactAddress')}</li>
                 </ul>
             </section>
         </LegalLayout>

@@ -7,6 +7,14 @@ import './LanguageSwitcher.module.css';
 const LanguageSwitcher = () => {
   const { i18n, t } = useTranslation();
 
+  const handleLanguageChange = (language) => {
+    // Change the language and save to localStorage
+    i18n.changeLanguage(language);
+    localStorage.setItem('app_language', language);
+    // Trigger a storage event so other tabs/windows can react
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language } }));
+  };
+
   return (
     <Dropdown className="d-inline">
       <Dropdown.Toggle 
@@ -21,15 +29,15 @@ const LanguageSwitcher = () => {
       <Dropdown.Menu align="end">
         <Dropdown.Item
           active={i18n.language === 'en'}
-          onClick={() => i18n.changeLanguage('en')}
+          onClick={() => handleLanguageChange('en')}
         >
-          English
+          <span style={{ marginRight: '8px' }}>🇬🇧</span> English
         </Dropdown.Item>
         <Dropdown.Item
           active={i18n.language === 'fr'}
-          onClick={() => i18n.changeLanguage('fr')}
+          onClick={() => handleLanguageChange('fr')}
         >
-          Français
+          <span style={{ marginRight: '8px' }}>🇫🇷</span> Français
         </Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>
@@ -37,3 +45,4 @@ const LanguageSwitcher = () => {
 };
 
 export default LanguageSwitcher;
+
