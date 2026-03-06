@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,6 +23,7 @@ import Legal from './pages/Legal';
 import About from './pages/About';
 import { AuthProvider } from './context/AuthContext';
 import AccessDenied from './pages/AccessDenied';
+import { api } from './lib/api';
 
 // ============================================
 // COMPOSANT DE PROTECTION DES ROUTES
@@ -36,14 +37,14 @@ const PrivateRoute = ({ children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!token || !user) {
-    return <Navigate to="/connexion" />;
+    return <Navigate to="/login" />;
   }
 
   /*
   // DEVELOPMENT: allow access to all routes without authentication.
   // To disable the guard during development, uncomment the block above and
   // comment out the real checks. e.g.: 
-  // if (!token || !user) return <Navigate to="/connexion" />;
+  // if (!token || !user) return <Navigate to="/login" />;
   */
   return children;
 };
@@ -51,22 +52,22 @@ const PrivateRoute = ({ children }) => {
 // ============================================
 // COMPOSANT DE REDIRECTION SELON LE RÔLE
 // ============================================
-const RoleBasedProfil = () => {
+const RoleBasedProfil = ({universities}) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!user) {
-    return <Navigate to="/connexion" />;
+    return <Navigate to="/login" />;
   }
 
   switch (user.roles[0]) {
     case 'student':
     case 'Étudiante':
-      return <ProfilEtudiant />;
+      return <ProfilEtudiant universities={universities}/>;
     case 'teacher':
-      return <ProfilEnseignant />;
+      return <ProfilEnseignant universities={universities}/>;
     case 'admin':
     case 'Administration':
-      return <ProfilAdministration />;
+      return <ProfilAdministration universities={universities}/>;
     default:
       return <Navigate to="/profile" />;
   }
@@ -81,7 +82,7 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
   const user = userStr ? JSON.parse(userStr) : null;
 
   if (!token || !user) {
-    return <Navigate to="/connexion" />;
+    return <Navigate to="/login" />;
   }
 
   const userRoles = user.roles || [];
@@ -98,6 +99,23 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
 // COMPOSANT PRINCIPAL APP
 // ============================================
 function App() {
+
+
+    const [universities, setUniversities] = useState([]);
+  
+    useEffect(() => {
+      const fetchUniversities = async () => {
+        try {
+          const response = await api.get('/universities/list');
+          setUniversities(response.data.universities);
+        } catch (err) {
+          console.error('Erreur lors du chargement des universités :', err);
+        }
+      };
+  
+      fetchUniversities();
+    }, []);
+  
   return (
     <AuthProvider>
       <Router>
@@ -107,7 +125,7 @@ function App() {
                 ROUTES PUBLIQUES (accessibles sans connexion)
                 ======================================== */}
             <Route path="/" element={<Home />} />
-            <Route path="/connexion" element={<Connexion />} />
+            <Route path="/login" element={<Connexion />} />
             <Route path="/register" element={<Inscription />} />
             <Route path="/create-university" element={<CreationUniversite />} />
             <Route path="/otp-validation" element={<ValidationCode />} />
@@ -117,7 +135,7 @@ function App() {
 
             {/* Publications - Restricted to Teachers and Admins */}
             <Route
-              path="/publications"
+              path="/posts"
               element={
                 <PrivateRoute>
                   {/* <RoleRestrictedRoute allowedRoles={["teacher","admin"]}> */}
@@ -142,7 +160,7 @@ function App() {
               path="/profile"
               element={
                 <PrivateRoute>
-                  <RoleBasedProfil />
+                  <RoleBasedProfil universities={universities}/>
                 </PrivateRoute>
               }
             />
@@ -152,7 +170,7 @@ function App() {
               path="/profil-etudiant"
               element={
                 <PrivateRoute>
-                  <ProfilEtudiant />
+                  <ProfilEtudiant universities={universities} />
                 </PrivateRoute>
               }
             />
@@ -161,7 +179,7 @@ function App() {
               path="/profil-enseignant"
               element={
                 <PrivateRoute>
-                  <ProfilEnseignant />
+                  <ProfilEnseignant universities={universities} />
                 </PrivateRoute>
               }
             />
@@ -169,7 +187,7 @@ function App() {
               path="/profil-administration"
               element={
                 <PrivateRoute>
-                  <ProfilAdministration />
+                  <ProfilAdministration universities={universities} />
                 </PrivateRoute>
               }
             />

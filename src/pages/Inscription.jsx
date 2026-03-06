@@ -2,33 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../composants/LanguageSwitcher';
-import {
-  FaUniversity,
-  FaUserGraduate,
-  FaEnvelope,
-  FaLock,
-  FaPhone,
-  FaGraduationCap,
-  FaCheckCircle,
-  FaInfoCircle,
-  FaExclamationTriangle,
-  FaArrowRight
-} from 'react-icons/fa';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { FaCheckCircle, FaExclamationTriangle, FaArrowRight } from 'react-icons/fa';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import RoleSelector from '../composants/InscriptionForm/RoleSelector';
 import StudentFields from '../composants/InscriptionForm/StudentFields';
 import TeacherFields from '../composants/InscriptionForm/TeacherFields';
 import AdminFields from '../composants/InscriptionForm/AdminFields';
 import TermsSection from '../composants/InscriptionForm/TermsSection';
-import styles from './Inscription.module.css';
+import loginStyles from './Connexion.module.css';
 import { api } from '../lib/api';
-import TeacherUniversityMultiSelect from "../composants/InscriptionForm/TeacherUniversityMultiSelect";
 
 
 const Inscription = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [role, setRole] = useState('student');
+  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [alertMessage, setAlertMessage] = useState({ show: false, text: '' });
@@ -156,37 +145,84 @@ const Inscription = () => {
 
   const validateForm = () => {
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email) {
-      setError('Veuillez remplir tous les champs obligatoires.');
+      setError(t('auth.fillAllFields'));
       return false;
     }
 
     if (formData.password.length < 6) {
-      setError('Mot de passe minimum 6 caractères.');
+      setError(t('auth.passwordTooShort'));
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('auth.passwordMismatch'));
       return false;
     }
 
     if (!formData.terms) {
-      setError('Vous devez accepter les conditions.');
+      setError(t('auth.acceptTerms'));
       return false;
     }
 
     if (role === 'student' && !formData.student.university) {
-      setError('Université obligatoire.');
+      setError(t('auth.universityRequired'));
       return false;
     }
 
     if (role === 'teacher' && formData.teacher.universities.length === 0) {
-      setError('Au moins une université requise.');
+      setError(t('auth.atLeastOneUniversity'));
       return false;
     }
 
-
     return true;
+  };
+
+  const validateStep = (step) => {
+    switch (step) {
+      case 1:
+        if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email) {
+          setError(t('auth.fillAllFields'));
+          return false;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          setError(t('auth.invalidEmail'));
+          return false;
+        }
+
+        return true;
+      case 2:
+        // Role is always set; just ensure it exists
+        return true;
+      case 3:
+        if (role === 'student' && !formData.student.university) {
+          setError(t('auth.universityRequired'));
+          return false;
+        }
+        if (role === 'teacher' && formData.teacher.universities.length === 0) {
+          setError(t('auth.atLeastOneUniversity'));
+          return false;
+        }
+
+        return true;
+      case 4:
+        return validateForm();
+      default:
+        return false;
+    }
+  };
+
+  const goToNextStep = () => {
+    if (validateStep(currentStep)) {
+      setError('');
+      setCurrentStep((prev) => Math.min(prev + 1, 4));
+    }
+  };
+
+  const goToPreviousStep = () => {
+    setError('');
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async (e) => {
@@ -279,7 +315,7 @@ const Inscription = () => {
 
       setAlertMessage({
         show: true,
-        text: 'Inscription validée ! Redirection...'
+        text: t('auth.registerSuccess')
       });
 
       setTimeout(() => {
@@ -287,181 +323,266 @@ const Inscription = () => {
       }, 2000);
 
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur serveur.');
+      setError(err.response?.data?.message || t('errors.serverError'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={8} lg={6}>
-            <Card className={styles.inscriptionCard}>
-              <Card.Body className="p-4">
+    <div className={loginStyles.loginContainer}>
+      <Container fluid className={loginStyles.containerWrapper}>
+        <Row className="align-items-center min-vh-100 g-4">
+          <Col lg={6} xs={12} className={`${loginStyles.featuresColumn} d-none d-lg-flex`}>
+            <div className={loginStyles.featuresContent}>
+              <h1 className={loginStyles.featuresTitle}>{t('common.appName')}</h1>
+              <p className={loginStyles.featuresSubtitle}>{t('common.slogan')}</p>
 
-                <div className={styles.logo}>
-                  <FaUniversity className={styles.logoIcon} />
-                  <h1>INFO<span>cAMPUS</span></h1>
-                </div>
+              <div className={loginStyles.featuresList}>
+                {[
+                  { step: 1, title: t('auth.step1Title') },
+                  { step: 2, title: t('auth.step2Title') },
+                  { step: 3, title: t('auth.step3Title') },
+                  { step: 4, title: t('auth.step4Title') }
+                ].map((item) => (
+                  <button
+                    key={item.step}
+                    type="button"
+                    className={`${loginStyles.stepItem} ${currentStep === item.step ? loginStyles.stepItemActive : ''}`}
+                    onClick={() => setCurrentStep(item.step)}
+                  >
+                    <div className={loginStyles.stepNumber}>{item.step}</div>
+                    <div>
+                      <h6>{item.title}</h6>
+                      <p className={loginStyles.stepItemText}>{t(`auth.step${item.step}Desc`)}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </Col>
 
-                <div className={styles.stepBadge}>
-                  <FaGraduationCap /> {t('auth.registrationStep', { current: 1, total: 2 })}
+          <Col lg={6} xs={12} className={loginStyles.formColumn}>
+            <Card className={loginStyles.loginCard}>
+              <Card.Body className={loginStyles.cardBody}>
+                <div className={loginStyles.headerSection}>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h2 className={loginStyles.formTitle}>{t('auth.register')}</h2>
+                    <LanguageSwitcher />
+                  </div>
+                  <p className={loginStyles.formSubtitle}>{t('auth.createAccountSubtitle')}</p>
                 </div>
 
                 <Form onSubmit={handleSubmit}>
+                  <div className={loginStyles.stepHeader}>
+                    <div className={loginStyles.stepInfo}>
+                      <span className={loginStyles.stepNumber}>{t('auth.step')} {currentStep}/4</span>
+                      <h5 className={loginStyles.stepTitle}>{t(`auth.step${currentStep}Title`)}</h5>
+                      <p className={loginStyles.stepDescription}>{t(`auth.step${currentStep}Desc`)}</p>
+                    </div>
+                  </div>
 
-                  <h2 className={styles.sectionTitle}>
-                    <FaUserGraduate /> Identité
-                  </h2>
+                  {currentStep === 1 && (
+                    <>
+                      <Row className="g-3">
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className={loginStyles.label}>{t('auth.firstName')}</Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="firstName"
+                              placeholder={t('auth.firstName')}
+                              value={formData.firstName}
+                              onChange={handleInputChange}
+                              className={loginStyles.input}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className={loginStyles.label}>{t('auth.lastName')}</Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="lastName"
+                              placeholder={t('auth.lastName')}
+                              value={formData.lastName}
+                              onChange={handleInputChange}
+                              className={loginStyles.input}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
 
-                  <Row>
-                    <Col md={6}>
-                      <Form.Control
-                        type="text"
-                        id="firstName"
-                        placeholder="Prénom"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Control
-                        type="text"
-                        id="lastName"
-                        placeholder="Nom"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Col>
-                  </Row>
+                      <Form.Group className="mt-3">
+                        <Form.Label className={loginStyles.label}>{t('auth.phoneNumber')}</Form.Label>
+                        <Form.Control
+                          type="tel"
+                          id="phone"
+                          placeholder={t('auth.phoneNumber')}
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          className={loginStyles.input}
+                        />
+                      </Form.Group>
 
-                  <Form.Control
-                    className="mt-3"
-                    type="tel"
-                    id="phone"
-                    placeholder="Téléphone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                  />
-
-                  <h2 className={styles.sectionTitle}>
-                    <FaEnvelope /> Accès email
-                  </h2>
-
-                  <Form.Control
-                    type="email"
-                    id="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-
-                  <RoleSelector
-                    role={role}
-                    onRoleChange={handleRoleChange}
-                  />
-
-                  {role === 'student' && (
-                    <StudentFields
-                      universities={universities}
-                      formData={formData.student}
-                      onChange={handleInputChange}
-                    />
+                      <Form.Group className="mt-3">
+                        <Form.Label className={loginStyles.label}>{t('auth.email')}</Form.Label>
+                        <Form.Control
+                          type="email"
+                          id="email"
+                          placeholder={t('auth.email')}
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className={loginStyles.input}
+                        />
+                      </Form.Group>
+                    </>
                   )}
 
-                  {role === 'teacher' && (
-                    <TeacherFields
-                      universities={universities}
-                      formData={formData.teacher}
-                      onChange={handleInputChange}
-                      onToggleAdmin={toggleTeacherAdmin}
-                    />
+                  {currentStep === 2 && (
+                    <div className="mt-3">
+                      <RoleSelector role={role} onRoleChange={handleRoleChange} />
+                    </div>
                   )}
 
-                  {role === 'admin' && (
-                    <AdminFields
-                      formData={formData.admin}
-                      onChange={handleInputChange}
-                      onToggleTeacher={toggleAdminTeacher}
-                      universities={universities}
-                    />
+                  {currentStep === 3 && (
+                    <div className="mt-3">
+                      {role === 'student' && (
+                        <StudentFields
+                          universities={universities}
+                          formData={formData.student}
+                          onChange={handleInputChange}
+                        />
+                      )}
+
+                      {role === 'teacher' && (
+                        <TeacherFields
+                          universities={universities}
+                          formData={formData.teacher}
+                          onChange={handleInputChange}
+                          onToggleAdmin={toggleTeacherAdmin}
+                        />
+                      )}
+
+                      {role === 'admin' && (
+                        <AdminFields
+                          formData={formData.admin}
+                          onChange={handleInputChange}
+                          onToggleTeacher={toggleAdminTeacher}
+                          universities={universities}
+                        />
+                      )}
+                    </div>
                   )}
 
-                  <h2 className={styles.sectionTitle}>
-                    <FaLock /> Mot de passe
-                  </h2>
+                  {currentStep === 4 && (
+                    <>
+                      <Row className="g-3">
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className={loginStyles.label}>{t('auth.password')}</Form.Label>
+                            <Form.Control
+                              type="password"
+                              id="password"
+                              placeholder={t('auth.password')}
+                              value={formData.password}
+                              onChange={handleInputChange}
+                              className={loginStyles.input}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group>
+                            <Form.Label className={loginStyles.label}>{t('auth.confirmPassword')}</Form.Label>
+                            <Form.Control
+                              type="password"
+                              id="confirmPassword"
+                              placeholder={t('auth.confirmPassword')}
+                              value={formData.confirmPassword}
+                              onChange={handleInputChange}
+                              className={loginStyles.input}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
 
-                  <Row>
-                    <Col md={6}>
-                      <Form.Control
-                        type="password"
-                        id="password"
-                        placeholder="Mot de passe"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Control
-                        type="password"
-                        id="confirmPassword"
-                        placeholder="Confirmer"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Col>
-                  </Row>
-
-                  <TermsSection
-                    checked={formData.terms}
-                    onChange={handleInputChange}
-                  />
+                      <TermsSection checked={formData.terms} onChange={handleInputChange} />
+                    </>
+                  )}
 
                   {error && (
-                    <Alert variant="danger" className="mt-3">
+                    <Alert variant="danger" className={loginStyles.alert}>
                       <FaExclamationTriangle /> {error}
                     </Alert>
                   )}
 
                   {alertMessage.show && (
-                    <Alert variant="success" className="mt-3">
+                    <Alert variant="success" className={loginStyles.alert}>
                       <FaCheckCircle /> {alertMessage.text}
                     </Alert>
                   )}
 
-                  <Button
-                    type="submit"
-                    className={`${styles.submitButton} mt-4`}
-                    disabled={loading}
-                  >
-                    {loading ? t('common.loading') : (
-                      <>
-                        <FaEnvelope className="me-2" />
-                        {t('validation.validateButton.label')}
-                        <FaArrowRight className="ms-2" />
-                      </>
-                    )}
-                  </Button>
+                  <div className="d-flex justify-content-between mt-3">
+                    <Button
+                      type="button"
+                      variant="outline-secondary"
+                      onClick={goToPreviousStep}
+                      disabled={currentStep === 1 || loading}
+                      className={loginStyles.stepButton}
+                    >
+                      {t('common.back')}
+                    </Button>
 
+                    <Button
+                      type={currentStep === 4 ? 'submit' : 'button'}
+                      variant="primary"
+                      onClick={currentStep === 4 ? undefined : goToNextStep}
+                      disabled={loading}
+                      className={loginStyles.submitButton}
+                    >
+                      {loading && currentStep === 4 ? (
+                        <>
+                          <Spinner animation="border" size="sm" className="me-2" />
+                          {t('common.loading')}
+                        </>
+                      ) : (
+                        <>
+                          {currentStep === 4 ? (
+                            t('auth.register')
+                          ) : (
+                            t('common.next')
+                          )}
+                          <FaArrowRight className="ms-2" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </Form>
 
-                <div className={styles.toggleForm}>
-                  {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.login')}</Link>
-                  <span style={{ marginLeft: '20px' }}>
-                    <LanguageSwitcher />
-                  </span>
-                </div>
+                <p className={loginStyles.signupText}>
+                  {t('auth.alreadyHaveAccount')}{' '}
+                  <Link to="/login" className={loginStyles.signupLink}>
+                    {t('auth.login')}
+                  </Link>
+                </p>
 
+                <div className={loginStyles.footerLinks}>
+                  <Link to="/about" className={loginStyles.footerLink}>{t('common.about')}</Link>
+                  <span>•</span>
+                  <Link to="/privacy" className={loginStyles.footerLink}>{t('common.privacy')}</Link>
+                  <span>•</span>
+                  <Link to="/terms" className={loginStyles.footerLink}>{t('common.terms')}</Link>
+                  <span>•</span>
+                  <LanguageSwitcher />
+                </div>
               </Card.Body>
             </Card>
+
+            <div className={`${loginStyles.mobileFeatures} d-lg-none mt-4`}>
+              <small className="text-muted text-center d-block">
+                {t('common.appName')} - {t('common.slogan')}
+              </small>
+            </div>
           </Col>
         </Row>
       </Container>

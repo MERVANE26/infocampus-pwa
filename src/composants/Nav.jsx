@@ -16,7 +16,7 @@ function Nav({ activePage, onNavigate }) {
         <div className="nav-center">
           <button 
             className={`nav-btn ${activePage === 'profil' ? 'active' : ''}`}
-            onClick={() => onNavigate('profil')}
+            onClick={() => onNavigate('profile')}
           >
             <FaUser />
             <span>Profil</span>
@@ -24,7 +24,7 @@ function Nav({ activePage, onNavigate }) {
 
           <button 
             className={`nav-btn ${activePage === 'publications' ? 'active' : ''}`}
-            onClick={() => onNavigate('publications')}
+            onClick={() => onNavigate('posts')}
           >
             <FaNewspaper />
             <span>Publications</span>

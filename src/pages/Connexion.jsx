@@ -18,7 +18,7 @@ import styles from './Connexion.module.css';
 
 const Connexion = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +82,7 @@ const Connexion = () => {
           navigate(redirectMap[response.data.user.roles?.[0]] || '/profile');
         }, 500);
       } else {
-        setError(t('auth.loginSuccess') === 'Login successful!' ? 'Invalid credentials' : response.data?.message);
+        setError(t('auth.invalidCredentials'));
       }
     } catch (err) {
       setError(err.response?.data?.message || t('errors.networkError'));
@@ -163,7 +163,7 @@ const Connexion = () => {
                       <Form.Control
                         type="email"
                         name="email"
-                        placeholder="your@email.com"
+                        placeholder={t('auth.email')}
                         value={formData.email}
                         onChange={handleChange}
                         className={styles.input}
@@ -181,7 +181,7 @@ const Connexion = () => {
                       <Form.Control
                         type={showPassword ? 'text' : 'password'}
                         name="password"
-                        placeholder="••••••••"
+                        placeholder={t('auth.password')}
                         value={formData.password}
                         onChange={handleChange}
                         className={styles.input}
@@ -256,7 +256,7 @@ const Connexion = () => {
             {/* Mobile Features (visible on small screens) */}
             <div className={`${styles.mobileFeatures} d-lg-none mt-4`}>
               <small className="text-muted text-center d-block">
-                {t('common.appName')} - Connecting Universities Worldwide
+                {t('common.appName')} - {t('common.slogan')}
               </small>
             </div>
           </Col>

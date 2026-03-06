@@ -33,6 +33,8 @@ import Badge from 'react-bootstrap/Badge';
 import Modal from 'react-bootstrap/Modal';
 import Image from 'react-bootstrap/Image';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
@@ -45,6 +47,7 @@ import { api } from '../lib/api';
 
 const Publication = () => {
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
     
     // États
     const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || {
@@ -92,6 +95,15 @@ const Publication = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('info');
+
+    // États pour les téléchargements
+    const [downloadingFiles, setDownloadingFiles] = useState({});
+    const [shareInfo, setShareInfo] = useState({
+        visible: false,
+        url: '',
+        title: '',
+        target: null,
+    });
 
     // Effets
     useEffect(() => {
@@ -158,10 +170,10 @@ const Publication = () => {
             params.append('page', pageNum);
             params.append('limit', pageSize);
             
-            // Add current user's university
-            if (user && (user.studentUniversityId || user.teacherUniversitiesIds[0])) {
-                params.append('universityId', user.studentUniversityId);
-            }
+            // // Add current user's university
+            // if (user && (user.studentUniversityId || user?.teacherUniversitiesIds[0])) {
+            //     params.append('universityId', user.studentUniversityId);
+            // }
             
             // Map filterType to API parameters
             if (filterType === 'urgent') {
@@ -187,6 +199,7 @@ const Publication = () => {
             
             // Fetch from API
             const response = await api.get(`/posts/all?${params.toString()}`);
+
             
             if (response.data.success) {
                 setPublications(response.data.data || []);
@@ -211,7 +224,7 @@ const Publication = () => {
                 setPublications(localPublications);
             }
             
-            showNotification('📱 Mode hors-ligne : chargement des publications locales', 'warning');
+            showNotification(t('errors.offlineMode'), 'warning');
         } finally {
             setLoading(false);
         }
@@ -232,7 +245,7 @@ const Publication = () => {
                         newPub.userReaction = null;
                         newPub.userReactions = newPub.userReactions?.filter(r => r.userId !== (currentUser._id || currentUser.id)) || [];
                         newPub[reactionType === 'like' ? 'likes' : 'dislikes']--;
-                        showNotification(`Réaction retirée`, 'info');
+                        showNotification(t('publication.reactionRemoved'), 'info');
                     } else {
                         // Toggle on with new reaction
                         // Remove old reaction if exists
@@ -248,7 +261,7 @@ const Publication = () => {
                             userId: currentUser._id || currentUser.id,
                             reaction: reactionType
                         });
-                        showNotification(`Vous avez ${reactionType === 'like' ? 'aimé' : 'disliké'} cette publication`, 'success');
+                        showNotification(t('publication.reactionAdded'), 'success');
                     }
                     
                     return newPub;
@@ -273,7 +286,7 @@ const Publication = () => {
 
         } catch (error) {
             console.error('Erreur réaction:', error.response.data.message || error.message);
-            showNotification('❌ Erreur lors de la réaction', 'error');
+            showNotification(t('publication.reactionError'), 'error');
         }
     };
 
@@ -329,7 +342,7 @@ const Publication = () => {
             }, config);
         } catch (err) {
             console.error('Erreur réaction commentaire:', err);
-            showNotification('❌ Erreur lors de la réaction au commentaire', 'error');
+            showNotification(t('publication.commentReactionError'), 'error');
         }
     };
 
@@ -396,7 +409,7 @@ const Publication = () => {
                 localStorage.setItem('publications', JSON.stringify(finalUpdatedPublications));
             }
 
-            showNotification('✅ Commentaire ajouté !', 'success');
+            showNotification(t('publication.commentAdded'), 'success');
 
             // Fermer le modal après 2 secondes
             setTimeout(() => {
@@ -406,7 +419,7 @@ const Publication = () => {
 
         } catch (error) {
             console.error('Erreur ajout commentaire:', error);
-            showNotification('❌ Erreur lors de l\'ajout du commentaire', 'error');
+            showNotification(t('publication.commentError'), 'error');
             // optionally queue the comment for later sync
         }
     };
@@ -429,17 +442,25 @@ const Publication = () => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
+        const diffMs = date.getTime() - now.getTime();
 
-        if (diffMins < 1) return 'À l\'instant';
-        if (diffMins < 60) return `Il y a ${diffMins} min`;
-        if (diffHours < 24) return `Il y a ${diffHours} h`;
-        if (diffDays === 1) return 'Hier';
-        if (diffDays < 7) return `Il y a ${diffDays} jours`;
-        return date.toLocaleDateString('fr-FR');
+        const rtf = new Intl.RelativeTimeFormat(i18n.language || 'en', {
+            numeric: 'auto'
+        });
+
+        const seconds = Math.round(diffMs / 1000);
+        if (Math.abs(seconds) < 60) return rtf.format(seconds, 'second');
+
+        const minutes = Math.round(seconds / 60);
+        if (Math.abs(minutes) < 60) return rtf.format(minutes, 'minute');
+
+        const hours = Math.round(minutes / 60);
+        if (Math.abs(hours) < 24) return rtf.format(hours, 'hour');
+
+        const days = Math.round(hours / 24);
+        if (Math.abs(days) < 7) return rtf.format(days, 'day');
+
+        return date.toLocaleDateString(i18n.language || 'en');
     };
 
     const formatFileSize = (bytes) => {
@@ -447,6 +468,79 @@ const Publication = () => {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(1024));
         return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const getAttachmentKey = (file) => {
+        return file?.id || file?.url || file?.name || JSON.stringify(file);
+    };
+
+    const downloadAttachment = async (file) => {
+        const key = getAttachmentKey(file);
+        setDownloadingFiles(prev => ({ ...prev, [key]: true }));
+        try {
+            const fileUrl = file.url || file.downloadUrl || file.path;
+            if (!fileUrl) throw new Error('Missing file URL');
+
+            const response = await api.get(fileUrl, { responseType: 'blob' });
+            const blob = new Blob([response.data], { type: response.headers?.['content-type'] || 'application/octet-stream' });
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = file.name || 'download';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+
+            showNotification(t('publication.downloaded'), 'success');
+        } catch (error) {
+            console.error('Erreur téléchargement:', error);
+            showNotification(t('publication.downloadError'), 'error');
+        } finally {
+            setDownloadingFiles(prev => ({ ...prev, [key]: false }));
+        }
+    };
+
+    const sharePost = async (post, event) => {
+        const url = `${window.location.origin}/posts/#${post._id}`;
+        const title = post.content ? post.content.substring(0, 80) : t('publication.title');
+
+        setShareInfo({
+            visible: true,
+            url,
+            title,
+            target: event?.currentTarget,
+        });
+
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title,
+                    text: post.content,
+                    url,
+                });
+                showNotification(t('publication.shareCopied'), 'success');
+                setShareInfo(prev => ({ ...prev, visible: false }));
+                return;
+            }
+
+            await navigator.clipboard.writeText(url);
+            showNotification(t('publication.shareCopied'), 'success');
+        } catch (error) {
+            console.error('Erreur partage:', error);
+            showNotification(t('publication.shareError'), 'error');
+        }
+    };
+
+    const copyShareLink = async () => {
+        if (!shareInfo.url) return;
+        try {
+            await navigator.clipboard.writeText(shareInfo.url);
+            showNotification(t('publication.shareCopied'), 'success');
+        } catch (error) {
+            console.error('Erreur copie lien:', error);
+            showNotification(t('publication.shareError'), 'error');
+        }
     };
 
     return (
@@ -471,6 +565,41 @@ const Publication = () => {
                 <Row className="justify-content-center">
                     {/* Feed Column */}
                     <Col lg={6} md={8} xs={12} className={styles.feedColumn}>
+                        <Overlay
+                            show={shareInfo.visible}
+                            target={shareInfo.target}
+                            placement="bottom"
+                            rootClose
+                            onHide={() => setShareInfo(prev => ({ ...prev, visible: false }))}
+                        >
+                            <Popover id="share-popover" className={styles.sharePopover}>
+                                <Popover.Header as="h6" className={styles.sharePopoverHeader}>
+                                    {t('publication.share')}
+                                    <button
+                                        type="button"
+                                        className={styles.sharePopoverClose}
+                                        onClick={() => setShareInfo(prev => ({ ...prev, visible: false }))}
+                                    >
+                                        ×
+                                    </button>
+                                </Popover.Header>
+                                <Popover.Body>
+                                    <div className={styles.sharePreview}>
+                                        <strong className={styles.shareTitle}>{shareInfo.title}</strong>
+                                        <div className={styles.shareUrlContainer}>
+                                            <code className={styles.shareUrl}>{shareInfo.url}</code>
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                onClick={copyShareLink}
+                                            >
+                                                {t('publication.copy')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Popover.Body>
+                            </Popover>
+                        </Overlay>
                         {/* Search & Filters */}
                         <Card className={styles.filterCard}>
                             <Card.Body className="p-3">
@@ -479,7 +608,7 @@ const Publication = () => {
                                         <FaSearch />
                                     </InputGroup.Text>
                                     <Form.Control
-                                        placeholder="Rechercher une publication..."
+                                        placeholder={t('publication.searchPlaceholder')}
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         className={styles.searchInput}
@@ -493,10 +622,10 @@ const Publication = () => {
                                             onChange={(e) => setFilterType(e.target.value)}
                                             size="sm"
                                         >
-                                            <option value="all">Tous</option>
-                                            <option value="urgent">Urgent</option>
-                                            <option value="teacher">Enseignants</option>
-                                            <option value="admin">Admin</option>
+                                            <option value="all">{t('publication.all')}</option>
+                                            <option value="urgent">{t('publication.urgent')}</option>
+                                            <option value="teacher">{t('publication.forTeachers')}</option>
+                                            <option value="admin">{t('publication.admin')}</option>
                                         </Form.Select>
                                     </Col>
                                     <Col xs={6} sm={4}>
@@ -505,9 +634,9 @@ const Publication = () => {
                                             onChange={(e) => setSortBy(e.target.value)}
                                             size="sm"
                                         >
-                                            <option value="recent">Plus récent</option>
-                                            <option value="popular">Populaire</option>
-                                            <option value="likes">Plus aimé</option>
+                                            <option value="recent">{t('publication.recent')}</option>
+                                            <option value="popular">{t('publication.popular')}</option>
+                                            <option value="likes">{t('publication.likes')}</option>
                                         </Form.Select>
                                     </Col>
                                 </Row>
@@ -526,32 +655,35 @@ const Publication = () => {
                             <Card className={styles.emptyState}>
                                 <Card.Body className="text-center py-5">
                                     <FaBell size={32} className="text-muted mb-3" />
-                                    <p className="text-muted">Aucune publication</p>
+                                    <p className="text-muted">{t('publication.noPublications')}</p>
                                 </Card.Body>
                             </Card>
                         ) : (
                             <div className={styles.feedList}>
                                 {publications.map((post) => (
-                                    <Card key={post._id} className={styles.postCard}>
+                                    <Card id={post._id} key={post._id} className={styles.postCard}>
                                         {/* Post Header */}
                                         <Card.Body className={styles.postHeader}>
                                             <div className="d-flex justify-content-between align-items-start">
                                                 <div className="d-flex align-items-center gap-2 flex-grow-1">
-                                                    <div className={styles.postAvatar}>
-                                                        {post.authorAvatar || post.authorName?.charAt(0)}
+                                                    <div className={styles.postAvatar} 
+                                                     style={post.authorId?.photoUrl ? { backgroundImage: `url(${post.authorId.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+
+                                                    >
+                                                        {!post.authorId?.photoUrl && post.authorName?.charAt(0)}
                                                     </div>
                                                     <div className={styles.authorInfo}>
                                                         <h6 className={styles.authorName}>
                                                             {post.authorName}
                                                             {post.urgent && (
                                                                 <Badge bg="danger" className={styles.urgentBadge}>
-                                                                    <FaExclamationTriangle /> URGENT
+                                                                <FaExclamationTriangle /> {t('publication.urgent')}
                                                                 </Badge>
                                                             )}
                                                         </h6>
                                                         <small className="text-muted">
                                                             <FaClock size={12} className="me-1" />
-                                                            {formatDate(post.updatedAt)}
+                                                            {formatDate(post.createdAt)}
                                                         </small>
                                                     </div>
                                                 </div>
@@ -568,16 +700,37 @@ const Publication = () => {
                                             {/* Attachments */}
                                             {post.attachments?.length > 0 && (
                                                 <div className={styles.attachmentsPreview}>
-                                                    {post.attachments.map((file, idx) => (
-                                                        <div key={idx} className={styles.attachmentItem}>
-                                                            <span className={styles.fileIcon}>
-                                                                {file.type === 'pdf' && <FaFilePdf />}
-                                                                {file.type === 'image' && <FaFileImage />}
-                                                                {['pdf', 'image'].indexOf(file.type) === -1 && <FaFileAlt />}
-                                                            </span>
-                                                            <span className={styles.fileName}>{file.name}</span>
-                                                        </div>
-                                                    ))}
+                                                    {post.attachments.map((file, idx) => {
+                                                        const attachmentKey = getAttachmentKey(file);
+                                                        const isDownloading = !!downloadingFiles[attachmentKey];
+                                                        const fileSize = formatFileSize(file.size);
+                                                        return (
+                                                            <div key={idx} className={styles.attachmentItem}>
+                                                                <span className={styles.fileIcon}>
+                                                                    {file.type === 'pdf' && <FaFilePdf />}
+                                                                    {file.type === 'image' && <FaFileImage />}
+                                                                    {['pdf', 'image'].indexOf(file.type) === -1 && <FaFileAlt />}
+                                                                </span>
+                                                                <div className={styles.fileDetails}>
+                                                                    <span className={styles.fileName}>{file.name}</span>
+                                                                    {fileSize && <span className={styles.fileSize}>{fileSize}</span>}
+                                                                </div>
+                                                                <div className={styles.attachmentActions}>
+                                                                    {isDownloading ? (
+                                                                        <Spinner animation="border" size="sm" />
+                                                                    ) : (
+                                                                        <Button
+                                                                            variant="link"
+                                                                            size="sm"
+                                                                            onClick={() => downloadAttachment(file)}
+                                                                        >
+                                                                            <FaDownload />
+                                                                        </Button>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
 
@@ -612,7 +765,15 @@ const Publication = () => {
                                                 ) : (
                                                     <MdFavoriteBorder />
                                                 )}
-                                                <span>J'aime</span>
+                                                <span>{t('publication.like')}</span>
+                                            </Button>
+                                            <Button
+                                                variant="link"
+                                                className={`${styles.actionBtn} ${post.userReaction === 'dislike' ? styles.active : ''}`}
+                                                onClick={() => handleReaction(post._id, 'dislike')}
+                                            >
+                                                <FaThumbsDown />
+                                                <span>{t('publication.dislike')}</span>
                                             </Button>
                                             <Button
                                                 variant="link"
@@ -620,11 +781,15 @@ const Publication = () => {
                                                 onClick={() => openComments(post)}
                                             >
                                                 <FaComments />
-                                                <span>Commenter</span>
+                                                <span>{t('publication.comment')}</span>
                                             </Button>
-                                            <Button variant="link" className={styles.actionBtn}>
+                                            <Button
+                                                variant="link"
+                                                className={styles.actionBtn}
+                                                onClick={(event) => sharePost(post, event)}
+                                            >
                                                 <FaShare />
-                                                <span>Partager</span>
+                                                <span>{t('publication.share')}</span>
                                             </Button>
                                         </div>
 
@@ -674,8 +839,10 @@ const Publication = () => {
                         {/* User Info Card */}
                         <Card className={styles.userCard}>
                             <Card.Body className="text-center">
-                                <div className={styles.largeAvatar}>
-                                    {currentUser.avatar || `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
+                                <div className={styles.largeAvatar}
+                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                >
+                                    {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                                 </div>
                                 <h6 className="mt-3 mb-1">
                                     {currentUser.firstName} {currentUser.lastName}
@@ -690,13 +857,13 @@ const Publication = () => {
                         {/* Stats Card */}
                         <Card className={styles.statsCard}>
                             <Card.Body>
-                                <h6 className="mb-3">Aujourd'hui</h6>
+                                <h6 className="mb-3">{t('publication.today')}</h6>
                                 <div className={styles.statItem}>
-                                    <span>Publications</span>
+                                    <span>{t('publication.publications')}</span>
                                     <strong>{publications.length}</strong>
                                 </div>
                                 <div className={styles.statItem}>
-                                    <span>Réactions</span>
+                                    <span>{t('publication.reactions')}</span>
                                     <strong>
                                         {publications.reduce((sum, p) => sum + (p.likes || 0), 0)}
                                     </strong>
@@ -721,14 +888,16 @@ const Publication = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>
                         <FaComments className="me-2" />
-                        Commentaires ({currentPublication?.commentsData?.length || 0})
+                        {t('publication.comments')} ({currentPublication?.commentsData?.length || 0})
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={styles.modalBody}>
                     {/* Add Comment */}
                     <div className={styles.addCommentForm}>
-                        <div className={styles.smallAvatar}>
-                            {currentUser.avatar || `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
+                        <div className={styles.smallAvatar}
+                            style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                        >
+                            {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                         </div>
                         <InputGroup size="sm">
                             <Form.Control
@@ -736,7 +905,7 @@ const Publication = () => {
                                 rows={2}
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Écrivez un commentaire..."
+                                placeholder={t('publication.writeComment')}
                                 className={styles.commentInputField}
                                 onKeyPress={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -752,19 +921,21 @@ const Publication = () => {
                             onClick={handleAddComment}
                             disabled={!newComment.trim()}
                         >
-                            Envoyer
+                            {t('publication.send')}
                         </Button>
                     </div>
 
                     {/* Comments List */}
                     <div className={styles.commentsList}>
                         {currentPublication?.commentsData?.length === 0 ? (
-                            <p className="text-muted text-center py-4">Aucun commentaire</p>
+                            <p className="text-muted text-center py-4">{t('publication.noComments')}</p>
                         ) : (
                             currentPublication?.commentsData?.map((comment) => (
                                 <div key={comment._id} className={styles.commentItem}>
-                                    <div className={styles.smallAvatar}>
-                                        {comment.authorAvatar || comment.authorName?.charAt(0)}
+                                    <div className={styles.smallAvatar}
+                                        style={comment.authorId?.photoUrl ? { backgroundImage: `url(${comment.authorId.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                    >
+                                        {!comment.authorId?.photoUrl && comment.authorName?.charAt(0)}
                                     </div>
                                     <div className={styles.commentData}>
                                         <div className={styles.commentMeta}>

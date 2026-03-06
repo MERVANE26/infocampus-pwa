@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FaFileContract, FaShieldAlt, FaDatabase } from 'react-icons/fa';
 import styles from './TermsSection.module.css';
 
 const TermsSection = ({ checked, onChange }) => {
+    const { t } = useTranslation();
+
     return (
         <div className={styles.termsContainer}>
             <div className={styles.checkboxWrapper}>
@@ -15,27 +18,27 @@ const TermsSection = ({ checked, onChange }) => {
                     required
                 />
                 <label htmlFor="terms" className={styles.checkboxLabel}>
-                    J'accepte les conditions <span className={styles.required}>*</span>
+                    {t('auth.agreeToTerms')} <span className={styles.required}>*</span>
                 </label>
             </div>
 
             <div className={styles.legalLinks}>
                 <Link to="/terms" target="_blank" className={styles.link}>
-                    <FaFileContract /> Conditions d'utilisation
+                    <FaFileContract /> {t('auth.termsLink')}
                 </Link>
                 <span className={styles.separator}>|</span>
                 <Link to="/privacy" target="_blank" className={styles.link}>
-                    <FaShieldAlt /> Politique de confidentialité
+                    <FaShieldAlt /> {t('auth.privacyLink')}
                 </Link>
                 <span className={styles.separator}>|</span>
                 <Link to="/legal" target="_blank" className={styles.link}>
-                    <FaDatabase /> Charte des données
+                    <FaDatabase /> {t('auth.dataPolicyLink')}
                 </Link>
             </div>
 
             <div className={styles.note}>
                 <FaFileContract />
-                En cliquant sur "Recevoir le code", vous acceptez nos conditions
+                {t('auth.termsConfirmation')}
             </div>
         </div>
     );

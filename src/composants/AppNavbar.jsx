@@ -19,7 +19,7 @@ const AppNavbar = ({ currentUser = {} }) => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('loginTime');
-        navigate('/connexion');
+        navigate('/login');
     };
 
     // Determine active link
@@ -45,7 +45,7 @@ const AppNavbar = ({ currentUser = {} }) => {
                         <Nav.Link as={Link} to="/profile" className={`${styles.navLink} ${isActive('/profile')}`}>
                             <FaUserCircle /> {t('nav.myProfile')}
                         </Nav.Link>
-                        <Nav.Link as={Link} to="/publications" className={`${styles.navLink} ${isActive('/publications')}`}>
+                        <Nav.Link as={Link} to="/posts" className={`${styles.navLink} ${isActive('/publications')}`}>
                             <FaBell /> {t('nav.publications')}
                         </Nav.Link>
                         <Nav.Link as={Link} to="/faire-publication" className={`${styles.navLink} ${isActive('/faire-publication')}`}>
@@ -58,8 +58,11 @@ const AppNavbar = ({ currentUser = {} }) => {
                         
                         <Dropdown align="end">
                             <Dropdown.Toggle as="div" className={styles.userMenu}>
-                                <div className={styles.userAvatar}>
-                                    {currentUser.avatar || `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
+                                <div className={styles.userAvatar}
+                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+
+                                >
+                                    {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                                 </div>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userName}>

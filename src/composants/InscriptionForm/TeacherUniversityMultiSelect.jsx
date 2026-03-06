@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Form } from "react-bootstrap";
 
 const TeacherUniversityMultiSelect = ({
@@ -6,6 +7,7 @@ const TeacherUniversityMultiSelect = ({
   selected,
   onChange
 }) => {
+  const { t } = useTranslation();
 
   const handleSelect = (e) => {
     const selectedIds = Array.from(e.target.selectedOptions).map(
@@ -17,7 +19,7 @@ const TeacherUniversityMultiSelect = ({
 
   return (
     <Form.Group className="mt-3">
-      <Form.Label>Universités *</Form.Label>
+      <Form.Label>{t('auth.universities')} *</Form.Label>
       <Form.Select
         multiple
         value={selected}
@@ -30,7 +32,7 @@ const TeacherUniversityMultiSelect = ({
         ))}
       </Form.Select>
       <Form.Text>
-        Maintenez CTRL (ou CMD sur Mac) pour sélectionner plusieurs universités.
+        {t('auth.multiSelectHelp')}
       </Form.Text>
     </Form.Group>
   );
