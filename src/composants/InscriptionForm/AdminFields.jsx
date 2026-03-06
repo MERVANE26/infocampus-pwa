@@ -3,7 +3,7 @@ import { FaUserTie, FaUniversity, FaBuilding, FaBriefcase, FaBook } from 'react-
 import { Form } from 'react-bootstrap';
 import styles from './AdminFields.module.css';
 
-const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
+const AdminFields = ({ formData, onChange, onToggleTeacher, universities }) => {
     return (
         <div className={styles.adminFields}>
             <h2 className={styles.sectionTitle}>
@@ -21,9 +21,9 @@ const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
                     required
                     className={styles.select}
                 >
-                    <option value="">Choisissez</option>
-                    <option value="iug">Institut Universitaire du Golfe (IUG)</option>
-                    <option value="uy1">Université de Yaoundé I</option>
+                    {universities.map(u => (
+                        <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
                 </Form.Select>
             </Form.Group>
 
@@ -73,7 +73,7 @@ const AdminFields = ({ formData, onChange, onToggleTeacher }) => {
                     <h3 className={styles.subSectionTitle}>
                         <FaBook /> Matières enseignées
                     </h3>
-                    
+
                     <Form.Group className={styles.formGroup}>
                         <Form.Control
                             type="text"

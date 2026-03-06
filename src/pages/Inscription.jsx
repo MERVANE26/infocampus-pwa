@@ -389,6 +389,7 @@ const Inscription = () => {
                       formData={formData.admin}
                       onChange={handleInputChange}
                       onToggleTeacher={toggleAdminTeacher}
+                      universities={universities}
                     />
                   )}
 

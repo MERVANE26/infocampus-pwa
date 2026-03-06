@@ -469,7 +469,7 @@ const ProfilAdministration = () => {
     };
 
     const formatNumber = (num) => {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
 
     return (
@@ -554,7 +554,7 @@ const ProfilAdministration = () => {
                                                             <FaUsers className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {formatNumber(currentAdmin.stats.students)}
+                                                                    {formatNumber(currentAdmin.status.students)}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Étudiants</span>
                                                             </div>
@@ -563,7 +563,7 @@ const ProfilAdministration = () => {
                                                             <FaChalkboardTeacher className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {currentAdmin.stats.teachers}
+                                                                    {currentAdmin.status.teachers}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Enseignants</span>
                                                             </div>
@@ -572,7 +572,7 @@ const ProfilAdministration = () => {
                                                             <FaUserCheck className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {formatNumber(currentAdmin.stats.activeUsers)}
+                                                                    {formatNumber(currentAdmin.status.activeUsers)}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Actifs</span>
                                                             </div>
@@ -581,7 +581,7 @@ const ProfilAdministration = () => {
                                                             <FaBell className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {currentAdmin.stats.totalPublications}
+                                                                    {currentAdmin.status.totalPublications}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Publications</span>
                                                             </div>
@@ -597,7 +597,7 @@ const ProfilAdministration = () => {
                                                                     En attente de modération
                                                                 </span>
                                                                 <Badge bg="warning" className={styles.moderationBadge}>
-                                                                    {currentAdmin.stats.pendingModeration}
+                                                                    {currentAdmin.status.pendingModeration}
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -608,7 +608,7 @@ const ProfilAdministration = () => {
                                                                     Signalements
                                                                 </span>
                                                                 <Badge bg="danger" className={styles.moderationBadge}>
-                                                                    {currentAdmin.stats.reports}
+                                                                    {currentAdmin.status.reports}
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -677,7 +677,7 @@ const ProfilAdministration = () => {
                                                             <FaShieldAlt /> Permissions
                                                         </h3>
                                                         <div className={styles.permissionsList}>
-                                                            {currentAdmin.permissions.map((permission, index) => (
+                                                            {currentAdmin?.permissions?.map((permission, index) => (
                                                                 <Badge key={index} className={styles.permissionBadge}>
                                                                     <FaCheckCircle className={styles.permissionIcon} />
                                                                     {permission}
@@ -829,7 +829,7 @@ const ProfilAdministration = () => {
                                                                         <FaBuilding /> Département
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.department}
+                                                                        value={settings.departement}
                                                                         onChange={(e) => handleSettingsChange('department', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
@@ -862,7 +862,7 @@ const ProfilAdministration = () => {
                                                                         Notifications des publications
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.notifications}
+                                                                        value={settings.pushNotifications}
                                                                         onChange={(e) => handleSettingsChange('notifications', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >
@@ -877,7 +877,7 @@ const ProfilAdministration = () => {
                                                                         Notifications système
                                                                     </Form.Label>
                                                                     <Form.Select
-                                                                        value={settings.systemNotifications}
+                                                                        value={settings.emailNotifications}
                                                                         onChange={(e) => handleSettingsChange('systemNotifications', e.target.value)}
                                                                         className={styles.formSelect}
                                                                     >

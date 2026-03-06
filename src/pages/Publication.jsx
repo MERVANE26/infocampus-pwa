@@ -770,7 +770,7 @@ const Publication = () => {
                                         <div className={styles.commentMeta}>
                                             <strong>{comment.authorName}</strong>
                                             <small className="text-muted">
-                                                {formatDate(comment.updatedAt)}
+                                                {formatDate(comment.createdAt)}
                                             </small>
                                         </div>
                                         <p className={styles.commentText}>{comment.text}</p>
