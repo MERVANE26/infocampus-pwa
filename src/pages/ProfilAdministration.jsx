@@ -236,6 +236,15 @@ const ProfilAdministration = () => {
             fonction: "",
             departement: "",
             notificationMode: "targeted"
+        },
+        // ✅ AJOUT DE L'OBJET STATS COMPLET
+        stats: {
+            students: 0,
+            teachers: 0,
+            activeUsers: 0,
+            totalPublications: 0,
+            pendingModeration: 0,
+            reports: 0
         }
     });
 
@@ -293,7 +302,9 @@ const ProfilAdministration = () => {
                     adminInfo: user.adminInfo || prev.adminInfo,
                     photoUrl: user.photoUrl || user.photo || prev.photoUrl,
                     phoneNumber: user.phoneNumber || prev.phoneNumber,
-                    email: user.email || prev.email
+                    email: user.email || prev.email,
+                    // ✅ GARDE LES STATS EXISTANTES OU UTILISE LES DÉFAUTS
+                    stats: user.stats || prev.stats
                 }));
                 
                 setSettings(prev => ({
@@ -548,13 +559,13 @@ const ProfilAdministration = () => {
                                                         </Badge>
                                                     </div>
 
-                                                    {/* Statistiques administrateur */}
+                                                    {/* Statistiques administrateur - AVEC VÉRIFICATION SÉCURISÉE */}
                                                     <div className={styles.statsGrid}>
                                                         <div className={styles.statCard}>
                                                             <FaUsers className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {formatNumber(currentAdmin.stats.students)}
+                                                                    {formatNumber(currentAdmin.stats?.students ?? 0)}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Étudiants</span>
                                                             </div>
@@ -563,7 +574,7 @@ const ProfilAdministration = () => {
                                                             <FaChalkboardTeacher className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {currentAdmin.stats.teachers}
+                                                                    {currentAdmin.stats?.teachers ?? 0}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Enseignants</span>
                                                             </div>
@@ -572,7 +583,7 @@ const ProfilAdministration = () => {
                                                             <FaUserCheck className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {formatNumber(currentAdmin.stats.activeUsers)}
+                                                                    {formatNumber(currentAdmin.stats?.activeUsers ?? 0)}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Actifs</span>
                                                             </div>
@@ -581,14 +592,14 @@ const ProfilAdministration = () => {
                                                             <FaBell className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-                                                                    {currentAdmin.stats.totalPublications}
+                                                                    {currentAdmin.stats?.totalPublications ?? 0}
                                                                 </span>
                                                                 <span className={styles.statLabel}>Publications</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Statistiques de modération */}
+                                                    {/* Statistiques de modération - AVEC VÉRIFICATION SÉCURISÉE */}
                                                     <div className={styles.moderationStats}>
                                                         <div className={styles.moderationItem}>
                                                             <FaClock className={styles.moderationIcon} />
@@ -597,7 +608,7 @@ const ProfilAdministration = () => {
                                                                     En attente de modération
                                                                 </span>
                                                                 <Badge bg="warning" className={styles.moderationBadge}>
-                                                                    {currentAdmin.stats.pendingModeration}
+                                                                    {currentAdmin.stats?.pendingModeration ?? 0}
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -608,7 +619,7 @@ const ProfilAdministration = () => {
                                                                     Signalements
                                                                 </span>
                                                                 <Badge bg="danger" className={styles.moderationBadge}>
-                                                                    {currentAdmin.stats.reports}
+                                                                    {currentAdmin.stats?.reports ?? 0}
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -677,7 +688,7 @@ const ProfilAdministration = () => {
                                                             <FaShieldAlt /> Permissions
                                                         </h3>
                                                         <div className={styles.permissionsList}>
-                                                            {currentAdmin.permissions.map((permission, index) => (
+                                                            {currentAdmin.permissions?.map((permission, index) => (
                                                                 <Badge key={index} className={styles.permissionBadge}>
                                                                     <FaCheckCircle className={styles.permissionIcon} />
                                                                     {permission}
@@ -753,7 +764,7 @@ const ProfilAdministration = () => {
                                             </span>
                                         }
                                     >
-                                        {/* Section Paramètres */}
+                                        {/* Section Paramètres - inchangée */}
                                         <div className={styles.settingsSection}>
                                             <Card className={styles.settingsCard}>
                                                 <Card.Body>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import BoutonInstallation from '../composants/BoutonInstallation/BoutonInstallation'; 
 import { 
     FaUserGraduate, 
     FaChalkboardTeacher, 
@@ -114,6 +115,10 @@ const Home = () => {
                     <div className={styles.createUniversitySub}>
                         Inscrivez votre établissement sur InfoCAMPUS
                     </div>
+                </div>
+                  {/* BOUTON D'INSTALLATION - AJOUTÉ ICI */}
+                <div style={{ textAlign: 'center', margin: '20px 0' }}>
+                    <BoutonInstallation />
                 </div>
 
                 {/* Features */}

@@ -6,11 +6,11 @@ function Nav({ activePage, onNavigate }) {
     <nav className="nav-container">
       <div className="nav-content">
         {/* Logo INFOCAMPUS - non cliquable */}
-        <div className="logo-section">
+        
           <div className="logo-text">
             <div className="logo-main">INFOCAMPUS</div>
           </div>
-        </div>
+        
 
         {/* Boutons de navigation */}
         <div className="nav-center">

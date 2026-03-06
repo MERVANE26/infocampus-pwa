@@ -115,7 +115,9 @@ const Legal = () => {
                 <p>
                     <strong>Médiateur compétent :</strong> <br />
                     <strong>Adresse :</strong> Douala - Cameroun<br />
-                    <strong>Email :</strong> 
+                    <strong>Email :</strong>                     VITE_API_BASE_URL=http://localhost:3001/api                    cd ../infocampus-backend
+                    npm install  # si pas déjà fait
+                    npm run dev  # ou npm start
                 </p>
             </section>
 
