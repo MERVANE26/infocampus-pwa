@@ -244,7 +244,30 @@ const ProfilEtudiant = () => {
 
     const loadUserData = async () => {
         try {
+            const res = await api.get("/auth/profile");
+
+            if (res.data && res.data.user) {
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+                setCurrentUser(prev => ({
+                    ...prev,
+                    ...res.data.user,
+                    studentInfo: res.data.user.studentInfo || prev.studentInfo,
+                    photoUrl: res.data.user.photoUrl || res.data.user.photo || prev.photoUrl
+                }));
+
+                setSettings(prev => ({
+                    ...prev,
+                    matricule: res.data.user.studentInfo?.matricule || prev.matricule || "",
+                    filiere: res.data.user.studentInfo?.filiere?.name || prev.filiere || "",
+                    groupe: res.data.user.studentInfo?.groupe || prev.groupe || "",
+                    niveau: res.data.user.studentInfo?.niveau || prev.niveau || ""
+                }));
+            }
+
+        } catch (error) {
+            console.error('Erreur chargement utilisateur:', error);
             const userStr = localStorage.getItem('user');
+
             if (userStr) {
                 const user = JSON.parse(userStr);
                 setCurrentUser(prev => ({
@@ -262,8 +285,6 @@ const ProfilEtudiant = () => {
                     niveau: user.studentInfo?.niveau || prev.niveau || ""
                 }));
             }
-        } catch (error) {
-            console.error('Erreur chargement utilisateur:', error);
         }
     };
 
@@ -522,10 +543,10 @@ const ProfilEtudiant = () => {
                                                         </div>
                                                         <h2 className={styles.studentName}>{currentUser.firstName} {currentUser.lastName}</h2>
                                                         <div className={styles.studentProgram}>
-                                                            <FaGraduationCap /> {formatFieldValue('filiere', currentUser.studentInfo?.filiere)}
+                                                            <FaGraduationCap /> {formatFieldValue('filiere', currentUser.studentInfo?.filiere?.name)}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
-                                                            <FaUniversity /> {formatFieldValue('campusId', currentUser.studentInfo?.campusId)}
+                                                            <FaUniversity /> {formatFieldValue('campusId', currentUser.studentInfo?.campusId?.name)}
                                                         </Badge>
                                                     </div>
 
@@ -545,7 +566,7 @@ const ProfilEtudiant = () => {
                                                                 <FaBuilding /> {t('auth.campus')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {formatFieldValue('campusId', currentUser.studentInfo?.campusId)}
+                                                                {formatFieldValue('campusId', currentUser.studentInfo?.campusId?.name)}
                                                             </div>
                                                         </div>
 
@@ -554,7 +575,7 @@ const ProfilEtudiant = () => {
                                                                 <FaBook /> {t('auth.filiere')}
                                                             </div>
                                                             <div className={styles.infoValue}>
-                                                                {formatFieldValue('filiere', currentUser.studentInfo?.filiere)}
+                                                                {formatFieldValue('filiere', currentUser.studentInfo?.filiere?.name)}
                                                             </div>
                                                         </div>
 
@@ -682,8 +703,8 @@ const ProfilEtudiant = () => {
                                                         >
                                                             <div className={styles.settingsForm}>
                                                                 <h3 className={styles.sectionSubtitle}>
-                                                            {t('profile.academicInfo')}
-</h3>   
+                                                                    {t('profile.academicInfo')}
+                                                                </h3>
 
                                                                 <Form.Group className={styles.formGroup}>
                                                                     <Form.Label className={styles.formLabel}>

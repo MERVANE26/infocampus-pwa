@@ -808,7 +808,7 @@ const Publication = () => {
                                                     <div className={styles.authorInfo}>
                                                         <h6 className={styles.authorName}>
                                                             {post.authorName}
-                                                            {post.urgent && (
+                                                            {post.options.urgent && (
                                                                 <Badge bg="danger" className={styles.urgentBadge}>
                                                                 <FaExclamationTriangle /> {t('publication.urgent')}
                                                                 </Badge>

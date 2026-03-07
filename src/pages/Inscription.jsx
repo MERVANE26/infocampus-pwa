@@ -567,6 +567,8 @@ const Inscription = () => {
                   <span>•</span>
                   <Link to="/terms" className={loginStyles.footerLink}>{t('common.terms')}</Link>
                   <span>•</span>
+                  <Link to="/" className={loginStyles.footerLink}>Home</Link>
+                  <span>•</span>
                   <LanguageSwitcher />
                 </div>
               </Card.Body>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaUniversity, FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaHamburger } from 'react-icons/fa';
+import { FaUniversity, FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaHamburger, FaUserCheck, FaExclamationCircle, FaBookOpen } from 'react-icons/fa';
 import { MdMenu } from 'react-icons/md';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -86,13 +86,13 @@ const AppNavbar = ({ currentUser = {} }) => {
                                     <FaCog /> {t('common.settings')}
                                 </Dropdown.Item>
                                 <Dropdown.Item as={Link} to="/about">
-                                    <FaUserCircle /> {t('common.about')}
+                                    <FaExclamationCircle /> {t('common.about')}
                                 </Dropdown.Item>
                                 <Dropdown.Item as={Link} to="/terms">
-                                    <FaUserCircle /> {t('common.terms')}
+                                    <FaBookOpen /> {t('common.terms')}
                                 </Dropdown.Item>
                                 <Dropdown.Item as={Link} to="/privacy">
-                                    <FaUserCircle /> {t('common.privacy')}
+                                    <FaUserCheck/> {t('common.privacy')}
                                 </Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item onClick={handleLogout}>

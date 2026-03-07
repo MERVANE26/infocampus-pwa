@@ -17,7 +17,8 @@ import {
     FaCheckCircle,
     FaExclamationTriangle,
     FaPaperPlane,
-    FaShieldAlt
+    FaShieldAlt,
+    FaBook
 } from 'react-icons/fa';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import ProgressSteps from '../composants/UniversityForm/ProgressSteps';
@@ -25,6 +26,27 @@ import FileUpload from '../composants/UniversityForm/FileUpload';
 import InfoBox from '../composants/UniversityForm/InfoBox';
 import styles from './CreationUniversite.module.css';
 import { api } from '../lib/api';
+import { LOGO } from '../assets';
+
+const AVAILABLE_FIELDS = [
+    { value: 'gl', label: 'Génie Logiciel' },
+    { value: 'res', label: 'Réseaux & Télécoms' },
+    { value: 'iia', label: 'Intelligence Artificielle' },
+    { value: 'genieCivil', label: 'Génie Civil' },
+    { value: 'elec', label: 'Génie Électrique' },
+    { value: 'mecanique', label: 'Génie Mécanique' },
+    { value: 'commerce', label: 'Gestion / Commerce' },
+    { value: 'finance', label: 'Finance / Banques' },
+    { value: 'lead', label: 'Leadership / Management' },
+    { value: 'droit', label: 'Droit' },
+    { value: 'medecine', label: 'Médecine / Santé' },
+    { value: 'pharmacie', label: 'Pharmacie' },
+    { value: 'agriculture', label: 'Agriculture / Agroalimentaire' },
+    { value: 'archi', label: 'Architecture' },
+    { value: 'design', label: 'Design / Arts' },
+];
+
+const defaultCampusNames = (count) => Array.from({ length: count }, () => '');
 
 const CreationUniversite = () => {
     const navigate = useNavigate();
@@ -47,6 +69,8 @@ const CreationUniversite = () => {
         founded: '2005',
         type: 'Privée',
         campus: 2,
+        campusNames: defaultCampusNames(2),
+        fields: [],
         description: "L'Institut Universitaire du Golfe (IUG) de Douala est un établissement privé d'enseignement supérieur créé en 2005. Il forme des cadres compétents dans les domaines du management, des technologies et des sciences. L'IUG est reconnu pour son excellence académique et son insertion professionnelle.",
         logo: null
     });
@@ -55,10 +79,31 @@ const CreationUniversite = () => {
     const [alertMessage, setAlertMessage] = useState({ show: false, text: '' });
     const [loading, setLoading] = useState(false);
 
-    const steps = ['Informations', 'Validation', 'Confirmation'];
+    const steps = ['Informations', 'Campus & filières', 'Validation', 'Confirmation'];
+
+    const adjustCampusNames = (count, existingNames = []) => {
+        const names = [...existingNames];
+        if (count > names.length) {
+            return [...names, ...Array(count - names.length).fill('')];
+        }
+        return names.slice(0, count);
+    };
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
+
+        if (id === 'campus') {
+            const numericValue = Number(value) || 1;
+            const clamped = Math.min(20, Math.max(1, numericValue));
+
+            setFormData(prev => ({
+                ...prev,
+                campus: clamped,
+                campusNames: adjustCampusNames(clamped, prev.campusNames)
+            }));
+            return;
+        }
+
         setFormData(prev => ({
             ...prev,
             [id]: value
@@ -70,8 +115,28 @@ const CreationUniversite = () => {
             let newValue = prev.campus + change;
             if (newValue < 1) newValue = 1;
             if (newValue > 20) newValue = 20;
-            return { ...prev, campus: newValue };
+            return {
+                ...prev,
+                campus: newValue,
+                campusNames: adjustCampusNames(newValue, prev.campusNames)
+            };
         });
+    };
+
+    const handleCampusNameChange = (index, value) => {
+        setFormData(prev => {
+            const updatedNames = [...prev.campusNames];
+            updatedNames[index] = value;
+            return { ...prev, campusNames: updatedNames };
+        });
+    };
+
+    const handleFieldsChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions).map(opt => ({ name: opt.text, value: opt.value }));
+        setFormData(prev => ({
+            ...prev,
+            fields: selectedOptions
+        }));
     };
 
     const handleFileChange = (e) => {
@@ -92,54 +157,106 @@ const CreationUniversite = () => {
         }
     };
 
-    const generateValidationCode = () => {
-        return Math.floor(100000 + Math.random() * 900000).toString();
+    const isProfessionalEmail = (email) => {
+        const bannedDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'msn.com', 'aol.com'];
+        const domain = email.split('@')[1]?.toLowerCase();
+        if (!domain) return false;
+        return !bannedDomains.some((d) => domain === d || domain.endsWith(`.${d}`));
     };
 
-    const validateForm = () => {
-        const requiredFields = ['universityName', 'country', 'city', 'email', 'phone', 'description', 'type', 'campus'];
-        for (const field of requiredFields) {
-            if (!formData[field]) {
-                setAlertMessage({
-                    show: true,
-                    text: 'Veuillez remplir tous les champs obligatoires.'
-                });
-                setTimeout(() => setAlertMessage({ show: false, text: '' }), 3000);
+    const validateStep = (step) => {
+        const showError = (text) => {
+            setAlertMessage({ show: true, text });
+            setTimeout(() => setAlertMessage({ show: false, text: '' }), 3000);
+        };
+
+        if (step === 1) {
+            const requiredFields = ['universityName', 'country', 'city', 'email', 'phone', 'type'];
+            for (const field of requiredFields) {
+                if (!formData[field]) {
+                    showError('Veuillez remplir tous les champs obligatoires.');
+                    return false;
+                }
+            }
+
+            if (!isProfessionalEmail(formData.email)) {
+                showError('Veuillez utiliser une adresse email professionnelle (pas de Gmail/Yahoo/Hotmail/Outlook).');
                 return false;
             }
+
+            return true;
         }
+
+        if (step === 2) {
+            if (formData.fields.length === 0) {
+                showError('Veuillez sélectionner au moins une filière.');
+                return false;
+            }
+
+            if (formData.campusNames.some((name) => !name || !name.trim())) {
+                showError('Veuillez renseigner le nom de chaque campus.');
+                return false;
+            }
+
+            if (!formData.description) {
+                showError('Veuillez renseigner une description.');
+                return false;
+            }
+
+            return true;
+        }
+
         return true;
+    };
+
+    const goToNextStep = () => {
+        if (validateStep(currentStep)) {
+            setAlertMessage({ show: false, text: '' });
+            setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+        }
+    };
+
+    const goToPreviousStep = () => {
+        setAlertMessage({ show: false, text: '' });
+        setCurrentStep((prev) => Math.max(prev - 1, 1));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateStep(2)) return;
 
         setLoading(true);
+        console.log("Submitting form with data:", formData);
 
         try {
-            const response = await api.post("/universities/create", {
-                name: formData.universityName,
-                country: formData.country,
-                city: formData.city,
-                region: formData.region,
-                address: formData.address,
-                email: formData.email,
-                phone: formData.phone,
-                website: formData.website,
-                founded: formData.founded,
-                type: formData.type,
-                campusCount: formData.campus,
-                description: formData.description,
-                logo: formData.logo ? formData.logo.name : null
-            });
+            const payload = new FormData();
+            payload.append('name', formData.universityName);
+            payload.append('country', formData.country);
+            payload.append('city', formData.city);
+            payload.append('region', formData.region);
+            payload.append('address', formData.address);
+            payload.append('email', formData.email);
+            payload.append('phone', formData.phone);
+            payload.append('website', formData.website);
+            payload.append('founded', formData.founded);
+            payload.append('type', formData.type);
+            payload.append('campusCount', formData.campus);
+            payload.append('description', formData.description);
+            payload.append('fields', JSON.stringify(formData.fields));
+            payload.append('campuses', JSON.stringify(formData.campusNames.map((name) => ({ name }))));
+            if (formData.logo) {
+                payload.append('logo', formData.logo);
+            }
 
+            const response = await api.post("/universities/create", payload, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
 
             if (!response.data?.message) throw new Error(response.data?.message || "Erreur lors de la création de l'université.");
 
             setUniversityId(response.data?.universityId);
-            setCurrentStep(2);
+            setCurrentStep(3);
 
             setAlertMessage({
                 show: true,
@@ -149,7 +266,7 @@ const CreationUniversite = () => {
         } catch (error) {
             setAlertMessage({
                 show: true,
-                text: error.response?.message
+                text: error.response?.message || error.message
             });
         } finally {
             setLoading(false);
@@ -171,7 +288,7 @@ const CreationUniversite = () => {
 
             if (!response.data.message) throw new Error(response.data?.message || "Erreur lors de la vérification du code de validation.");
 
-            setCurrentStep(3);
+            setCurrentStep(4);
             setConfirmed(true);
 
         } catch (error) {
@@ -198,6 +315,8 @@ const CreationUniversite = () => {
             founded: '2005',
             type: 'Privée',
             campus: 2,
+            campusNames: defaultCampusNames(2),
+            fields: ['gl', 'res'],
             description: "L'Institut Universitaire du Golfe (IUG) de Douala est un établissement privé d'enseignement supérieur créé en 2005. Il forme des cadres compétents dans les domaines du management, des technologies et des sciences. L'IUG est reconnu pour son excellence académique et son insertion professionnelle.",
             logo: null
         });
@@ -213,15 +332,16 @@ const CreationUniversite = () => {
                 <Row className="justify-content-center">
                     <Col lg={10} xl={8}>
                         <Card className={styles.formCard}>
-                            <Card.Body className="p-4 p-md-5">
+                            <Card.Body className="p-3 p-md-4">
                                 {/* Header */}
                                 <div className={styles.header}>
                                     <div className={styles.logoContainer}>
-                                        <div className={styles.logoIcon}>
-                                            <FaUniversity />
-                                        </div>
+                                        {/* <div className={styles.logoIcon}> */}
+                                            <img className={styles.brandLogo} src={LOGO} alt="infocampus-logo" />
+
+                                        {/* </div> */}
                                         <div className={styles.logoText}>
-                                            <h1>INFO<span>CAMPUS</span></h1>
+                                            <h1>INFO<span>cAMPUS</span></h1>
                                             <p>
                                                 Plateforme de gestion universitaire
                                                 <span className={styles.subtitle}> • Création d'établissements</span>
@@ -238,7 +358,12 @@ const CreationUniversite = () => {
 
                                 {/* Formulaire */}
                                 {currentStep === 1 && (
-                                    <Form onSubmit={handleSubmit}>
+                                    <Form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            goToNextStep();
+                                        }}
+                                    >
                                         {/* Nom de l'établissement */}
                                         <Form.Group className={styles.formGroup}>
                                             <Form.Label className={styles.label}>
@@ -350,7 +475,7 @@ const CreationUniversite = () => {
                                                         id="email"
                                                         value={formData.email}
                                                         onChange={handleInputChange}
-                                                        placeholder="contact@etablissement.edu"
+                                                        placeholder="contact@votreuniversite.cm"
                                                         required
                                                         className={styles.input}
                                                     />
@@ -415,29 +540,42 @@ const CreationUniversite = () => {
                                             </Col>
                                         </Row>
 
+                                        {/* Type d'établissement */}
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.label}>
+                                                <FaTag className={styles.labelIcon} /> Type d'établissement *
+                                            </Form.Label>
+                                            <Form.Select
+                                                id="type"
+                                                value={formData.type}
+                                                onChange={handleInputChange}
+                                                required
+                                                className={styles.select}
+                                            >
+                                                <option value="">Sélectionnez un type</option>
+                                                <option value="Publique">Université Publique</option>
+                                                <option value="Privée">Université Privée</option>
+                                                <option value="Institut">Institut Supérieur</option>
+                                                <option value="Grande École">Grande École</option>
+                                            </Form.Select>
+                                        </Form.Group>
+
+                                        {/* Action Buttons */}
+                                        <div className="d-flex justify-content-between mt-4">
+                                            <Button variant="outline-secondary" type="button" onClick={fillIUGExample}>
+                                                Remplir un exemple
+                                            </Button>
+                                            <Button type="submit" className={styles.submitButton}>
+                                                Suivant
+                                            </Button>
+                                        </div>
+                                    </Form>
+                                )}
+
+                                {currentStep === 2 && (
+                                    <Form onSubmit={handleSubmit}>
                                         {/* Type et Campus */}
                                         <Row>
-                                            <Col md={6}>
-                                                <Form.Group className={styles.formGroup}>
-                                                    <Form.Label className={styles.label}>
-                                                        <FaTag className={styles.labelIcon} /> Type d'établissement *
-                                                    </Form.Label>
-                                                    <Form.Select
-                                                        id="type"
-                                                        value={formData.type}
-                                                        onChange={handleInputChange}
-                                                        required
-                                                        className={styles.select}
-                                                    >
-                                                        <option value="">Sélectionnez un type</option>
-                                                        <option value="Publique">Université Publique</option>
-                                                        <option value="Privée">Université Privée</option>
-                                                        <option value="Institut">Institut Supérieur</option>
-                                                        <option value="Grande École">Grande École</option>
-                                                    </Form.Select>
-                                                </Form.Group>
-                                            </Col>
-
                                             <Col md={6}>
                                                 <Form.Group className={styles.formGroup}>
                                                     <Form.Label className={styles.label}>
@@ -473,7 +611,48 @@ const CreationUniversite = () => {
                                                     </div>
                                                 </Form.Group>
                                             </Col>
+
+                                            <Col md={6}>
+                                                <Form.Group className={styles.formGroup}>
+                                                    <Form.Label className={styles.label}>
+                                                        <FaBook className={styles.labelIcon} /> Filières *
+                                                    </Form.Label>
+                                                    <Form.Select
+                                                        multiple
+                                                        value={formData.fields.map(field => field.value)}
+                                                        onChange={handleFieldsChange}
+                                                        className={styles.select}
+                                                    >
+                                                        {AVAILABLE_FIELDS.map((field) => (
+                                                            <option key={field.value} value={field.value}>
+                                                                {field.label}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    <Form.Text className={styles.helpText}>
+                                                        Maintenez Ctrl (Windows) ou ⌘ (Mac) pour sélectionner plusieurs filières.
+                                                    </Form.Text>
+                                                </Form.Group>
+                                            </Col>
                                         </Row>
+
+                                        {/* Campus Names */}
+                                        <Form.Group className={styles.formGroup}>
+                                            <Form.Label className={styles.label}>
+                                                <FaCity className={styles.labelIcon} /> Noms des campus *
+                                            </Form.Label>
+                                            {formData.campusNames.map((campusName, index) => (
+                                                <Form.Control
+                                                    key={index}
+                                                    type="text"
+                                                    value={campusName}
+                                                    onChange={(e) => handleCampusNameChange(index, e.target.value)}
+                                                    placeholder={`Nom du campus #${index + 1}`}
+                                                    className={`${styles.input} mb-2`}
+                                                    required
+                                                />
+                                            ))}
+                                        </Form.Group>
 
                                         {/* Description */}
                                         <Form.Group className={styles.formGroup}>
@@ -500,16 +679,6 @@ const CreationUniversite = () => {
                                             icon={FaImage}
                                         />
 
-                                        {/* Info Box */}
-                                        <InfoBox title="Processus de validation :">
-                                            <ol>
-                                                <li>Vous remplissez le formulaire de création</li>
-                                                <li>Vous serez redirigé vers la page de validation</li>
-                                                <li>Un code à 6 chiffres vous sera envoyé par email</li>
-                                                <li>Saisissez le code pour finaliser la création</li>
-                                            </ol>
-                                        </InfoBox>
-
                                         {/* Alert Message */}
                                         {alertMessage.show && (
                                             <Alert
@@ -523,29 +692,33 @@ const CreationUniversite = () => {
                                             </Alert>
                                         )}
 
-                                        {/* Submit Button */}
-                                        <Button
-                                            type="submit"
-                                            className={styles.submitButton}
-                                            disabled={loading}
-                                            size="lg"
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <span className="spinner-border spinner-border-sm me-2" />
-                                                    Traitement en cours...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <FaPaperPlane className="me-2" />
-                                                    Continuer vers la validation
-                                                </>
-                                            )}
-                                        </Button>
-                                    </Form>)}
+                                        <div className="d-flex justify-content-between mt-4">
+                                            <Button variant="outline-secondary" type="button" onClick={goToPreviousStep}>
+                                                Précédent
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                className={styles.submitButton}
+                                                disabled={loading}
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm me-2" />
+                                                        Traitement en cours...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FaPaperPlane className="me-2" />
+                                                        Créer l'établissement
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </Form>
+                                )}
 
                                 {/* ================= VERIFICATION STEP ================= */}
-                                {currentStep === 2 && (
+                                {currentStep === 3 && (
                                     <Form onSubmit={handleVerifyCode} className="mt-4">
                                         <Form.Group>
                                             <Form.Label>
@@ -572,7 +745,7 @@ const CreationUniversite = () => {
                                 )}
 
                                 {/* ================= CONFIRMATION STEP ================= */}
-                                {currentStep === 3 && confirmed && (
+                                {currentStep === 4 && confirmed && (
                                     <div className="text-center mt-4">
                                         <FaCheckCircle size={60} color="green" />
                                         <h4 className="mt-3">Université validée avec succès 🎉</h4>

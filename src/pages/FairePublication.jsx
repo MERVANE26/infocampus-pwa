@@ -67,6 +67,7 @@ const FairePublication = () => {
     const [userUniversities, setUserUniversities] = useState([]); // normalized list {id,name,campuses[]}
     const [selectedUniversityId, setSelectedUniversityId] = useState("");
     const [availableCampuses, setAvailableCampuses] = useState([]); // campuses for currently selected university
+    const [availableFields, setAvailableFields] = useState([]); // fields for currently selected university
 
     // Post feed (for search & filter preview)
     const [posts, setPosts] = useState([]);
@@ -286,6 +287,7 @@ const FairePublication = () => {
     useEffect(() => {
         const uni = userUniversities.find(u => u.id === selectedUniversityId);
         setAvailableCampuses(uni?.campuses || []);
+        setAvailableFields(uni?.fields || []);
         // reset campus filter when university switches
         if (publication.campus !== 'tous') {
             handleChange('campus', 'tous');
@@ -410,7 +412,7 @@ const FairePublication = () => {
                 badges.push({ icon: '📚', text: publication.niveau, type: 'student' });
             }
             if (publication.campus !== 'tous') {
-                const campusObj = availableCampuses.find(c => (c.id || c) === publication.campus);
+                const campusObj = availableCampuses.find(c => (c._id || c) === publication.campus);
                 badges.push({ icon: <FaBuilding />, text: campusObj ? campusObj.name || publication.campus : publication.campus, type: 'student' });
             }
             if (publication.groupe !== 'tous') {
@@ -781,11 +783,13 @@ const FairePublication = () => {
                                                                 onChange={(e) => handleChange('filiere', e.target.value)}
                                                                 className={styles.targetSelect}
                                                             >
+                                                                
                                                                 <option value="tous">Toutes les filières</option>
-                                                                <option value="genie-logiciel">Génie Logiciel</option>
-                                                                <option value="telecoms">TELECOMS</option>
-                                                                <option value="reseaux">Réseaux et sécurité</option>
-                                                                <option value="iia">IIA</option>
+                                                                   {availableFields.map(f => (
+                                                                    <option key={f._id || f} value={f.name || f}>
+                                                                        {f.name || f}
+                                                                    </option>
+                                                                ))}
                                                             </Form.Select>
                                                         </Form.Group>
                                                     </Col>

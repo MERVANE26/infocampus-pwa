@@ -20,7 +20,7 @@ import styles from './Connexion.module.css';
 const Connexion = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  
+
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ const Connexion = () => {
               <p className={styles.featuresSubtitle}>
                 {t('common.slogan')}
               </p>
-              
+
               <div className={styles.featuresList}>
                 <div className={styles.featureItem}>
                   <div className={styles.featureIcon}>✓</div>
@@ -246,6 +246,8 @@ const Connexion = () => {
                   <span>•</span>
                   <Link to="/terms" className={styles.footerLink}>{t('common.terms')}</Link>
                   {/* language toggle in footer for small screens */}
+                  <span>•</span>
+                  <Link to="/" className={styles.footerLink}>Home</Link>
                   <span>•</span>
                   <LanguageSwitcher />
                 </div>
