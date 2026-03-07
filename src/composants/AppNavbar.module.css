@@ -16,6 +16,10 @@
     color: #667eea;
 }
 
+.brandLogo{
+    width: 40px;
+    height: 40px;
+}
 .brandText {
     display: flex;
     flex-direction: column;

@@ -11,6 +11,7 @@ import AdminFields from '../composants/InscriptionForm/AdminFields';
 import TermsSection from '../composants/InscriptionForm/TermsSection';
 import loginStyles from './Connexion.module.css';
 import { api } from '../lib/api';
+import { LOGO } from '../assets';
 
 
 const Inscription = () => {
@@ -36,17 +37,7 @@ const Inscription = () => {
     fetchUniversities();
   }, []);
 
-  useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
 
-      if (token || user) {
-        navigate('/profile');
-      }
-    }
-    checkToken();
-  }, []);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -367,7 +358,10 @@ const Inscription = () => {
               <Card.Body className={loginStyles.cardBody}>
                 <div className={loginStyles.headerSection}>
                   <div className="d-flex justify-content-between align-items-center">
-                    <h2 className={loginStyles.formTitle}>{t('auth.register')}</h2>
+                    <div className={loginStyles.brandHeader}>
+                      <img src={LOGO} alt={t('common.appName')} className={loginStyles.brandLogo} />
+                      <h2 className={loginStyles.formTitle}>{t('auth.register')}</h2>
+                    </div>
                     <LanguageSwitcher />
                   </div>
                   <p className={loginStyles.formSubtitle}>{t('auth.createAccountSubtitle')}</p>

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "InfoCampus",
+    "appName": "Infocampus",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -31,7 +31,11 @@
     "legal": "Legal",
     "madeInAfrica": "A solution made in Africa 🌍",
     "allRightsReserved": "All rights reserved.",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "notFoundTitle": "Page not found",
+    "notFoundSubtitle": "Something went wrong...",
+    "notFoundMessage": "The page you are looking for does not exist or has moved.",
+    "goHome": "Take me home"
   },
   "nav": {
     "publications": "Publications",

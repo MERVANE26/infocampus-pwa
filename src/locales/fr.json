@@ -31,7 +31,11 @@
     "legal": "Mentions légales",
     "madeInAfrica": "Une solution made in Africa 🌍",
     "allRightsReserved": "Tous droits réservés.",
-    "unknown": "Non défini"
+    "unknown": "Non défini",
+    "notFoundTitle": "Page introuvable",
+    "notFoundSubtitle": "Quelque chose a mal tourné...",
+    "notFoundMessage": "La page demandée n'existe pas ou a été déplacée.",
+    "goHome": "Retour à l'accueil"
   },
   "nav": {
     "publications": "Publications",

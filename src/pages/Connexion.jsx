@@ -14,6 +14,7 @@ import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { api } from '../lib/api';
+import { LOGO } from '../assets';
 import styles from './Connexion.module.css';
 
 const Connexion = () => {
@@ -72,14 +73,9 @@ const Connexion = () => {
           localStorage.setItem('rememberEmail', formData.email);
         }
 
-        const redirectMap = {
-          'student': '/profil-etudiant',
-          'teacher': '/profil-enseignant',
-          'admin': '/profil-administration'
-        };
 
         setTimeout(() => {
-          navigate(redirectMap[response.data.user.roles?.[0]] || '/profile');
+          navigate('/profile');
         }, 500);
       } else {
         setError(t('auth.invalidCredentials'));
@@ -140,7 +136,10 @@ const Connexion = () => {
               <Card.Body className={styles.cardBody}>
                 <div className={styles.headerSection}>
                   <div className="d-flex justify-content-between align-items-center">
-                    <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                    <div className={styles.brandHeader}>
+                      <img src={LOGO} alt={t('common.appName')} className={styles.brandLogo} />
+                      <h2 className={styles.formTitle}>{t('auth.login')}</h2>
+                    </div>
                     <LanguageSwitcher />
                   </div>
                   <p className={styles.formSubtitle}>{t('auth.fillAllFields')}</p>

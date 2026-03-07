@@ -5,6 +5,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { FaUniversity, FaGithub, FaTwitter, FaLinkedin } from 'react-icons/fa';
 import LanguageSwitcher from '../LanguageSwitcher';
 import styles from './LegalLayout.module.css';
+import { LOGO } from '../../assets';
 
 const LegalLayout = ({ children, title, lastUpdated }) => {
     const { t } = useTranslation();
@@ -15,7 +16,7 @@ const LegalLayout = ({ children, title, lastUpdated }) => {
                 <Container>
                     <nav className={styles.nav}>
                         <Link to="/" className={styles.logo}>
-                            <FaUniversity className={styles.logoIcon} />
+                            <img className={styles.brandLogo} src={LOGO} alt="infocampus-logo" />
                             <span className={styles.logoText}>INFO<span>CAMPUS</span></span>
                         </Link>
                         <div className={styles.navLinks}>
