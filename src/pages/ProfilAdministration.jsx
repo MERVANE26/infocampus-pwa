@@ -591,11 +591,7 @@ const ProfilAdministration = () => {
                                                             <FaUsers className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-<<<<<<< HEAD
-                                                                    {formatNumber(currentAdmin.stats?.students ?? 0)}
-=======
                                                                     {formatNumber(currentAdmin.status.students)}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Étudiants</span>
                                                             </div>
@@ -604,11 +600,7 @@ const ProfilAdministration = () => {
                                                             <FaChalkboardTeacher className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-<<<<<<< HEAD
-                                                                    {currentAdmin.stats?.teachers ?? 0}
-=======
                                                                     {currentAdmin.status.teachers}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Enseignants</span>
                                                             </div>
@@ -617,11 +609,7 @@ const ProfilAdministration = () => {
                                                             <FaUserCheck className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-<<<<<<< HEAD
-                                                                    {formatNumber(currentAdmin.stats?.activeUsers ?? 0)}
-=======
                                                                     {formatNumber(currentAdmin.status.activeUsers)}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Actifs</span>
                                                             </div>
@@ -630,11 +618,7 @@ const ProfilAdministration = () => {
                                                             <FaBell className={styles.statIcon} />
                                                             <div className={styles.statContent}>
                                                                 <span className={styles.statNumber}>
-<<<<<<< HEAD
-                                                                    {currentAdmin.stats?.totalPublications ?? 0}
-=======
                                                                     {currentAdmin.status.totalPublications}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </span>
                                                                 <span className={styles.statLabel}>Publications</span>
                                                             </div>
@@ -650,11 +634,7 @@ const ProfilAdministration = () => {
                                                                     En attente de modération
                                                                 </span>
                                                                 <Badge bg="warning" className={styles.moderationBadge}>
-<<<<<<< HEAD
-                                                                    {currentAdmin.stats?.pendingModeration ?? 0}
-=======
                                                                     {currentAdmin.status.pendingModeration}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -665,11 +645,7 @@ const ProfilAdministration = () => {
                                                                     Signalements
                                                                 </span>
                                                                 <Badge bg="danger" className={styles.moderationBadge}>
-<<<<<<< HEAD
-                                                                    {currentAdmin.stats?.reports ?? 0}
-=======
                                                                     {currentAdmin.status.reports}
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 </Badge>
                                                             </div>
                                                         </div>
@@ -738,11 +714,7 @@ const ProfilAdministration = () => {
                                                             <FaShieldAlt /> Permissions
                                                         </h3>
                                                         <div className={styles.permissionsList}>
-<<<<<<< HEAD
-                                                            {currentAdmin.permissions?.map((permission, index) => (
-=======
                                                             {currentAdmin?.permissions?.map((permission, index) => (
->>>>>>> c852c63558b609824ecfe742bb81978c9743981f
                                                                 <Badge key={index} className={styles.permissionBadge}>
                                                                     <FaCheckCircle className={styles.permissionIcon} />
                                                                     {permission}
