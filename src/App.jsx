@@ -21,6 +21,7 @@ import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Legal from './pages/Legal';
 import About from './pages/About';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import AccessDenied from './pages/AccessDenied';
 import { api } from './lib/api';
@@ -52,7 +53,7 @@ const PrivateRoute = ({ children }) => {
 // ============================================
 // COMPOSANT DE REDIRECTION SELON LE RÔLE
 // ============================================
-const RoleBasedProfil = ({universities}) => {
+const RoleBasedProfil = ({ universities }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!user) {
@@ -62,16 +63,25 @@ const RoleBasedProfil = ({universities}) => {
   switch (user.roles[0]) {
     case 'student':
     case 'Étudiante':
-      return <ProfilEtudiant universities={universities}/>;
+      return <ProfilEtudiant universities={universities} />;
     case 'teacher':
-      return <ProfilEnseignant universities={universities}/>;
+      return <ProfilEnseignant universities={universities} />;
     case 'admin':
     case 'Administration':
-      return <ProfilAdministration universities={universities}/>;
+      return <ProfilAdministration universities={universities} />;
     default:
       return <Navigate to="/profile" />;
   }
 };
+
+const CheckUserAuth = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (token || user) {
+    return <Navigate to="/profile" />;
+  }
+  return children;
+}
 
 // ============================================
 // COMPOSANT DE PROTECTION BASÉE SUR LE RÔLE
@@ -84,7 +94,7 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await api.get('/auth/profile'); 
+        const response = await api.get('/auth/profile');
         setUser(response.data.user);
         console.log('User info fetched for role check:', response.data.user);
       } catch (err) {
@@ -117,21 +127,24 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
 function App() {
 
 
-    const [universities, setUniversities] = useState([]);
-  
-    useEffect(() => {
-      const fetchUniversities = async () => {
-        try {
-          const response = await api.get('/universities/list');
-          setUniversities(response.data.universities);
-        } catch (err) {
-          console.error('Erreur lors du chargement des universités :', err);
-        }
-      };
-  
-      fetchUniversities();
-    }, []);
-  
+  const [universities, setUniversities] = useState([]);
+
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await api.get('/universities/list');
+        setUniversities(response.data.universities);
+      } catch (err) {
+        console.error('Erreur lors du chargement des universités :', err);
+      }
+    };
+
+    fetchUniversities();
+  }, []);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const token = localStorage.getItem('token');
+
   return (
     <AuthProvider>
       <Router>
@@ -140,11 +153,31 @@ function App() {
             {/* ========================================
                 ROUTES PUBLIQUES (accessibles sans connexion)
                 ======================================== */}
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Connexion />} />
-            <Route path="/register" element={<Inscription />} />
-            <Route path="/create-university" element={<CreationUniversite />} />
-            <Route path="/otp-validation" element={<ValidationCode />} />
+            <Route path="/" element={
+              <CheckUserAuth>
+                <Home />
+              </CheckUserAuth>
+            } />
+            <Route path="/login" element={
+              <CheckUserAuth>
+                <Connexion />
+              </CheckUserAuth>
+            } />
+            <Route path="/register" element={
+              <CheckUserAuth>
+                <Inscription />
+              </CheckUserAuth>
+            } />
+            <Route path="/create-university" element={
+              <CheckUserAuth>
+                <CreationUniversite />
+              </CheckUserAuth>
+            } />
+            <Route path="/otp-validation" element={
+              <CheckUserAuth>
+                <ValidationCode />
+              </CheckUserAuth>
+            } />
             {/* ========================================
                 ROUTES PROTÉGÉES (nécessitent une connexion)
                 ======================================== */}
@@ -154,9 +187,7 @@ function App() {
               path="/posts"
               element={
                 <PrivateRoute>
-                  {/* <RoleRestrictedRoute allowedRoles={["teacher","admin"]}> */}
-                    <Publication />
-                  {/* </RoleRestrictedRoute> */}
+                  <Publication />
                 </PrivateRoute>
               }
             />
@@ -176,7 +207,7 @@ function App() {
               path="/profile"
               element={
                 <PrivateRoute>
-                  <RoleBasedProfil universities={universities}/>
+                  <RoleBasedProfil universities={universities} />
                 </PrivateRoute>
               }
             />
@@ -229,9 +260,9 @@ function App() {
             />
 
             {/* ========================================
-                REDIRECTION 404 - Page non trouvée
+                404 - Page non trouvée
                 ======================================== */}
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>

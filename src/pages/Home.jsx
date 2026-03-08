@@ -56,17 +56,6 @@ const Home = () => {
         navigate('/create-university');
     };
 
-    useEffect(() => {
-      const checkToken = () => {
-          const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user"));
-
-        if (token || user) {
-            navigate('/profile');
-        }
-    }
-    checkToken();
-    },[]);
 
     return (
         <div className={styles.container}>

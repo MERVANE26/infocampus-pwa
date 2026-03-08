@@ -808,7 +808,7 @@ const Publication = () => {
                                                     <div className={styles.authorInfo}>
                                                         <h6 className={styles.authorName}>
                                                             {post.authorName}
-                                                            {post.urgent && (
+                                                            {post.options.urgent && (
                                                                 <Badge bg="danger" className={styles.urgentBadge}>
                                                                 <FaExclamationTriangle /> {t('publication.urgent')}
                                                                 </Badge>
@@ -883,7 +883,7 @@ const Publication = () => {
                                         <div className={styles.postStats}>
                                             <span><FaThumbsUp size={12} /> {post.likes}</span>
                                             <span><FaThumbsDown size={12} /> {post.dislikes}</span>
-                                            <span><FaComments size={12} /> {post.comments}</span>
+                                            <span><FaComments size={12} /> {post.commentsData?.length}</span>
                                         </div>
 
                                         {/* Action Buttons */}

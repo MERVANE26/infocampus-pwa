@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaUniversity, FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaHamburger } from 'react-icons/fa';
+import { FaUniversity, FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaHamburger, FaUserCheck, FaExclamationCircle, FaBookOpen } from 'react-icons/fa';
 import { MdMenu } from 'react-icons/md';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -9,6 +9,7 @@ import Container from 'react-bootstrap/Container';
 import Dropdown from 'react-bootstrap/Dropdown';
 import LanguageSwitcher from './LanguageSwitcher';
 import styles from './AppNavbar.module.css';
+import { LOGO } from '../assets';
 
 const AppNavbar = ({ currentUser = {} }) => {
     const navigate = useNavigate();
@@ -29,7 +30,8 @@ const AppNavbar = ({ currentUser = {} }) => {
         <Navbar bg="white" expand="lg" className={styles.header} fixed="top">
             <Container fluid className="px-3 px-md-5">
                 <Navbar.Brand as={Link} to="/" className={styles.brand}>
-                    <FaUniversity className={styles.brandIcon} />
+                    <img className={styles.brandLogo} src={LOGO} alt="infocampus-logo" />
+                    {/* <FaUniversity className={styles.brandIcon} /> */}
                     <div className={styles.brandText}>
                         <span className={styles.brandName}>{t('common.appName')}</span>
                         <span className={styles.brandSub}>CONNECTING UNIVERSITIES</span>
@@ -39,7 +41,7 @@ const AppNavbar = ({ currentUser = {} }) => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav">
                     <MdMenu />
                 </Navbar.Toggle>
-                
+
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mx-auto">
                         <Nav.Link as={Link} to="/profile" className={`${styles.navLink} ${isActive('/profile')}`}>
@@ -55,19 +57,19 @@ const AppNavbar = ({ currentUser = {} }) => {
 
                     <div className={`d-flex align-items-center gap-3`}>
                         <LanguageSwitcher />
-                        
+
                         <Dropdown align="end">
                             <Dropdown.Toggle as="div" className={styles.userMenu}>
                                 <div className={styles.userAvatar}
-                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
 
                                 >
                                     {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                                 </div>
                                 <div className={styles.userInfo}>
                                     <div className={styles.userName}>
-                                        {currentUser.firstName && currentUser.lastName 
-                                            ? `${currentUser.firstName} ${currentUser.lastName?.slice(0,1).toUpperCase()}` 
+                                        {currentUser.firstName && currentUser.lastName
+                                            ? `${currentUser.firstName} ${currentUser.lastName?.slice(0, 1).toUpperCase()}`
                                             : currentUser.name || t('common.profile')}
                                     </div>
                                     <div className={styles.userRole}>
@@ -80,8 +82,17 @@ const AppNavbar = ({ currentUser = {} }) => {
                                 <Dropdown.Item as={Link} to="/profile">
                                     <FaUserCircle /> {t('nav.myProfile')}
                                 </Dropdown.Item>
-                                <Dropdown.Item as={Link} to="/about">
+                                <Dropdown.Item as={Link} to="/profile?tab=settings">
                                     <FaCog /> {t('common.settings')}
+                                </Dropdown.Item>
+                                <Dropdown.Item as={Link} to="/about">
+                                    <FaExclamationCircle /> {t('common.about')}
+                                </Dropdown.Item>
+                                <Dropdown.Item as={Link} to="/terms">
+                                    <FaBookOpen /> {t('common.terms')}
+                                </Dropdown.Item>
+                                <Dropdown.Item as={Link} to="/privacy">
+                                    <FaUserCheck/> {t('common.privacy')}
                                 </Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item onClick={handleLogout}>
@@ -97,4 +108,4 @@ const AppNavbar = ({ currentUser = {} }) => {
 };
 
 export default AppNavbar;
-     
+

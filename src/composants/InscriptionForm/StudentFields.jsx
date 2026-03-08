@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaUniversity, FaCity, FaBook, FaGraduationCap, FaUsers } from 'react-icons/fa';
 import { Row, Col, Form } from 'react-bootstrap';
@@ -6,6 +6,29 @@ import styles from './StudentFields.module.css';
 
 const StudentFields = ({ formData, onChange, universities }) => {
     const { t } = useTranslation();
+
+    const univ = universities.find(
+        (u) => u.id === formData.university || u._id === formData.university
+    ) || null;
+
+    const setFieldValue = (id, value) => {
+        onChange({
+            target: {
+                id,
+                value,
+                type: 'text'
+            }
+        });
+    };
+
+    useEffect(() => {
+        // When the selected university changes, clear any previously selected campus/field
+        // to keep options in sync with the currently chosen university.
+        if (formData.campus || formData.filiere) {
+            setFieldValue('student.campus', '');
+            setFieldValue('student.filiere', '');
+        }
+    }, [formData.university]);
 
     return (
         <div className={styles.studentFields}>
@@ -24,11 +47,14 @@ const StudentFields = ({ formData, onChange, universities }) => {
                     required
                     className={styles.select}
                 >
-                    
+
                     <option value="">{t('auth.select')}</option>
-                    {universities.map(u => (
-                        <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
+                    {universities.map(u => {
+                        const uid = u.id || u._id;
+                        return (
+                            <option key={uid} value={uid}>{u.name}</option>
+                        );
+                    })}
                 </Form.Select>
             </Form.Group>
 
@@ -46,9 +72,10 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             className={styles.select}
                         >
                             <option value="">{t('auth.select')}</option>
-                            <option value="esg">ESG</option>
-                            <option value="ista">ISTA</option>
-                            <option value="isa">ISA</option>
+                            {univ?.campuses?.map(u => {
+                                const uid = u.id || u._id;
+                                return <option key={uid} value={uid}>{u.name}</option>;
+                            })}
                         </Form.Select>
                     </Form.Group>
                 </Col>
@@ -64,10 +91,16 @@ const StudentFields = ({ formData, onChange, universities }) => {
                             required
                             className={styles.select}
                         >
+
                             <option value="">{t('auth.select')}</option>
-                            <option value="gl">{t('auth.field.softwareEngineering')}</option>
+
+                            {univ?.fields.map(u => {
+                                const uid = u.id || u._id;
+                                return <option key={uid} value={uid}>{u.name}</option>;
+                            })}
+                            {/* <option value="gl">{t('auth.field.softwareEngineering')}</option>
                             <option value="res">{t('auth.field.networks')}</option>
-                            <option value="iia">{t('auth.field.ai')}</option>
+                            <option value="iia">{t('auth.field.ai')}</option> */}
                         </Form.Select>
                     </Form.Group>
                 </Col>
