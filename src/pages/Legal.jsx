@@ -21,7 +21,7 @@ const Legal = () => {
             </section>
 
             <section>
-                <h2>Responsable</h2>
+                <h2>2. Responsable</h2>
                 <p>
                     La responsable de la publication est <strong>Laurenda Ndemen</strong>, en qualité de 
                     CEO d'INFOCAMPUS.
@@ -32,37 +32,21 @@ const Legal = () => {
             </section>
 
             <section>
-                <h2>3. Hébergement</h2>
-                <p>
-                    La plateforme INFOcampus est hébergée par :
-                </p>
-                <ul>
-                    <li><strong>Société :</strong></li>
-                    <li><strong>Adresse :</strong> </li>
-                    <li><strong>Site web :</strong> <a href="https://www.ovhcloud.com" target="_blank" rel="noopener noreferrer">www.ovhcloud.com</a></li>
-                    <li><strong>Téléphone :</strong></li>
-                </ul>
-                <p>
-                   
-                </p>
-            </section>
-
-            <section>
-                <h2>4. Propriété intellectuelle</h2>
-                <h3>4.1 Droits d'auteur</h3>
+                <h2>3. Propriété intellectuelle</h2>
+                <h3>3.1 Droits d'auteur</h3>
                 <p>
                     L'ensemble du contenu de la plateforme INFOcAMPUS (structure, design, textes, images, 
                     logos, icônes, etc.) est protégé par le droit d'auteur. Toute reproduction, représentation, 
                     modification ou adaptation, totale ou partielle, sans autorisation préalable est interdite.
                 </p>
 
-                <h3>4.2 Marques</h3>
+                <h3>3.2 Marques</h3>
                 <p>
                     Le nom "INFOcAMPUS", le logo et les slogans sont des marques déposées. Leur utilisation 
                     sans autorisation expresse est interdite.
                 </p>
 
-                <h3>4.3 Contenu utilisateur</h3>
+                <h3>3.3 Contenu utilisateur</h3>
                 <p>
                     Les utilisateurs conservent la propriété intellectuelle de leurs publications. En publiant 
                     sur INFOcAMPUS, ils accordent à la plateforme une licence non exclusive pour héberger et 
@@ -71,31 +55,31 @@ const Legal = () => {
             </section>
 
             <section>
-                <h2>5. Conditions générales de vente (CGV)</h2>
+                <h2>4. Conditions générales de vente (CGV)</h2>
                 <p>
                     INFOcAMPUS propose des services gratuits pour les étudiants et les enseignants. 
                     Pour les établissements souhaitant des fonctionnalités avancées, des formules 
                     d'abonnement sont disponibles :
                 </p>
                 
-                <h3>5.1 Formule Basic</h3>
+                <h3>4.1 Formule Basic</h3>
                 <ul>
                     <li>Jusqu'à 1000 utilisateurs</li>
                     <li>Fonctionnalités de base</li>
                     <li>Support email</li>
-                    <li><strong>Tarif :</strong> 250 000 F CFA / an</li>
+                    <li><strong>Tarif :</strong> 350 000 F CFA / an</li>
                 </ul>
 
-                <h3>5.2 Formule Pro</h3>
+                <h3>4.2 Formule Pro</h3>
                 <ul>
                     <li>Jusqu'à 5000 utilisateurs</li>
                     <li>Toutes les fonctionnalités</li>
                     <li>Support prioritaire</li>
                     <li>Formation incluse</li>
-                    <li><strong>Tarif :</strong> 750 000 F CFA / an</li>
+                    <li><strong>Tarif :</strong> 1 200 000 F CFA / an</li>
                 </ul>
 
-                <h3>5.3 Formule Campus</h3>
+                <h3>4.3 Formule Campus</h3>
                 <ul>
                     <li>Utilisateurs illimités</li>
                     <li>Fonctionnalités sur mesure</li>
@@ -106,23 +90,22 @@ const Legal = () => {
             </section>
 
             <section>
-                <h2>6. Médiation</h2>
+                <h2>5. Médiation</h2>
                 <p>
                     Conformément à la réglementation, tout consommateur a le droit de recourir gratuitement 
                     à un médiateur de la consommation en vue de la résolution amiable d'un litige l'opposant 
                     à un professionnel.
                 </p>
                 <p>
-                    <strong>Médiateur compétent :</strong> <br />
+                    <strong>Médiateur compétent :</strong>Ndemen Laurenda <br />
                     <strong>Adresse :</strong> Douala - Cameroun<br />
-                    <strong>Email :</strong>                     VITE_API_BASE_URL=http://localhost:3001/api                    cd ../infocampus-backend
-                    npm install  # si pas déjà fait
-                    npm run dev  # ou npm start
+                    <strong>Email :</strong>ndemenlaurenda@gmail.com<br /> 
+                    <strong>Numero téléphone :</strong> +237 652229800<br />                    
                 </p>
             </section>
 
             <section>
-                <h2>7. Loi applicable et juridiction</h2>
+                <h2>6. Loi applicable et juridiction</h2>
                 <p>
                     Les présentes mentions légales sont régies par le droit camerounais. En cas de litige 
                     et après échec de toute tentative de solution amiable, les tribunaux de Douala sont 
@@ -131,17 +114,7 @@ const Legal = () => {
             </section>
 
             <section>
-                <h2>8. Crédits</h2>
-                <ul>
-                    <li><strong>Développement :</strong> Équipe INFOcAMPUS</li>
-                    <li><strong>Design :</strong> Équipe INFOcAMPUS</li>
-                    <li><strong>Icônes :</strong> React Icons (Font Awesome, Bootstrap Icons)</li>
-                    <li><strong>Framework :</strong> React.js, React Bootstrap</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>9. Accessibilité</h2>
+                <h2>7. Accessibilité</h2>
                 <p>
                     INFOcAMPUS s'engage à rendre sa plateforme accessible à tous, y compris aux personnes 
                     en situation de handicap. Nous travaillons continuellement à améliorer l'accessibilité 
