@@ -88,27 +88,28 @@ const Inscription = () => {
     }
   }, []);
 
-  const handleInputChange = (e) => {
-    const { id, value, type, checked } = e.target;
+const handleInputChange = (e) => {
+  const { id, value, type, checked } = e.target;
 
-    if (id.includes('.')) {
-      const [parent, child] = id.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: type === 'checkbox' ? checked : value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [id]: type === 'checkbox' ? checked : value
-      }));
+  const keys = id.split('.');
+
+  setFormData(prev => {
+    const updated = { ...prev };
+
+    let current = updated;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      current[keys[i]] = { ...current[keys[i]] };
+      current = current[keys[i]];
     }
 
-    setError('');
-  };
+    current[keys[keys.length - 1]] = type === 'checkbox' ? checked : value;
+
+    return updated;
+  });
+
+  setError('');
+};
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);

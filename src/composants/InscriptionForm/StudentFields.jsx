@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaUniversity, FaCity, FaBook, FaGraduationCap, FaUsers } from 'react-icons/fa';
 import { Row, Col, Form } from 'react-bootstrap';
@@ -19,16 +19,18 @@ const StudentFields = ({ formData, onChange, universities }) => {
                 type: 'text'
             }
         });
-    },[onChange]);
+    }, [onChange]);
+
+    const prevUniversity = useRef(formData.university);
 
     useEffect(() => {
-        // When the selected university changes, clear any previously selected campus/field
-        // to keep options in sync with the currently chosen university.
-        if (formData.campus || formData.filiere) {
+        if (prevUniversity.current !== formData.university) {
             setFieldValue('student.campus', '');
             setFieldValue('student.filiere', '');
+            prevUniversity.current = formData.university;
         }
-    }, [formData.university,formData.campus,formData.filiere,setFieldValue]);
+    }, [formData.university, setFieldValue]);
+
 
     return (
         <div className={styles.studentFields}>
