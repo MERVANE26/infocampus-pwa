@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import AppNavbar from '../composants/AppNavbar';
 import {
     FaPen,
@@ -20,9 +18,7 @@ import {
     FaChalkboardTeacher,
     FaBuilding,
     FaGlobe,
-    FaComments,
     FaExclamationCircle,
-    FaUniversity,
     FaSearch
 } from 'react-icons/fa';
 import { Container, Row, Col, Card, Form, Button, Alert, Badge, InputGroup } from 'react-bootstrap';
@@ -30,7 +26,6 @@ import styles from './FairePublication.module.css';
 import { api } from '../lib/api';
 
 const FairePublication = () => {
-    const { t } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
@@ -88,11 +83,7 @@ const FairePublication = () => {
     const ERROR_CHARS = 1300;
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 Mo
 
-    useEffect(() => {
-        loadUserData();
-        loadDraft();
-        updateCharCount();
-    }, []);
+
 
 
     useEffect(() => {
@@ -134,10 +125,7 @@ const FairePublication = () => {
     }, []);
 
 
-    useEffect(() => {
-        updateCharCount();
-    }, [publication.content]);
-
+ 
     const loadUserData = () => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
@@ -163,7 +151,7 @@ const FairePublication = () => {
         }
     };
 
-    const loadDraft = () => {
+    const loadDraft = useCallback(() => {
         try {
             const draft = JSON.parse(localStorage.getItem('teacherDraft'));
             if (draft) {
@@ -188,9 +176,9 @@ const FairePublication = () => {
         } catch (error) {
             console.error('Erreur chargement brouillon:', error);
         }
-    };
+    },[]);
 
-    const updateCharCount = () => {
+    const updateCharCount = useCallback(() => {
         const length = publication.content.length;
         setCharCount(length);
 
@@ -201,7 +189,12 @@ const FairePublication = () => {
         } else {
             setCharWarning('');
         }
-    };
+    },[publication.content.length]);
+
+       useEffect(() => {
+        updateCharCount();
+    }, [publication.content, updateCharCount]);
+
 
     const handleChange = (field, value) => {
         setPublication(prev => ({
@@ -292,7 +285,7 @@ const FairePublication = () => {
         if (publication.campus !== 'tous') {
             handleChange('campus', 'tous');
         }
-    }, [selectedUniversityId, userUniversities]);
+    }, [selectedUniversityId, userUniversities,publication.campus]);
 
     useEffect(() => {
         updateTargetingPreview();
@@ -300,7 +293,7 @@ const FairePublication = () => {
     publication.campus, publication.groupe, publication.staffTarget]);
 
     // Fetch recent posts to help users avoid duplicates (search + filters)
-    const loadPosts = async (pageNum = 1) => {
+    const loadPosts = useCallback(async (pageNum = 1) => {
         setPostsLoading(true);
         setPostsError(null);
         try {
@@ -349,7 +342,7 @@ const FairePublication = () => {
         } finally {
             setPostsLoading(false);
         }
-    };
+    },[postFilterAudience, postFilterCampus, postFilterFiliere, postFilterGroupe, postFilterNiveau, postFilterUrgent, postSearch, selectedUniversityId])
 
     useEffect(() => {
         // Debounce search to avoid triggering API for every keystroke
@@ -361,7 +354,7 @@ const FairePublication = () => {
         }, 400);
 
         return () => clearTimeout(postSearchDebounce.current);
-    }, [postSearch, postFilterAudience, postFilterUrgent, postFilterFiliere, postFilterNiveau, postFilterCampus, postFilterGroupe, selectedUniversityId]);
+    }, [postSearch, postFilterAudience, postFilterUrgent, postFilterFiliere, postFilterNiveau, postFilterCampus, postFilterGroupe, selectedUniversityId,loadPosts]);
 
     const filteredPosts = posts.filter((post) => {
         const term = postSearch.trim().toLowerCase();
@@ -601,6 +594,11 @@ const FairePublication = () => {
         setTimeout(() => setNotification(null), 3000);
     };
 
+    useEffect(() => {
+        loadUserData();
+        loadDraft();
+        updateCharCount();
+    }, [loadDraft, updateCharCount]);
 
 
     return (
@@ -783,9 +781,9 @@ const FairePublication = () => {
                                                                 onChange={(e) => handleChange('filiere', e.target.value)}
                                                                 className={styles.targetSelect}
                                                             >
-                                                                
+
                                                                 <option value="tous">Toutes les filières</option>
-                                                                   {availableFields.map(f => (
+                                                                {availableFields.map(f => (
                                                                     <option key={f._id || f} value={f.name || f}>
                                                                         {f.name || f}
                                                                     </option>

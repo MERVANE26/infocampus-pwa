@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { 
+import {
     FaBell,
     FaExclamationTriangle,
-    FaInfoCircle,
-    FaPaperclip,
     FaFilePdf,
     FaFileImage,
     FaFileAlt,
@@ -28,15 +25,11 @@ import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
 import Modal from 'react-bootstrap/Modal';
-import Image from 'react-bootstrap/Image';
-import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -47,9 +40,9 @@ import { api } from '../lib/api';
 
 
 const Publication = () => {
-    const navigate = useNavigate();
+
     const { t, i18n } = useTranslation();
-    
+
     // États
     const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem("user")) || {
         id: "ETU000",
@@ -61,20 +54,14 @@ const Publication = () => {
 
     const [publications, setPublications] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [notification, setNotification] = useState(null);
-    
+
+
     // États pour les modals
     const [showCommentsModal, setShowCommentsModal] = useState(false);
     const [showLightbox, setShowLightbox] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
     const [currentPublication, setCurrentPublication] = useState(null);
     const [newComment, setNewComment] = useState('');
-    
-    // États pour les commentaires
-    const [comments, setComments] = useState({});
-    const [commentReactions, setCommentReactions] = useState({});
-    
+
     // États pour les filtres
     const [filterType, setFilterType] = useState('all');
     const [sortBy, setSortBy] = useState('recent');
@@ -85,13 +72,13 @@ const Publication = () => {
 
     // Sticky filter header (hide on scroll down on desktop, toggle on mobile)
     const [filterVisible, setFilterVisible] = useState(true);
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    // const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const lastScrollYRef = useRef(0);
     const didMountRef = useRef(false);
-    
+
     // États pour la pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    // const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -100,7 +87,7 @@ const Publication = () => {
         hasNextPage: false,
         hasPrevPage: false,
     });
-    
+
     // États pour les toasts
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -118,7 +105,7 @@ const Publication = () => {
     // Effets
     useEffect(() => {
         loadUserData();
-        loadPublications();
+        // loadPublications();
 
         // Service Worker (Workbox)
         if ('serviceWorker' in navigator) {
@@ -143,34 +130,16 @@ const Publication = () => {
 
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
-    }, []);
+    }, [showCommentsModal, showLightbox]);
 
-    // Trigger API reload when filters change
-    useEffect(() => {
-        setCurrentPage(1);
-        loadPublications(1);
-    }, [filterType, sortBy]);
 
-    // Trigger API reload (debounced) when the search term changes
-    useEffect(() => {
-        if (!didMountRef.current) {
-            didMountRef.current = true;
-            return;
-        }
 
-        const debounce = setTimeout(() => {
-            setCurrentPage(1);
-            loadPublications(1);
-        }, 500);
-
-        return () => clearTimeout(debounce);
-    }, [searchTerm]);
 
     // Track screen size to toggle mobile behavior
     useEffect(() => {
         const handleResize = () => {
             const mobile = window.innerWidth <= 768;
-            setIsMobile(mobile);
+            // setIsMobile(mobile);
             if (!mobile) {
                 setFilterVisible(true); // keep visible on desktop
             }
@@ -214,24 +183,21 @@ const Publication = () => {
         }
     };
 
-    const loadPublications = async (pageNum = 1) => {
+    const loadPublications = useCallback(async (pageNum = 1) => {
         setLoading(true);
         try {
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
-            
             // Build query parameters based on filters
             const params = new URLSearchParams();
-            
+
             // Add pagination
             params.append('page', pageNum);
             params.append('limit', pageSize);
-            
+
             // // Add current user's university
             // if (user && (user.studentUniversityId || user?.teacherUniversitiesIds[0])) {
             //     params.append('universityId', user.studentUniversityId);
             // }
-            
+
             // Map filterType to API parameters
             if (filterType === 'urgent') {
                 params.append('urgent', 'true');
@@ -242,7 +208,7 @@ const Publication = () => {
             } else if (filterType === 'student') {
                 params.append('targetType', 'student');
             }
-            
+
             // Map sortBy to API parameter
             let sortParam = '-createdAt'; // default: most recent
             if (sortBy === 'popular') {
@@ -258,11 +224,11 @@ const Publication = () => {
             if (searchTerm.trim()) {
                 params.append('search', searchTerm.trim());
             }
-            
+
             // Fetch from API
             const response = await api.get(`/posts/all?${params.toString()}`);
 
-            
+
             if (response.data.success) {
                 setPublications(response.data.data || []);
                 setPagination(response.data.pagination || {
@@ -273,24 +239,46 @@ const Publication = () => {
                     hasNextPage: false,
                     hasPrevPage: false,
                 });
-                setCurrentPage(pageNum);
+                // setCurrentPage(pageNum);
             } else {
                 throw new Error('API returned success: false');
             }
         } catch (error) {
             console.error('Erreur chargement publications:', error);
-            
+
             // Fallback to localStorage
             const localPublications = JSON.parse(localStorage.getItem('publications')) || [];
             if (localPublications.length > 0) {
                 setPublications(localPublications);
             }
-            
+
             showNotification(t('errors.offlineMode'), 'warning');
         } finally {
             setLoading(false);
         }
-    };
+    },[filterType,pageSize,searchTerm,sortBy,t]);
+
+
+    // Trigger API reload when filters change
+    useEffect(() => {
+        // setCurrentPage(1);
+        loadPublications(1);
+    }, [filterType, sortBy, loadPublications]);
+
+    // Trigger API reload (debounced) when the search term changes
+    useEffect(() => {
+        if (!didMountRef.current) {
+            didMountRef.current = true;
+            return;
+        }
+
+        const debounce = setTimeout(() => {
+            // setCurrentPage(1);
+            loadPublications(1);
+        }, 500);
+
+        return () => clearTimeout(debounce);
+    }, [searchTerm, loadPublications]);
 
 
     const handleReaction = async (postId, reactionType) => {
@@ -298,10 +286,10 @@ const Publication = () => {
             const updatedPublications = publications.map(pub => {
                 if (pub._id === postId) {
                     const newPub = { ...pub };
-                    
+
                     // Check if user already reacted
-                    const userReactedWith = pub.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?. reaction;
-                    
+                    const userReactedWith = pub.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?.reaction;
+
                     if (userReactedWith === reactionType) {
                         // Toggle off: remove the reaction
                         newPub.userReaction = null;
@@ -325,7 +313,7 @@ const Publication = () => {
                         });
                         showNotification(t('publication.reactionAdded'), 'success');
                     }
-                    
+
                     return newPub;
                 }
                 return pub;
@@ -334,11 +322,11 @@ const Publication = () => {
             setPublications(updatedPublications);
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
-              const config = {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            };
 
             // Send to API
             await api.patch(`/posts/${postId}/react`, {
@@ -358,7 +346,7 @@ const Publication = () => {
                 const updatedComments = pub.commentsData?.map(comment => {
                     if (comment._id === commentId) {
                         const newComment = { ...comment };
-                        const userReactedWith = comment.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?. reaction;
+                        const userReactedWith = comment.userReactions?.find(r => r.userId === (currentUser._id || currentUser.id))?.reaction;
 
                         if (userReactedWith === reactionType) {
                             // Toggle off
@@ -379,22 +367,22 @@ const Publication = () => {
                                 reaction: reactionType
                             });
                         }
-                        
+
                         return newComment;
                     }
                     return comment;
                 }) || [];
-                
+
                 return { ...pub, commentsData: updatedComments };
             }
             return pub;
         }));
 
-         const config = {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                };
+        const config = {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        };
 
         // send to API after optimistic update
         try {
@@ -439,15 +427,15 @@ const Publication = () => {
 
             setPublications(updatedPublications);
             setNewComment('');
-            
+
             // Sauvegarder dans localStorage
             localStorage.setItem('publications', JSON.stringify(updatedPublications));
 
-             const config = {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            };
 
             // Envoyer à l'API
             const response = await api.post(`/posts/${currentPublication._id}/comment`, {
@@ -495,7 +483,7 @@ const Publication = () => {
         setToastMessage(message);
         setToastType(type);
         setShowToast(true);
-        
+
         setTimeout(() => {
             setShowToast(false);
         }, 3000);
@@ -631,8 +619,8 @@ const Publication = () => {
         <div className={styles.pageContainer}>
             {/* Toast Notification */}
             <ToastContainer position="top-end" className={styles.toastContainer}>
-                <Toast 
-                    show={showToast} 
+                <Toast
+                    show={showToast}
                     onClose={() => setShowToast(false)}
                     bg={toastType}
                     className={styles.toast}
@@ -689,88 +677,88 @@ const Publication = () => {
                             <div className={`${styles.filterWrapper} ${!filterVisible ? styles.filterHidden : ''}`}>
                                 <Card className={`${styles.filterCard} ${styles.filterSticky}`}>
                                     <Card.Body className="p-3">
-                                    <InputGroup className="mb-3" size="sm">
-                                        <InputGroup.Text className={styles.searchIcon}>
-                                            <FaSearch />
-                                        </InputGroup.Text>
-                                        <Form.Control
-                                            placeholder={t('publication.searchPlaceholder')}
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className={styles.searchInput}
-                                        />
-                                    </InputGroup>
+                                        <InputGroup className="mb-3" size="sm">
+                                            <InputGroup.Text className={styles.searchIcon}>
+                                                <FaSearch />
+                                            </InputGroup.Text>
+                                            <Form.Control
+                                                placeholder={t('publication.searchPlaceholder')}
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className={styles.searchInput}
+                                            />
+                                        </InputGroup>
 
-                                    <Row className="g-2">
-                                        <Col xs={6} sm={4}>
-                                            <Form.Select
-                                                value={filterType}
-                                                onChange={(e) => setFilterType(e.target.value)}
-                                                size="sm"
-                                            >
-                                                <option value="all">{t('publication.all')}</option>
-                                                <option value="urgent">{t('publication.urgent')}</option>
-                                                <option value="teacher">{t('publication.forTeachers')}</option>
-                                                <option value="admin">{t('publication.admin')}</option>
-                                                <option value="student">{t('publication.forStudents')}</option>
-                                            </Form.Select>
-                                        </Col>
-                                        <Col xs={6} sm={4}>
-                                            <Form.Select
-                                                value={sortBy}
-                                                onChange={(e) => setSortBy(e.target.value)}
-                                                size="sm"
-                                            >
-                                                <option value="recent">{t('publication.recent')}</option>
-                                                <option value="popular">{t('publication.popular')}</option>
-                                                <option value="likes">{t('publication.likes')}</option>
-                                            </Form.Select>
-                                        </Col>
-                                    </Row>
+                                        <Row className="g-2">
+                                            <Col xs={6} sm={4}>
+                                                <Form.Select
+                                                    value={filterType}
+                                                    onChange={(e) => setFilterType(e.target.value)}
+                                                    size="sm"
+                                                >
+                                                    <option value="all">{t('publication.all')}</option>
+                                                    <option value="urgent">{t('publication.urgent')}</option>
+                                                    <option value="teacher">{t('publication.forTeachers')}</option>
+                                                    <option value="admin">{t('publication.admin')}</option>
+                                                    <option value="student">{t('publication.forStudents')}</option>
+                                                </Form.Select>
+                                            </Col>
+                                            <Col xs={6} sm={4}>
+                                                <Form.Select
+                                                    value={sortBy}
+                                                    onChange={(e) => setSortBy(e.target.value)}
+                                                    size="sm"
+                                                >
+                                                    <option value="recent">{t('publication.recent')}</option>
+                                                    <option value="popular">{t('publication.popular')}</option>
+                                                    <option value="likes">{t('publication.likes')}</option>
+                                                </Form.Select>
+                                            </Col>
+                                        </Row>
 
-                                    <Row className="g-2 mt-2">
-                                        <Col xs={12} sm={6} md={4}>
-                                            <Form.Check
-                                                type="checkbox"
-                                                id="filter_my_posts"
-                                                label={t('publication.onlyMine')}
-                                                checked={onlyMine}
-                                                onChange={(e) => setOnlyMine(e.target.checked)}
-                                            />
-                                        </Col>
-                                        <Col xs={12} sm={6} md={4}>
-                                            <Form.Check
-                                                type="checkbox"
-                                                id="filter_has_attachments"
-                                                label={t('publication.hasAttachments')}
-                                                checked={hasAttachments}
-                                                onChange={(e) => setHasAttachments(e.target.checked)}
-                                            />
-                                        </Col>
-                                        <Col xs={12} sm={6} md={4}>
-                                            <Form.Check
-                                                type="checkbox"
-                                                id="filter_has_images"
-                                                label={t('publication.hasImages')}
-                                                checked={hasImages}
-                                                onChange={(e) => setHasImages(e.target.checked)}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Card.Body>
-                            </Card>
+                                        <Row className="g-2 mt-2">
+                                            <Col xs={12} sm={6} md={4}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    id="filter_my_posts"
+                                                    label={t('publication.onlyMine')}
+                                                    checked={onlyMine}
+                                                    onChange={(e) => setOnlyMine(e.target.checked)}
+                                                />
+                                            </Col>
+                                            <Col xs={12} sm={6} md={4}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    id="filter_has_attachments"
+                                                    label={t('publication.hasAttachments')}
+                                                    checked={hasAttachments}
+                                                    onChange={(e) => setHasAttachments(e.target.checked)}
+                                                />
+                                            </Col>
+                                            <Col xs={12} sm={6} md={4}>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    id="filter_has_images"
+                                                    label={t('publication.hasImages')}
+                                                    checked={hasImages}
+                                                    onChange={(e) => setHasImages(e.target.checked)}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+
+                            {!filterVisible && (
+                                <Button
+                                    variant="light"
+                                    className={styles.filterFloatingToggle}
+                                    onClick={() => setFilterVisible(true)}
+                                >
+                                    <FaFilter />
+                                </Button>
+                            )}
                         </div>
-
-                        {!filterVisible && (
-                            <Button
-                                variant="light"
-                                className={styles.filterFloatingToggle}
-                                onClick={() => setFilterVisible(true)}
-                            >
-                                <FaFilter />
-                            </Button>
-                        )}
-                    </div>
 
                         {/* Loading State */}
                         {loading && (
@@ -799,8 +787,8 @@ const Publication = () => {
                                         <Card.Body className={styles.postHeader}>
                                             <div className="d-flex justify-content-between align-items-start">
                                                 <div className="d-flex align-items-center gap-2 flex-grow-1">
-                                                    <div className={styles.postAvatar} 
-                                                     style={post.authorId?.photoUrl ? { backgroundImage: `url(${post.authorId.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                                    <div className={styles.postAvatar}
+                                                        style={post.authorId?.photoUrl ? { backgroundImage: `url(${post.authorId.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
 
                                                     >
                                                         {!post.authorId?.photoUrl && post.authorName?.charAt(0)}
@@ -810,7 +798,7 @@ const Publication = () => {
                                                             {post.authorName}
                                                             {post.options.urgent && (
                                                                 <Badge bg="danger" className={styles.urgentBadge}>
-                                                                <FaExclamationTriangle /> {t('publication.urgent')}
+                                                                    <FaExclamationTriangle /> {t('publication.urgent')}
                                                                 </Badge>
                                                             )}
                                                         </h6>
@@ -973,7 +961,7 @@ const Publication = () => {
                         <Card className={styles.userCard}>
                             <Card.Body className="text-center">
                                 <div className={styles.largeAvatar}
-                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                    style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                                 >
                                     {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                                 </div>
@@ -1028,7 +1016,7 @@ const Publication = () => {
                     {/* Add Comment */}
                     <div className={styles.addCommentForm}>
                         <div className={styles.smallAvatar}
-                            style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                            style={currentUser?.photoUrl ? { backgroundImage: `url(${currentUser.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                         >
                             {!currentUser.photoUrl && `${currentUser.firstName?.[0]}${currentUser.lastName?.[0]}`}
                         </div>
@@ -1066,7 +1054,7 @@ const Publication = () => {
                             currentPublication?.commentsData?.map((comment) => (
                                 <div key={comment._id} className={styles.commentItem}>
                                     <div className={styles.smallAvatar}
-                                        style={comment.authorId?.photoUrl ? { backgroundImage: `url(${comment.authorId.photoUrl})`,backgroundSize: 'cover',backgroundPosition: 'center' } : {}}
+                                        style={comment.authorId?.photoUrl ? { backgroundImage: `url(${comment.authorId.photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
                                     >
                                         {!comment.authorId?.photoUrl && comment.authorName?.charAt(0)}
                                     </div>

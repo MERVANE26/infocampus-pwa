@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaUniversity, FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaHamburger, FaUserCheck, FaExclamationCircle, FaBookOpen } from 'react-icons/fa';
+import { FaUserCircle, FaBell, FaCog, FaSignOutAlt, FaUserCheck, FaExclamationCircle, FaBookOpen } from 'react-icons/fa';
 import { MdMenu } from 'react-icons/md';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';

@@ -13,9 +13,7 @@ import {
     FaBuilding,
     FaAlignLeft,
     FaImage,
-    FaInfoCircle,
     FaCheckCircle,
-    FaExclamationTriangle,
     FaPaperPlane,
     FaShieldAlt,
     FaBook
@@ -23,7 +21,6 @@ import {
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import ProgressSteps from '../composants/UniversityForm/ProgressSteps';
 import FileUpload from '../composants/UniversityForm/FileUpload';
-import InfoBox from '../composants/UniversityForm/InfoBox';
 import styles from './CreationUniversite.module.css';
 import { api } from '../lib/api';
 import { LOGO } from '../assets';

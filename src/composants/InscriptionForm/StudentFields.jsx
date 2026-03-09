@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaUniversity, FaCity, FaBook, FaGraduationCap, FaUsers } from 'react-icons/fa';
 import { Row, Col, Form } from 'react-bootstrap';
@@ -11,7 +11,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
         (u) => u.id === formData.university || u._id === formData.university
     ) || null;
 
-    const setFieldValue = (id, value) => {
+    const setFieldValue = useCallback((id, value) => {
         onChange({
             target: {
                 id,
@@ -19,7 +19,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
                 type: 'text'
             }
         });
-    };
+    },[onChange]);
 
     useEffect(() => {
         // When the selected university changes, clear any previously selected campus/field
@@ -28,7 +28,7 @@ const StudentFields = ({ formData, onChange, universities }) => {
             setFieldValue('student.campus', '');
             setFieldValue('student.filiere', '');
         }
-    }, [formData.university]);
+    }, [formData.university,formData.campus,formData.filiere,setFieldValue]);
 
     return (
         <div className={styles.studentFields}>

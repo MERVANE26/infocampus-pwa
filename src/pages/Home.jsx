@@ -1,23 +1,18 @@
-import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import BoutonInstallation from '../composants/BoutonInstallation/BoutonInstallation'; 
 import { 
-    FaUserGraduate, 
-    FaChalkboardTeacher, 
-    FaUserTie,
     FaCheckCircle,
     FaUniversity,
     FaPen,
     FaLock,
-    FaBuilding,
     FaPlusCircle
 } from 'react-icons/fa';
 import styles from './Home.module.css';
 
 
 const Home = () => {
-    const { t } = useTranslation();
+
     const navigate = useNavigate();
 
     useEffect(() => {

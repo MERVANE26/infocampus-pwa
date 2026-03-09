@@ -9,13 +9,22 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('loginTime');
+    setToken(null);
+    setUser(null);
+    setError(null);
+  }, []);
+
   // Initialize from localStorage on mount
   useEffect(() => {
     const initializeAuth = () => {
       try {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        
+
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
@@ -29,26 +38,26 @@ export const AuthProvider = ({ children }) => {
     };
 
     initializeAuth();
-  }, []);
+  }, [logout]);
 
   const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
     try {
       const response = await api.post('/auth/login', { email, password });
-      
+
       if (response.data.success || response.data.token) {
         const { token, user } = response.data;
-        
+
         // Store in localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('loginTime', new Date().toISOString());
-        
+
         // Update state
         setToken(token);
         setUser(user);
-        
+
         return { success: true, user, token };
       } else {
         throw new Error(response.data.message || 'Login failed');
@@ -67,19 +76,19 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await api.post('/auth/register', userData);
-      
+
       if (response.data.success || response.data.token) {
         const { token, user } = response.data;
-        
+
         // Store in localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('loginTime', new Date().toISOString());
-        
+
         // Update state
         setToken(token);
         setUser(user);
-        
+
         return { success: true, user, token };
       } else {
         throw new Error(response.data.message || 'Registration failed');
@@ -93,14 +102,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('loginTime');
-    setToken(null);
-    setUser(null);
-    setError(null);
-  }, []);
+
 
   const updateUser = useCallback((updatedUser) => {
     const newUser = { ...user, ...updatedUser };

@@ -1,9 +1,7 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
 import LegalLayout from '../composants/LegalLayout/LegalLayout';
 
 const Privacy = () => {
-    const { t } = useTranslation();
+
     return (
         <LegalLayout 
             title="Politique de confidentialité" 

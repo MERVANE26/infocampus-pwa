@@ -1,159 +1,51 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
     FaUniversity,
-    FaChalkboardTeacher,
-    FaUserTie,
-    FaStar,
-    FaUserGraduate,
     FaBell,
     FaExclamationTriangle,
     FaCheckCircle,
-    FaInfoCircle,
     FaArrowLeft,
-    FaArrowRight,
-    FaPaperclip,
-    FaTrash,
-    FaFilePdf,
-    FaFileImage,
-    FaFileAlt,
     FaUsers,
     FaBuilding,
-    FaGlobe,
-    FaEye,
-    FaEyeSlash,
-    FaComments,
-    FaExclamationCircle,
-    FaThumbsUp,
-    FaThumbsDown,
-    FaShare,
-    FaBookmark,
-    FaDownload,
-    FaRegBookmark,
-    FaRegComments,
-    FaRegThumbsUp,
-    FaRegThumbsDown,
     FaTimes,
-    FaSearch,
-    FaFilter,
-    FaSort,
-    FaImage,
-    FaLink,
-    FaClock,
-    FaCalendarAlt,
     FaUserCircle,
     FaUser,
     FaCog,
-    FaSignOutAlt,
-    FaHome,
     FaEnvelope,
     FaPhone,
-    FaMapMarkerAlt,
-    FaCamera,
     FaSave,
     FaUndo,
-    FaEdit,
     FaGraduationCap,
     FaBook,
     FaIdCard,
-    FaMapPin,
-    FaBirthdayCake,
-    FaVenusMars,
-    FaHeart,
-    FaUserFriends,
-    FaUserPlus,
-    FaUserMinus,
     FaUserCheck,
-    FaUserClock,
-    FaUserSlash,
-    FaUserEdit,
-    FaUserCog,
-    FaUserTie as FaUserTieIcon,
-    FaUserGraduate as FaUserGraduateIcon,
-    FaChalkboardTeacher as FaChalkboardTeacherIcon,
-    FaUniversity as FaUniversityIcon,
-    FaBuilding as FaBuildingIcon,
-    FaMapMarkedAlt,
-    FaMobile,
-    FaEnvelopeOpen,
-    FaEnvelopeOpenText,
-    FaLock,
-    FaUnlock,
-    FaKey,
-    FaShieldAlt,
-    FaBell as FaBellIcon,
-    FaBellSlash,
     FaMoon,
     FaSun,
     FaLanguage,
-    FaGlobeAfrica,
-    FaGlobeAmericas,
-    FaGlobeAsia,
-    FaGlobeEurope,
-    FaPalette,
-    FaFont,
-    FaBold,
-    FaItalic,
-    FaUnderline,
-    FaList,
-    FaListUl,
-    FaListOl,
-    FaQuoteRight,
-    FaCode,
-    FaLink as FaLinkIcon,
-    FaImage as FaImageIcon,
-    FaVideo,
-    FaFile,
-    FaFilePdf as FaFilePdfIcon,
-    FaFileWord,
-    FaFileExcel,
-    FaFilePowerpoint,
-    FaFileArchive,
-    FaFileAudio,
-    FaFileVideo,
-    FaFileCode,
-    FaFileImage as FaFileImageIcon,
-    FaFileAlt as FaFileAltIcon
-} from 'react-icons/fa';
-import { MdEmail, MdPhone, MdSchool, MdWarning, MdClose, MdMenu, MdPhotoCamera, MdPhotoLibrary, MdDelete, MdEdit, MdSave, MdCancel, MdArrowBack, MdArrowForward, MdHome, MdPerson, MdSettings, MdNotifications, MdLogout, MdDashboard, MdAssignment, MdClass, MdEvent, MdAnnouncement, MdForum, MdGroup, MdWork, MdLocationOn, MdDateRange, MdAccessTime, MdAttachFile, MdInsertPhoto, MdPictureAsPdf, MdDescription, MdInsertDriveFile, MdCloudUpload, MdCloudDone, MdCloudOff } from 'react-icons/md';
-import { BsPersonBadge, BsPersonVcard, BsThreeDotsVertical, BsGenderMale, BsGenderFemale, BsGenderTrans, BsHeart, BsHeartFill, BsStar, BsStarFill, BsStarHalf, BsAward, BsTrophy, BsBookmark, BsBookmarkFill, BsBookmarkStar, BsBookmarkStarFill, BsBell, BsBellFill, BsBellSlash, BsBellSlashFill, BsGear, BsGearFill, BsPalette, BsPaletteFill, BsMoon, BsMoonFill, BsSun, BsSunFill, BsTranslate, BsGlobe, BsGlobe2 } from 'react-icons/bs';
+    FaPalette} from 'react-icons/fa';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import Badge from 'react-bootstrap/Badge';
-import Modal from 'react-bootstrap/Modal';
 import AppNavbar from '../composants/AppNavbar';
-import Image from 'react-bootstrap/Image';
-import ListGroup from 'react-bootstrap/ListGroup';
-import ProgressBar from 'react-bootstrap/ProgressBar';
 import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ToggleButton from 'react-bootstrap/ToggleButton';
-import InputGroup from 'react-bootstrap/InputGroup';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import Accordion from 'react-bootstrap/Accordion';
-import Placeholder from 'react-bootstrap/Placeholder';
-import Table from 'react-bootstrap/Table';
 import styles from './ProfilEtudiant.module.css';
 import { formatUserField } from '../utils/formatUserInfo';
 
 // Import de nos composants de boutons personnalisés
 import {
-    BoutonProfil,
-    BoutonFermer,
-    BoutonAction
-} from '../composants/Index';
+    BoutonProfil} from '../composants/Index';
 import { api } from '../lib/api';
 
 
@@ -189,10 +81,8 @@ const ProfilEtudiant = () => {
         }
     });
 
-    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('profile');
-    const [notification, setNotification] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastType, setToastType] = useState('info');
@@ -209,17 +99,6 @@ const ProfilEtudiant = () => {
         language: i18n.language || 'fr'
     });
 
-    // États pour les statistiques
-    const [stats, setStats] = useState({
-        publications: 0,
-        commentaires: 0,
-        likes: 0,
-        notifications: 0,
-        messages: 0,
-        cours: 0,
-        examens: 0,
-        travaux: 0
-    });
 
     // Effets
     useEffect(() => {
@@ -453,25 +332,6 @@ const ProfilEtudiant = () => {
         return currentUser.firstName?.[0] + currentUser.lastName?.[0] || 'ET';
     };
 
-    const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
-    };
-
-    const getProgressPercentage = () => {
-        return (currentUser.credits / currentUser.totalCredits) * 100;
-    };
-
-    const getRoleIcon = () => {
-        switch (currentUser.role) {
-            case 'Administration':
-                return <FaUserTieIcon />;
-            case 'Enseignant':
-                return <FaChalkboardTeacherIcon />;
-            default:
-                return <FaUserGraduateIcon />;
-        }
-    };
 
     return (
         <div className={styles.pageContainer}>

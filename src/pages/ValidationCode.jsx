@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     FaEnvelope,
     FaCheckCircle,
     FaExclamationTriangle,
-    FaRedo,
-    FaArrowRight
-} from 'react-icons/fa';
+    FaRedo} from 'react-icons/fa';
 import { Container, Card, Alert, Button } from 'react-bootstrap';
 import CodeInput from '../composants/CodeInput/CodeInput';
 import styles from './ValidationCode.module.css';
@@ -235,7 +233,7 @@ const ValidationCode = () => {
 
                             {/* Lien retour */}
                             <div className={styles.backLink}>
-                                <a href="#" onClick={() => navigate(-1)}>
+                                <a href="/" onClick={() => navigate(-1)}>
                                     {t('validation.modifyEmail')}
                                 </a>
                             </div>
