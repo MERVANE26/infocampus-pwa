@@ -1,10 +1,10 @@
 // composants/boutons/index.js
-export { default as BoutonAction } from './boutons/BoutonAction';
-export { default as BoutonProfil } from './boutons/BoutonProfil';
-export { default as BoutonTelecharger } from './boutons/BoutonTelecharger';
-export { default as BoutonFermer } from './boutons/BoutonFermer';
-export { default as BoutonMatiere } from './boutons/BoutonMatiere';
-export { default as BoutonCommentaire } from './boutons/BoutonCommentaire';
+export { default as BoutonAction } from './Boutons/BoutonAction';
+export { default as BoutonProfil } from './Boutons/BoutonProfil';
+export { default as BoutonTelecharger } from './Boutons/BoutonTelecharger';
+export { default as BoutonFermer } from './Boutons/BoutonFermer';
+export { default as BoutonMatiere } from './Boutons/BoutonMatiere';
+export { default as BoutonCommentaire } from './Boutons/BoutonCommentaire';
 
 // composants/codeinput/index.js
 export { default as CodeInput } from './CodeInput/CodeInput';
