@@ -164,8 +164,8 @@ const Privacy = () => {
                 </p>
                 <ul>
                     <li><strong>Nom :</strong> ARTHUR TATCHOU</li>
-                    <li><strong>Email :</strong></li>
-                    <li><strong>Adresse :</strong> </li>
+                    <li><strong>Email :</strong>tatchouarthur@gmail.com</li>
+                    <li><strong>Numéro de téléphone :</strong>+237 652 94 97 15 </li>
                 </ul>
             </section>
         </LegalLayout>

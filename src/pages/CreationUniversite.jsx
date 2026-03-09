@@ -44,6 +44,10 @@ const AVAILABLE_FIELDS = [
     { value: 'agriculture', label: 'Agriculture / Agroalimentaire' },
     { value: 'archi', label: 'Architecture' },
     { value: 'design', label: 'Design / Arts' },
+    { value: 'sciences', label: 'Sciences Fondamentales' },
+    { value: 'software', label: 'Software Engineering' },
+    { value: 'computer', label: 'computer systems maintenance' },
+    { value: 'civilengineering', label: 'Civil Engineering' }
 ];
 
 const defaultCampusNames = (count) => Array.from({ length: count }, () => '');
