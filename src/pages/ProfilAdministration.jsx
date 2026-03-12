@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
     FaUniversity,
     FaChalkboardTeacher,
@@ -369,7 +368,7 @@ const ProfilAdministration = ({ universities }) => {
 
         setTimeout(() => {
             setShowToast(false);
-        }, 3000);
+        }, 3000); 
     };
 
     const getInitials = () => {
