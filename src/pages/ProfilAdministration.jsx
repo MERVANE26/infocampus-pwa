@@ -55,47 +55,10 @@ import AppNavbar from '../composants/AppNavbar';
 import {
     BoutonProfil,
 } from '../composants/Index';
+import { api } from '../lib/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
-// Configuration Axios
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Intercepteurs Axios
-api.interceptors.request.use(
-    config => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        console.log('🚀 Requête envoyée:', config.url);
-        return config;
-    },
-    error => {
-        console.error('❌ Erreur requête:', error);
-        return Promise.reject(error);
-    }
-);
-
-api.interceptors.response.use(
-    response => {
-        console.log('✅ Réponse reçue:', response.status);
-        return response;
-    },
-    error => {
-        console.error('❌ Erreur réponse:', error);
-        return Promise.reject(error);
-    }
-);
-
-const ProfilAdministration = () => {
+const ProfilAdministration = ({ universities }) => {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
@@ -110,6 +73,7 @@ const ProfilAdministration = () => {
         roles: ["admin"],
         status: "admin",
         verificationStatus: "pending",
+        adminUniversityId: "univ-123",
         adminInfo: {
             service: "",
             fonction: "",
@@ -147,6 +111,14 @@ const ProfilAdministration = () => {
         language: 'fr'
     });
 
+    const [allUniversities, setAllUniversities] = useState(universities || []);
+
+    useEffect(() => {
+        if (universities && universities.length) {
+            setAllUniversities(universities);
+        }
+    }, [universities]);
+
     // Effets
     useEffect(() => {
         loadAdminData();
@@ -170,6 +142,33 @@ const ProfilAdministration = () => {
 
     const loadAdminData = async () => {
         try {
+            const response = await api.get("/auth/profile");
+
+            if (response.data && response.data.user) {
+                const user = response.data.user;
+                setCurrentAdmin(prev => ({
+                    ...prev,
+                    ...user,
+                    adminInfo: user.adminInfo || prev.adminInfo,
+                    photoUrl: user.photoUrl || user.photo || prev.photoUrl,
+                    phoneNumber: user.phoneNumber || prev.phoneNumber,
+                    email: user.email || prev.email,
+                    // ✅ GARDE LES STATS EXISTANTES OU UTILISE LES DÉFAUTS
+                    stats: response.data.stats || prev.stats
+                }));
+
+                setSettings(prev => ({
+                    ...prev,
+                    phoneNumber: user.phoneNumber || prev.phoneNumber || "",
+                    email: user.email || prev.email || "",
+                    service: user.adminInfo?.service || prev.service || "",
+                    fonction: user.adminInfo?.fonction || prev.fonction || "",
+                    departement: user.adminInfo?.departement || prev.departement || "",
+                    notificationMode: user.adminInfo?.notificationMode || prev.notificationMode || "targeted"
+                }));
+            }
+        } catch (error) {
+            console.error('Erreur chargement utilisateur:', error);
             const userStr = localStorage.getItem('user');
             if (userStr) {
                 const user = JSON.parse(userStr);
@@ -194,8 +193,6 @@ const ProfilAdministration = () => {
                     notificationMode: user.adminInfo?.notificationMode || prev.notificationMode || "targeted"
                 }));
             }
-        } catch (error) {
-            console.error('Erreur chargement utilisateur:', error);
         }
     };
 
@@ -206,7 +203,7 @@ const ProfilAdministration = () => {
         }
     };
 
-    const handlePhotoChange = async(e) => {
+    const handlePhotoChange = async (e) => {
         const file = e.target.files[0];
         try {
             if (file) {
@@ -239,24 +236,24 @@ const ProfilAdministration = () => {
                             fonction: response.data.user.adminInfo?.fonction || prev.adminInfo.fonction,
                             departement: response.data.user.adminInfo?.departement || prev.adminInfo.departement
                         }
-                        }));
-                    };
-                    // Mettre à jour localStorage avec la nouvelle URL de la photo
-                    const user = JSON.parse(localStorage.getItem('user') || '{}');
-                    user.photoUrl = response.data.user.photoUrl;
-                    user.adminInfo = {
-                        ...user.adminInfo,
-                        matricule: response.data.user.adminInfo?.matricule || user.adminInfo?.matricule,
-                        service: response.data.user.adminInfo?.service || user.adminInfo?.service,
-                        fonction: response.data.user.adminInfo?.fonction || user.adminInfo?.fonction,
-                        departement: response.data.user.adminInfo?.departement || user.adminInfo?.departement
-                    };
-                    localStorage.setItem('user', JSON.stringify(user));
-                } else {
-                    showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
-                }
+                    }));
+                };
+                // Mettre à jour localStorage avec la nouvelle URL de la photo
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                user.photoUrl = response.data.user.photoUrl;
+                user.adminInfo = {
+                    ...user.adminInfo,
+                    matricule: response.data.user.adminInfo?.matricule || user.adminInfo?.matricule,
+                    service: response.data.user.adminInfo?.service || user.adminInfo?.service,
+                    fonction: response.data.user.adminInfo?.fonction || user.adminInfo?.fonction,
+                    departement: response.data.user.adminInfo?.departement || user.adminInfo?.departement
+                };
+                localStorage.setItem('user', JSON.stringify(user));
+            } else {
+                showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
+            }
 
-            
+
         } catch (error) {
             showNotification('❌ Erreur lors de la mise à jour de la photo', 'error');
             console.error('Erreur mise à jour photo:', error);
@@ -453,12 +450,12 @@ const ProfilAdministration = () => {
                                                                 style={{ display: 'none' }}
                                                             />
                                                         </div>
-                                                        <h2 className={styles.adminName}>{currentAdmin.fullName}</h2>
+                                                        <h2 className={styles.adminName}>{currentAdmin.firstName + ' ' + currentAdmin.lastName}</h2>
                                                         <div className={styles.adminTitle}>
-                                                            <FaUserTie /> {currentAdmin.title}
+                                                            <FaUserTie /> {currentAdmin.roles[0]}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
-                                                            <FaUniversity /> {currentAdmin.universite}
+                                                            <FaUniversity /> {allUniversities?.find(u => u.id === currentAdmin.adminUniversityId)?.name}
                                                         </Badge>
                                                     </div>
 
@@ -647,10 +644,6 @@ const ProfilAdministration = () => {
 
                                                     {/* Boutons d'action - Utilisation de BoutonProfil */}
                                                     <div className={styles.actionButtons}>
-                                                        <BoutonProfil
-                                                            action="publication"
-                                                            onClick={createPublication}
-                                                        />
 
                                                         <BoutonProfil
                                                             action="modifier"

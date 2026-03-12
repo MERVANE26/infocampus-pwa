@@ -37,6 +37,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import styles from './Publication.module.css';
 import AppNavbar from '../composants/AppNavbar';
 import { api } from '../lib/api';
+import axios from 'axios';
 
 
 const Publication = () => {
@@ -193,10 +194,6 @@ const Publication = () => {
             params.append('page', pageNum);
             params.append('limit', pageSize);
 
-            // // Add current user's university
-            // if (user && (user.studentUniversityId || user?.teacherUniversitiesIds[0])) {
-            //     params.append('universityId', user.studentUniversityId);
-            // }
 
             // Map filterType to API parameters
             if (filterType === 'urgent') {
@@ -256,7 +253,7 @@ const Publication = () => {
         } finally {
             setLoading(false);
         }
-    },[filterType,pageSize,searchTerm,sortBy,t]);
+    }, [filterType, pageSize, searchTerm, sortBy, t]);
 
 
     // Trigger API reload when filters change
@@ -531,12 +528,12 @@ const Publication = () => {
             const fileUrl = file.url || file.downloadUrl || file.path;
             if (!fileUrl) throw new Error('Missing file URL');
 
-            const response = await api.get(fileUrl, { responseType: 'blob' });
+            const response = await axios({ url: fileUrl, method: "GET", responseType: 'blob' });
             const blob = new Blob([response.data], { type: response.headers?.['content-type'] || 'application/octet-stream' });
             const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = file.name || 'download';
+            link.download = file.name || file.caption || 'download';
             document.body.appendChild(link);
             link.click();
             link.remove();

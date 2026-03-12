@@ -24,8 +24,11 @@ import {
 import { Container, Row, Col, Card, Form, Button, Alert, Badge, InputGroup } from 'react-bootstrap';
 import styles from './FairePublication.module.css';
 import { api } from '../lib/api';
+import { useTranslation } from 'react-i18next';
+
 
 const FairePublication = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
 
@@ -45,9 +48,9 @@ const FairePublication = () => {
         audience: 'students',
         staffTarget: '',
         filiere: 'tous',
-        niveau: '3eme annee',
-        campus: 'Campus 2',
-        groupe: 'Cours du jour',
+        niveau: 'tous',
+        campus: 'tous',
+        groupe: 'jours',
         allowComments: true,
         isUrgent: false
     });
@@ -125,7 +128,7 @@ const FairePublication = () => {
     }, []);
 
 
- 
+
     const loadUserData = () => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
@@ -176,7 +179,7 @@ const FairePublication = () => {
         } catch (error) {
             console.error('Erreur chargement brouillon:', error);
         }
-    },[]);
+    }, []);
 
     const updateCharCount = useCallback(() => {
         const length = publication.content.length;
@@ -189,9 +192,9 @@ const FairePublication = () => {
         } else {
             setCharWarning('');
         }
-    },[publication.content.length]);
+    }, [publication.content.length]);
 
-       useEffect(() => {
+    useEffect(() => {
         updateCharCount();
     }, [publication.content, updateCharCount]);
 
@@ -282,15 +285,12 @@ const FairePublication = () => {
         setAvailableCampuses(uni?.campuses || []);
         setAvailableFields(uni?.fields || []);
         // reset campus filter when university switches
-        if (publication.campus !== 'tous') {
-            handleChange('campus', 'tous');
-        }
-    }, [selectedUniversityId, userUniversities,publication.campus]);
+
+    }, [selectedUniversityId, userUniversities]);
 
     useEffect(() => {
         updateTargetingPreview();
-    }, [publication.audience, publication.filiere, publication.niveau,
-    publication.campus, publication.groupe, publication.staffTarget]);
+    }, [publication]);
 
     // Fetch recent posts to help users avoid duplicates (search + filters)
     const loadPosts = useCallback(async (pageNum = 1) => {
@@ -342,7 +342,7 @@ const FairePublication = () => {
         } finally {
             setPostsLoading(false);
         }
-    },[postFilterAudience, postFilterCampus, postFilterFiliere, postFilterGroupe, postFilterNiveau, postFilterUrgent, postSearch, selectedUniversityId])
+    }, [postFilterAudience, postFilterCampus, postFilterFiliere, postFilterGroupe, postFilterNiveau, postFilterUrgent, postSearch, selectedUniversityId])
 
     useEffect(() => {
         // Debounce search to avoid triggering API for every keystroke
@@ -354,7 +354,7 @@ const FairePublication = () => {
         }, 400);
 
         return () => clearTimeout(postSearchDebounce.current);
-    }, [postSearch, postFilterAudience, postFilterUrgent, postFilterFiliere, postFilterNiveau, postFilterCampus, postFilterGroupe, selectedUniversityId,loadPosts]);
+    }, [postSearch, postFilterAudience, postFilterUrgent, postFilterFiliere, postFilterNiveau, postFilterCampus, postFilterGroupe, selectedUniversityId, loadPosts]);
 
     const filteredPosts = posts.filter((post) => {
         const term = postSearch.trim().toLowerCase();
@@ -461,7 +461,9 @@ const FairePublication = () => {
                     case "students":
                         return "student";
                     case "staff":
-                        return user.roles[0] === "admin" ? "admin" : "teacher";
+                        return user.roles[0] === "teacher" ? "teacher" : "admin";
+                    case "teacher":
+                        return "teacher";
                     case "both":
                         return "all";
                     default:
@@ -741,6 +743,7 @@ const FairePublication = () => {
                                             >
                                                 <option value="students">👨‍🎓 Étudiants uniquement</option>
                                                 <option value="staff">👨‍🏫 Personnel uniquement</option>
+                                                <option value="teacher">👨‍🏫 Professeur uniquement</option>
                                                 <option value="both">👥 Tout le monde</option>
                                             </Form.Select>
                                         </Form.Group>
@@ -784,7 +787,7 @@ const FairePublication = () => {
 
                                                                 <option value="tous">Toutes les filières</option>
                                                                 {availableFields.map(f => (
-                                                                    <option key={f._id || f} value={f.name || f}>
+                                                                    <option key={f._id || f} value={f._id || f}>
                                                                         {f.name || f}
                                                                     </option>
                                                                 ))}
@@ -801,11 +804,12 @@ const FairePublication = () => {
                                                                 onChange={(e) => handleChange('niveau', e.target.value)}
                                                                 className={styles.targetSelect}
                                                             >
-                                                                <option value="tous">Tous les niveaux</option>
-                                                                <option value="1ere annee">1ère année</option>
-                                                                <option value="2eme annee">2ème année</option>
-                                                                <option value="3eme annee">3ème année</option>
-                                                                <option value="Master 1">Master 1</option>
+                                                                <option value="tous">tous / all</option>
+                                                                <option value="l1">{t('auth.level.l1')}</option>
+                                                                <option value="l2">{t('auth.level.l2')}</option>
+                                                                <option value="l3">{t('auth.level.l3')}</option>
+                                                                <option value="m1">{t('auth.level.m1')}</option>
+                                                                <option value="m2">{t('auth.level.m2')}</option>
                                                             </Form.Select>
                                                         </Form.Group>
                                                     </Col>
@@ -839,8 +843,8 @@ const FairePublication = () => {
                                                                 className={styles.targetSelect}
                                                             >
                                                                 <option value="tous">Tous les groupes</option>
-                                                                <option value="Cours du jour">Cours du jour</option>
-                                                                <option value="Cours du soir">Cours du soir</option>
+                                                                <option value="jours">Cours du jour</option>
+                                                                <option value="soirs">Cours du soir</option>
                                                             </Form.Select>
                                                         </Form.Group>
                                                     </Col>
