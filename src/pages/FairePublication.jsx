@@ -113,6 +113,11 @@ const FairePublication = () => {
                     if (user.roles && user.roles.includes('teacher') && Array.isArray(user.teacherUniversityIds)) {
                         unis = unis.filter(u => user.teacherUniversityIds.includes(u.id));
                     }
+
+                    if (user.roles && user.roles.includes('admin')) {
+                        unis = unis.filter(u => u.id === user.adminUniversityId);
+                    }
+
                 }
 
                 setUserUniversities(unis);
@@ -138,6 +143,10 @@ const FairePublication = () => {
                 const extra = {};
                 if (user.teacherUniversityIds) {
                     extra.teacherUniversityIds = user.teacherUniversityIds;
+                }
+
+                if (user.adminUniversityId) {
+                    extra.adminUniversityId = user.adminUniversityId;
                 }
                 setCurrentUser(prev => ({
                     ...prev,
