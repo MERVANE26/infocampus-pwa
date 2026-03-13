@@ -521,31 +521,15 @@ const Publication = () => {
         return file?.id || file?.url || file?.name || JSON.stringify(file);
     };
 
-    const downloadAttachment = async (file) => {
-        const key = getAttachmentKey(file);
-        setDownloadingFiles(prev => ({ ...prev, [key]: true }));
-        try {
-            const fileUrl = file.url || file.downloadUrl || file.path;
-            if (!fileUrl) throw new Error('Missing file URL');
+    const downloadAttachment = (file) => {
+        const fileUrl = file.url || file.downloadUrl || file.path;
 
-            const response = await axios({ url: fileUrl, method: "GET", responseType: 'blob' });
-            const blob = new Blob([response.data], { type: response.headers?.['content-type'] || 'application/octet-stream' });
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = file.name || file.caption || 'download';
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(downloadUrl);
-
-            showNotification(t('publication.downloaded'), 'success');
-        } catch (error) {
-            console.error('Erreur téléchargement:', error);
-            showNotification(t('publication.downloadError'), 'error');
-        } finally {
-            setDownloadingFiles(prev => ({ ...prev, [key]: false }));
-        }
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.download = file.name || "download";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     };
 
     const sharePost = async (post, event) => {

@@ -233,7 +233,7 @@ const ValidationCode = () => {
 
                             {/* Lien retour */}
                             <div className={styles.backLink}>
-                                <a href="/" onClick={() => navigate(-1)}>
+                                <a href="/register" onClick={() => navigate(-1)}>
                                     {t('validation.modifyEmail')}
                                 </a>
                             </div>

@@ -69,7 +69,7 @@ const Inscription = () => {
     },
 
     admin: {
-      universities: [], // 🔥 changed to array
+      university: "", // 🔥 changed to array
       service: '',
       function: '',
       hasTeacherRole: false,
@@ -88,28 +88,28 @@ const Inscription = () => {
     }
   }, []);
 
-const handleInputChange = (e) => {
-  const { id, value, type, checked } = e.target;
+  const handleInputChange = (e) => {
+    const { id, value, type, checked } = e.target;
 
-  const keys = id.split('.');
+    const keys = id.split('.');
 
-  setFormData(prev => {
-    const updated = { ...prev };
+    setFormData(prev => {
+      const updated = { ...prev };
 
-    let current = updated;
+      let current = updated;
 
-    for (let i = 0; i < keys.length - 1; i++) {
-      current[keys[i]] = { ...current[keys[i]] };
-      current = current[keys[i]];
-    }
+      for (let i = 0; i < keys.length - 1; i++) {
+        current[keys[i]] = { ...current[keys[i]] };
+        current = current[keys[i]];
+      }
 
-    current[keys[keys.length - 1]] = type === 'checkbox' ? checked : value;
+      current[keys[keys.length - 1]] = type === 'checkbox' ? checked : value;
 
-    return updated;
-  });
+      return updated;
+    });
 
-  setError('');
-};
+    setError('');
+  };
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
@@ -196,6 +196,10 @@ const handleInputChange = (e) => {
           setError(t('auth.atLeastOneUniversity'));
           return false;
         }
+        if (role === 'admin' && !formData.admin.university) {
+          setError(t('auth.universityRequired'));
+          return false;
+        }
 
         return true;
       case 4:
@@ -274,6 +278,8 @@ const handleInputChange = (e) => {
 
       // ===== ADMIN =====
       if (role === "admin") {
+        submissionData.adminUniversityId = formData.admin.university;
+
         submissionData.adminInfo = {
           service: formData.admin.service,
           fonction: formData.admin.function,
@@ -298,7 +304,8 @@ const handleInputChange = (e) => {
 
       console.log("📦 Données envoyées :", submissionData);
 
-      await api.post('/auth/register', { submissionData });
+      // await api.post('/auth/register', { submissionData });
+      console.log(submissionData);
 
       sessionStorage.setItem(
         'pendingUser',
