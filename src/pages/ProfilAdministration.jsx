@@ -451,7 +451,7 @@ const ProfilAdministration = ({ universities }) => {
                                                         </div>
                                                         <h2 className={styles.adminName}>{currentAdmin.firstName + ' ' + currentAdmin.lastName}</h2>
                                                         <div className={styles.adminTitle}>
-                                                            <FaUserTie /> {currentAdmin.roles[0]}
+                                                            <FaUserTie /> {currentAdmin.status}
                                                         </div>
                                                         <Badge className={styles.universityBadge}>
                                                             <FaUniversity /> {allUniversities?.find(u => u.id === currentAdmin.adminUniversityId)?.name}

@@ -467,7 +467,7 @@ const ProfilEnseignant = ({universities}) => {
                                                         </div>
                                                         <h2 className={styles.teacherName}>{currentTeacher.firstName} {currentTeacher.lastName}</h2>
                                                         <div className={styles.teacherTitle}>
-                                                            <FaChalkboardTeacher /> {currentTeacher.roles[0]} | {currentTeacher.teacherInfo?.status || t('auth.teacher')}
+                                                            <FaChalkboardTeacher /> {currentTeacher.status} | {currentTeacher.teacherInfo?.status || t('auth.teacher')}
                                                         </div>
 
                                                         <div className={styles.teacherMeta}>

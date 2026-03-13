@@ -59,7 +59,7 @@ const RoleBasedProfil = ({ universities }) => {
     return <Navigate to="/login" />;
   }
 
-  switch (user.roles[0]) {
+  switch (user.status) {
     case 'student':
     case 'Étudiante':
       return <ProfilEtudiant universities={universities} />;

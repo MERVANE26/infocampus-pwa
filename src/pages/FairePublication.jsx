@@ -110,11 +110,11 @@ const FairePublication = () => {
                 const userStr = localStorage.getItem('user');
                 if (userStr) {
                     const user = JSON.parse(userStr);
-                    if (user.roles && user.roles.includes('teacher') && Array.isArray(user.teacherUniversityIds)) {
+                    if (user.roles && user.status === 'teacher' && Array.isArray(user.teacherUniversityIds)) {
                         unis = unis.filter(u => user.teacherUniversityIds.includes(u.id));
                     }
 
-                    if (user.roles && user.roles.includes('admin')) {
+                    if (user.roles && user.status === 'admin') {
                         unis = unis.filter(u => u.id === user.adminUniversityId);
                     }
 
@@ -486,7 +486,7 @@ const FairePublication = () => {
                 authorId: user._id,
                 authorName: `${user.firstName} ${user.lastName}`,
                 authorAvatar: currentUser.avatar,
-                authorRole: user.roles[0],
+                authorRole: user.status,
 
                 content: publication.content,
 
