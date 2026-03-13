@@ -521,16 +521,40 @@ const Publication = () => {
         return file?.id || file?.url || file?.name || JSON.stringify(file);
     };
 
-    const downloadAttachment = (file) => {
+const downloadAttachment = async (file) => {
+    const key = getAttachmentKey(file);
+    setDownloadingFiles(prev => ({ ...prev, [key]: true }));
+
+    try {
         const fileUrl = file.url || file.downloadUrl || file.path;
+        if (!fileUrl) throw new Error("Missing file URL");
+
+        const response = await axios.get(fileUrl, {
+            responseType: "blob"
+        });
+
+        const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
 
         const link = document.createElement("a");
-        link.href = fileUrl;
-        link.download = file.name || "download";
+        link.href = url;
+        link.setAttribute("download", file.name || "download");
         document.body.appendChild(link);
+
         link.click();
         link.remove();
-    };
+
+        URL.revokeObjectURL(url);
+
+        showNotification(t('publication.downloaded'), 'success');
+
+    } catch (error) {
+        console.error("Download error:", error);
+        showNotification(t('publication.downloadError'), 'error');
+    } finally {
+        setDownloadingFiles(prev => ({ ...prev, [key]: false }));
+    }
+};
 
     const sharePost = async (post, event) => {
         const url = `${window.location.origin}/posts/#${post._id}`;
