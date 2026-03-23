@@ -20,7 +20,7 @@ const ValidationCode = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(300); // 5 minutes en secondes
+    const [timeLeft, setTimeLeft] = useState(100); // 5 minutes en secondes
     const [canResend, setCanResend] = useState(false);
     const { t } = useTranslation();
 
