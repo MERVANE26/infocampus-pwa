@@ -9,9 +9,10 @@ import {
     FaPlusCircle
 } from 'react-icons/fa';
 import styles from './GetStarted.module.css';
+import Header from '../composants/Header';
 
 
-const Home = () => {
+const GetStarted = () => {
 
     const navigate = useNavigate();
 
@@ -53,6 +54,9 @@ const Home = () => {
 
 
     return (
+        <>
+            <Header />
+
         <div className={styles.container}>
             <div className={styles.homeCard}>
                 {/* Logo */}
@@ -136,7 +140,9 @@ const Home = () => {
                 </div>
             </div>
         </div>
+        </>
+
     );
 };
 
-export default Home;
+export default GetStarted;

@@ -12,6 +12,7 @@ import TermsSection from '../composants/InscriptionForm/TermsSection';
 import loginStyles from './Connexion.module.css';
 import { api } from '../lib/api';
 import { LOGO } from '../assets';
+import Header from '../composants/Header';
 
 
 const Inscription = () => {
@@ -304,8 +305,8 @@ const Inscription = () => {
 
       console.log("📦 Données envoyées :", submissionData);
 
-      // await api.post('/auth/register', { submissionData });
-      console.log(submissionData);
+      await api.post('/auth/register', { submissionData });
+
 
       sessionStorage.setItem(
         'pendingUser',
@@ -329,6 +330,7 @@ const Inscription = () => {
   };
 
   return (
+    <><Header />
     <div className={loginStyles.loginContainer}>
       <Container fluid className={loginStyles.containerWrapper}>
         <Row className="align-items-center min-vh-100 g-4">
@@ -591,6 +593,7 @@ const Inscription = () => {
         </Row>
       </Container>
     </div>
+    </>
   );
 };
 

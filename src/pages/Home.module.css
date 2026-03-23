@@ -168,7 +168,7 @@ body {
    HERO SECTION
    ============================================ */
 
-.hero {
+/* .hero {
   position: relative;
   min-height: 100vh;
   display: flex;
@@ -177,7 +177,7 @@ body {
   align-items: center;
   padding: 80px 40px;
   overflow: hidden;
-}
+} */
 
 .heroBackground {
   position: absolute;
@@ -240,27 +240,6 @@ body {
   font-weight: 600;
 }
 
-.heroTitle {
-  font-size: clamp(2.5rem, 8vw, 4.5rem);
-  font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 24px;
-  color: var(--text-dark);
-  letter-spacing: -2px;
-  animation: fadeInUp 0.8s ease-out 0.1s both;
-}
-
-.heroSubtitle {
-  font-size: 1.3rem;
-  color: var(--text-medium);
-  margin-bottom: 40px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  font-weight: 500;
-  line-height: 1.6;
-  animation: fadeInUp 0.8s ease-out 0.2s both;
-}
 
 .heroButtons {
   display: flex;
@@ -329,8 +308,11 @@ body {
 }
 
 .heroFeatures {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  display: flex;
+  /* grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); */
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   gap: 24px;
   max-width: 600px;
   margin: 0 auto;
@@ -338,15 +320,21 @@ body {
 
 .heroFeature {
   text-align: center;
+  border-radius: 30px;
+  background-color: #00fe94;
+  max-width: 100px;
+  min-width: 80px;
+  height: 30px;
+  padding: 5px;
   animation: fadeInUp 0.8s ease-out backwards;
 }
 
 .featureTitle {
   display: block;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 4px;
+  /* margin-bottom: 4px; */
 }
 
 .featureDesc {
@@ -518,7 +506,7 @@ body {
 }
 
 .flipButton {
-  margin-top: auto;
+  margin-top: 10px;
   font-size: 1.5rem;
   color: var(--primary);
 }
@@ -1240,4 +1228,81 @@ body {
     width: 44px;
     height: 44px;
   }
+}
+
+
+.hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.heroContent {
+  text-align: center;
+  color: white;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.heroSubtitle {
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+.highlight {
+  color: #667eea;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.glassBtn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: none;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.glassBtn:hover {
+  background: rgba(102, 126, 234, 0.6);
+}
+
+.outlineBtn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: transparent;
+  color: white;
+}
+
+.glassCard {
+  backdrop-filter: blur(14px);
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
 }

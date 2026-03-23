@@ -236,6 +236,13 @@
     color: white;
 }
 
+.footerSocial2 {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    flex-direction: column;
+}
+
 .footerSocial {
     display: flex;
     gap: 20px;
@@ -244,7 +251,7 @@
 
 .footerSocial a {
     color: #cbd5e1;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     transition: all 0.3s ease;
 }
 

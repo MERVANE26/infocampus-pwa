@@ -15,6 +15,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import { api } from '../lib/api';
 import { LOGO } from '../assets';
 import styles from './Connexion.module.css';
+import Header from '../composants/Header';
 
 const Connexion = () => {
   const navigate = useNavigate();
@@ -92,6 +93,8 @@ const Connexion = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className={styles.loginContainer}>
       <Container fluid className={styles.containerWrapper}>
         <Row className="align-items-center min-vh-100 g-4">
@@ -263,6 +266,7 @@ const Connexion = () => {
         </Row>
       </Container>
     </div>
+    </>
   );
 };
 

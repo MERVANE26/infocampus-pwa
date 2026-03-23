@@ -5,8 +5,6 @@ import {
     MessageSquare,
     Share2,
     Settings,
-    CheckCircle,
-    PlusCircle,
     ChevronRight,
     ChevronLeft,
     Play,
@@ -16,9 +14,12 @@ import {
     Zap,
     Shield,
     X,
+    PlayCircleIcon,
 } from 'lucide-react';
 import styles from './Home.module.css';
-import { HERO } from '../assets';
+import Footer from '../composants/Footer';
+import Header from '../composants/Header';
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  * InfoCampus Home Page - Chrome Design Style
@@ -36,6 +37,11 @@ import { HERO } from '../assets';
  */
 
 // Tutorial data with images and iframe URLs
+
+
+const HERO_BG =
+    "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=2070";
+
 const TUTORIALS = [
     {
         id: 1,
@@ -89,49 +95,49 @@ const STATISTICS = [
 
 // Tutorial Modal Component
 const TutorialModal = ({ tutorial, isOpen, onClose }) => {
-    if (!isOpen) return null;
-
     return (
-        <div className={styles.modalOverlay} onClick={onClose}>
-            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                <button className={styles.modalClose} onClick={onClose}>
-                    <X size={24} />
-                </button>
-
-                <div className={styles.modalHeader}>
-                    <img
-                        src={tutorial.image}
-                        alt={tutorial.title}
-                        className={styles.modalImage}
-                    />
-                </div>
-
-                <div className={styles.modalBody}>
-                    <h2 className={styles.modalTitle}>{tutorial.title}</h2>
-                    <p className={styles.modalDescription}>{tutorial.details}</p>
-
-                    <div className={styles.iframeContainer}>
-                        <iframe
-                            width="100%"
-                            height="315"
-                            src={tutorial.iframeUrl}
-                            title={tutorial.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className={styles.iframe}
-                        />
-                    </div>
-
-                    <button
-                        className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}
-                        onClick={onClose}
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    className={styles.modalOverlay}
+                    onClick={onClose}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    <motion.div
+                        className={styles.modalContent}
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ scale: 0.8, y: 40 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.8, y: 40 }}
+                        transition={{ type: "spring", stiffness: 200 }}
                     >
-                        Fermer
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <button className={styles.modalClose} onClick={onClose}>
+                            <X size={24} />
+                        </button>
+
+                        <div className={styles.modalHeader}>
+                            <img src={tutorial.image} alt={tutorial.title} className={styles.modalImage} />
+                        </div>
+
+                        <div className={styles.modalBody}>
+                            <h2 className={styles.modalTitle}>{tutorial.title}</h2>
+                            <p className={styles.modalDescription}>{tutorial.details}</p>
+
+                            <div className={styles.iframeContainer}> <iframe width="100%" height="315" src={tutorial.iframeUrl} title={tutorial.title} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className={styles.iframe} /> </div>
+
+                            <button
+                                className={`${styles.btn} ${styles.btnPrimary} ${styles.btnFull}`}
+                                onClick={onClose}
+                            >
+                                Fermer
+                            </button>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 
@@ -143,46 +149,57 @@ const FlipCard = ({ tutorial, index, onOpen }) => {
         if (isFlipped) {
             onOpen(tutorial);
         } else {
-            setIsFlipped(!isFlipped);
+            setIsFlipped(true);
         }
     };
 
     return (
-        <div
+        <motion.div
             className={styles.flipCard}
             onClick={handleClick}
-            style={{ animationDelay: `${index * 0.1}s` }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ scale: 1.03 }}
         >
-            <div className={`${styles.flipCardInner} ${isFlipped ? styles.flipped : ''}`}>
-                {/* Front */}
+            <motion.div
+                className={`${styles.flipCardInner} ${isFlipped ? styles.flipped : ''}`}
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6 }}
+            >
+                {/* FRONT */}
                 <div className={styles.flipCardFront}>
-                    <img
-                        src={tutorial.image}
-                        alt={tutorial.title}
-                        className={styles.cardImage}
-                    />
+                    <img src={tutorial.image} alt={tutorial.title} className={styles.cardImage} />
+
                     <div
                         className={styles.cardIcon}
                         style={{ backgroundColor: `${tutorial.color}20` }}
                     >
                         <tutorial.icon size={32} color={tutorial.color} />
                     </div>
+
                     <h3 className={styles.cardTitle}>{tutorial.title}</h3>
                     <p className={styles.cardDescription}>{tutorial.description}</p>
+
                     <div className={styles.flipHint}>
-                        <span>Cliquez pour en savoir plus</span>
+                        Cliquez pour en savoir plus
                     </div>
                 </div>
 
-                {/* Back */}
+                {/* BACK */}
                 <div className={styles.flipCardBack}>
                     <p className={styles.cardDetails}>{tutorial.details}</p>
-                    <div className={styles.flipButton}>
+                    <PlayCircleIcon size={80} />
+
+                    <motion.div
+                        className={styles.flipButton}
+                        whileHover={{ x: 5 }}
+                    >
                         <ChevronRight size={20} />
-                    </div>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 
@@ -196,10 +213,20 @@ const Carousel = ({ items, onCardClick }) => {
 
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % items.length);
-        }, 5000);
+        }, 4000);
 
         return () => clearInterval(interval);
     }, [isAutoPlay, items.length]);
+
+    const handleDragEnd = (e, info) => {
+        if (info.offset.x < -100) {
+            setCurrentIndex((prev) => (prev + 1) % items.length);
+            setIsAutoPlay(false);
+        } else if (info.offset.x > 100) {
+            setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+            setIsAutoPlay(false);
+        }
+    };
 
     const handlePrev = () => {
         setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
@@ -214,20 +241,22 @@ const Carousel = ({ items, onCardClick }) => {
     return (
         <div className={styles.carousel}>
             <div className={styles.carouselContent}>
-                <div
+                <motion.div
                     className={styles.carouselTrack}
-                    style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={handleDragEnd}
+                    animate={{ x: `-${currentIndex * 100}%` }}
+                // transition={{ type: "", stiffness: 120 }}
                 >
                     {items.map((item, idx) => (
                         <div key={idx} className={styles.carouselSlide}>
-                            <img
-                                src={item.image}
-                                alt={item.title}
-                                className={styles.slideImage}
-                            />
+                            <img src={item.image} alt={item.title} className={styles.slideImage} />
+
                             <div className={styles.slideContent}>
-                                <h3 className={styles.slideTitle}>{item.title}</h3>
-                                <p className={styles.slideDescription}>{item.description}</p>
+                                <h3>{item.title}</h3>
+                                <p>{item.description}</p>
+
                                 <button
                                     className={`${styles.btn} ${styles.btnPrimary} ${styles.btnSmall}`}
                                     onClick={() => onCardClick(item)}
@@ -237,7 +266,7 @@ const Carousel = ({ items, onCardClick }) => {
                             </div>
                         </div>
                     ))}
-                </div>
+                </motion.div>
             </div>
 
             <div className={styles.carouselControls}>
@@ -316,58 +345,80 @@ export default function InfoCampusHomeChrome() {
 
     return (
         <div className={styles.container}>
+            <Header />
             {/* Hero Section */}
-            <section className={styles.hero} >
-                <div className={styles.heroBackground} ref={heroRef} />
 
-                <div className={styles.heroContent}>
-                    <div className={styles.heroBadge}>
-                        <span className={styles.badgeIcon}>🎓</span>
-                        <span className={styles.badgeText}>Connecting African Universities</span>
-                    </div>
 
-                    <h1 className={styles.heroTitle}>
-                        Bienvenue sur <span className={styles.highlight}>InfoCampus</span>
-                    </h1>
+            <section className={styles.hero}>
+                {/* Background */}
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage: `url(${HERO_BG})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        filter: "brightness(0.4)",
+                    }}
+                />
 
-                    <p className={styles.heroSubtitle}>
-                        La plateforme intelligente pour connecter les universités africaines
-                    </p>
+                {/* Gradient overlay */}
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                            "radial-gradient(circle at 30% 30%, rgba(102,126,234,0.4), transparent 60%)",
+                    }}
+                />
 
-                    <div className={styles.heroButtons}>
-                        <button
-                            className={`${styles.btn} ${styles.btnPrimary}`}
-                            onClick={() => navigate('/register')}
+                {/* Content */}
+                <motion.div
+                    className={styles.heroContent}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <motion.h1
+                        className={styles.heroTitle}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        Bienvenue sur <span className={styles.highlight}>INFOcAMPUS</span>
+                    </motion.h1>
+
+                    <motion.p
+                        className={styles.heroSubtitle}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        Une plateforme SaaS moderne pour connecter les universités africaines
+                    </motion.p>
+
+                    <motion.div
+                        className={styles.heroButtons}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={styles.glassBtn}
+                            onClick={() => navigate("/get-started")}
                         >
-                            <span>Commencer Maintenant</span>
-                            <ChevronRight size={20} />
-                        </button>
-                        <button
-                            className={`${styles.btn} ${styles.btnSecondary}`}
-                            onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                            Commencer <ChevronRight size={18} />
+                        </motion.button>
+
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            className={styles.outlineBtn}
                         >
-                            <span>En Savoir Plus</span>
-                        </button>
-                    </div>
-
-                    {/* Hero Features */}
-                    <div className={styles.heroFeatures}>
-                        {['Fast', 'Smart', 'Secure', 'Connected'].map((feature, idx) => (
-                            <div
-                                key={idx}
-                                className={styles.heroFeature}
-                                style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
-                            >
-                                <span className={styles.featureTitle}>{feature}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Scroll Indicator */}
-                <div className={styles.scrollIndicator}>
-                    <div className={styles.scrollDot} />
-                </div>
+                            <a style={{textDecoration: "none"}} href="#features">En savoir plus</a>
+                        </motion.button>
+                    </motion.div>
+                </motion.div>
             </section>
 
             {/* Features Section */}
@@ -463,13 +514,7 @@ export default function InfoCampusHomeChrome() {
             </section>
 
             {/* Footer */}
-            <footer className={styles.footer}>
-                <div className={styles.sectionContainer}>
-                    <p className={styles.footerText}>
-                        © 2024 InfoCampus. Fait avec ❤️ pour les universités africaines
-                    </p>
-                </div>
-            </footer>
+            <Footer />
 
             {/* Tutorial Modal */}
             <TutorialModal
