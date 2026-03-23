@@ -1,21 +1,27 @@
-/* ProfilAdministration.module.css - Version nettoyée */
+/* ProfilAdministration.module.css - Version Responsive Mobile-First */
 
+/* ========== BASE MOBILE (par défaut) ========== */
 .pageContainer {
     min-height: 100vh;
     background: #f8fafc;
-    padding-top: 80px;
+    padding-top: 60px;
     padding-bottom: 40px;
 }
 
 .toastContainer {
     position: fixed;
-    top: 90px;
-    right: 20px;
+    top: 70px;
+    right: 16px;
+    left: 16px;
     z-index: 9999;
+    max-width: calc(100% - 32px);
 }
 
 .toast {
-    min-width: 250px;
+    min-width: auto;
+    width: 100%;
+    max-width: 350px;
+    margin-left: auto;
     color: white !important;
 }
 
@@ -40,17 +46,18 @@
     border-bottom: 2px solid #e5e7eb;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     background: white !important;
+    padding: 8px 0;
 }
 
 .brand {
     display: flex !important;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     text-decoration: none;
 }
 
 .brandIcon {
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: #667eea;
 }
 
@@ -61,7 +68,7 @@
 }
 
 .brandName {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 800;
     background: linear-gradient(135deg, #667eea, #764ba2);
     -webkit-background-clip: text;
@@ -69,22 +76,33 @@
 }
 
 .brandSub {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     color: #64748b;
     font-weight: 500;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    display: none;
 }
 
 .navLink {
     display: flex !important;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px !important;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px !important;
     color: #64748b !important;
     font-weight: 600;
+    font-size: 0.85rem;
     border-radius: 8px;
     transition: all 0.3s ease;
+}
+
+.navLink span {
+    display: none;
+}
+
+.navLink svg {
+    font-size: 1.1rem;
 }
 
 .navLink:hover {
@@ -100,8 +118,8 @@
 .userMenu {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
+    gap: 8px;
+    padding: 6px 10px;
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -112,8 +130,8 @@
 }
 
 .userAvatar {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     background: linear-gradient(135deg, #7c3aed, #8b5cf6);
     border-radius: 50%;
     display: flex;
@@ -121,37 +139,34 @@
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.8rem;
     background-size: cover;
     background-position: center;
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
 }
 
 .userInfo {
-    text-align: right;
+    display: none;
 }
 
 .userName {
-    color: #374151;
-    font-weight: 600;
-    font-size: 0.9rem;
+    display: none;
 }
 
 .userRole {
-    color: #64748b;
-    font-size: 0.75rem;
+    display: none;
 }
 
 .userDropdown {
-    min-width: 250px !important;
+    min-width: 220px !important;
     padding: 8px 0 !important;
     border: none !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .userDropdown a,
 .userDropdown button {
-    padding: 10px 20px !important;
+    padding: 10px 16px !important;
     color: #374151 !important;
     display: flex !important;
     align-items: center;
@@ -161,6 +176,7 @@
     background: none;
     text-align: left;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
 }
 
 .userDropdown a:hover,
@@ -171,33 +187,43 @@
 
 /* Contenu principal */
 .mainContent {
-    margin-top: 30px;
+    margin-top: 20px;
+    padding: 0 16px;
 }
 
 .tabCard {
     border: none !important;
-    border-radius: 20px !important;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
     border: 1px solid #e5e7eb !important;
     overflow: hidden;
 }
 
 .tabs {
     border-bottom: 2px solid #e5e7eb !important;
-    padding: 0 20px !important;
+    padding: 0 12px !important;
 }
 
 .tabTitle {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-    padding: 10px 0;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 8px 0;
+}
+
+.tabTitle span:last-child {
+    display: none;
+}
+
+.tabTitle svg {
+    font-size: 1.1rem;
 }
 
 /* Section Profil */
 .profileSection {
-    padding: 25px 0;
+    padding: 20px 16px;
 }
 
 .profileCard {
@@ -207,79 +233,78 @@
 
 .avatarSection {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .avatarWrapper {
     position: relative;
     display: inline-block;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .avatar {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: linear-gradient(135deg, #7c3aed, #8b5cf6);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 600;
-    border: 4px solid white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     background-size: cover;
     background-position: center;
 }
 
 .adminName {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .adminTitle {
     color: #7c3aed;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .universityBadge {
-    padding: 8px 16px !important;
-    font-size: 0.9rem !important;
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
     background: linear-gradient(135deg, #667eea, #764ba2) !important;
     border: none !important;
     display: inline-flex !important;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
+    gap: 6px;
+    margin-bottom: 16px;
 }
 
 /* Statistiques */
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin: 25px 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 20px 0;
 }
 
 .statCard {
     background: #f8fafc;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
     border: 1px solid #e5e7eb;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .statCard:hover {
@@ -288,7 +313,7 @@
 }
 
 .statIcon {
-    font-size: 2rem;
+    font-size: 1.6rem;
     color: #7c3aed;
 }
 
@@ -299,42 +324,42 @@
 
 .statNumber {
     display: block;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #1e293b;
     line-height: 1;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .statLabel {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #64748b;
 }
 
 /* Statistiques de modération */
 .moderationStats {
     display: flex;
-    gap: 15px;
-    margin: 20px 0;
-    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+    padding: 12px;
     background: #f8fafc;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid #e5e7eb;
 }
 
 .moderationItem {
-    flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
+    gap: 10px;
+    padding: 8px;
     background: white;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
 }
 
 .moderationIcon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: #7c3aed;
 }
 
@@ -343,41 +368,43 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .moderationLabel {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #64748b;
 }
 
 .moderationBadge {
-    font-size: 0.9rem !important;
-    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+    padding: 3px 6px !important;
 }
 
 /* Informations */
 .infoSection {
-    margin: 30px 0;
-    padding: 20px;
+    margin: 24px 0;
+    padding: 16px;
     background: white;
     border-radius: 12px;
     border: 1px solid #e5e7eb;
 }
 
 .sectionTitle {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #1e293b;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .infoGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
 .infoItem {
@@ -388,22 +415,22 @@
 
 .infoLabel {
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 }
 
 .infoValue {
     color: #1e293b;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 /* Permissions */
 .permissionsSection {
-    margin: 30px 0;
-    padding: 20px;
+    margin: 24px 0;
+    padding: 16px;
     background: white;
     border-radius: 12px;
     border: 1px solid #e5e7eb;
@@ -412,31 +439,32 @@
 .permissionsList {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
+    margin-top: 8px;
 }
 
 .permissionBadge {
-    padding: 8px 16px !important;
+    padding: 6px 12px !important;
     background: #ede9fe !important;
     color: #6d28d9 !important;
-    font-size: 0.9rem !important;
+    font-size: 0.75rem !important;
     font-weight: 600 !important;
     border: 1px solid #c4b5fd !important;
     border-radius: 20px !important;
     display: inline-flex !important;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .permissionIcon {
     color: #6d28d9;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
 
 /* Actions rapides */
 .quickActions {
-    margin: 30px 0;
-    padding: 20px;
+    margin: 24px 0;
+    padding: 16px;
     background: white;
     border-radius: 12px;
     border: 1px solid #e5e7eb;
@@ -444,17 +472,19 @@
 
 .quickActionsGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 8px;
 }
 
 .quickAction {
-    height: 50px !important;
+    height: 45px !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
     gap: 8px;
     font-weight: 600 !important;
+    font-size: 0.85rem;
     transition: all 0.3s ease !important;
 }
 
@@ -465,7 +495,7 @@
 
 /* Section Paramètres */
 .settingsSection {
-    padding: 25px 0;
+    padding: 20px 16px;
 }
 
 .settingsCard {
@@ -475,10 +505,11 @@
 
 .settingsHeader {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -487,9 +518,10 @@
     text-decoration: none !important;
     display: flex !important;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px !important;
+    gap: 6px;
+    padding: 6px 12px !important;
     border-radius: 8px !important;
+    font-size: 0.85rem;
     transition: all 0.3s ease !important;
 }
 
@@ -499,53 +531,55 @@
 }
 
 .settingsTitle {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #1e293b;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     margin: 0;
 }
 
 .settingsTabs {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     border-bottom: 2px solid #e5e7eb !important;
 }
 
 .settingsForm {
-    padding: 20px;
+    padding: 16px;
     background: #f8fafc;
     border-radius: 12px;
 }
 
 .sectionSubtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #1e293b;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #e5e7eb;
 }
 
 .formGroup {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .formLabel {
     font-weight: 600 !important;
     color: #374151 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 6px !important;
     display: flex !important;
     align-items: center;
     gap: 6px;
+    font-size: 0.85rem;
 }
 
 .formInput,
 .formSelect {
-    height: 45px !important;
+    height: 42px !important;
     border: 2px solid #e5e7eb !important;
     border-radius: 8px !important;
+    font-size: 0.85rem !important;
     transition: all 0.3s ease !important;
 }
 
@@ -556,11 +590,13 @@
 }
 
 .switch {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .switch :global(.form-check-input) {
     cursor: pointer;
+    width: 36px;
+    height: 18px;
 }
 
 .switch :global(.form-check-input:checked) {
@@ -569,7 +605,7 @@
 }
 
 .securityOption {
-    padding: 12px;
+    padding: 10px;
     background: white;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
@@ -577,48 +613,52 @@
 
 .securityButton {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 8px;
+    height: 38px;
+    font-size: 0.8rem;
 }
 
 .helpText {
     display: block;
-    margin-top: 5px;
+    margin-top: 4px;
     color: #64748b;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .themeOptions {
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .themeButton {
-    flex: 1;
-    height: 45px !important;
+    height: 40px !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    font-size: 0.85rem;
     transition: all 0.3s ease !important;
 }
 
 .settingsActions {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
     border-top: 1px solid #e5e7eb;
 }
 
 .saveButton {
-    flex: 1;
-    height: 50px !important;
+    height: 45px !important;
     background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
     border: none !important;
     font-weight: 600 !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
+    font-size: 0.9rem;
     transition: all 0.3s ease !important;
 }
 
@@ -628,13 +668,13 @@
 }
 
 .cancelButton {
-    flex: 1;
-    height: 50px !important;
+    height: 45px !important;
     border: 2px solid #e5e7eb !important;
     font-weight: 600 !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
+    font-size: 0.9rem;
     transition: all 0.3s ease !important;
 }
 
@@ -644,79 +684,249 @@
     color: #dc2626 !important;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
+/* ========== TABLETTE (≥ 768px) ========== */
+@media (min-width: 768px) {
     .pageContainer {
         padding-top: 70px;
     }
 
+    .toastContainer {
+        top: 90px;
+        right: 20px;
+        left: auto;
+        max-width: none;
+    }
+
+    .toast {
+        min-width: 250px;
+        width: auto;
+    }
+
+    .brandIcon {
+        font-size: 2rem;
+    }
+
     .brandName {
-        font-size: 1.2rem;
-    }
-
-    .brandSub {
-        display: none;
-    }
-
-    .userInfo {
-        display: none;
-    }
-
-    .userAvatar {
-        width: 35px;
-        height: 35px;
-        font-size: 0.9rem;
-    }
-
-    .statsGrid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .moderationStats {
-        flex-direction: column;
-    }
-
-    .infoGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .quickActionsGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .settingsHeader {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .settingsActions {
-        flex-direction: column;
-    }
-
-    .themeOptions {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .statsGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .adminName {
         font-size: 1.5rem;
     }
 
-    .adminTitle {
+    .brandSub {
+        display: block;
+    }
+
+    .navLink {
+        padding: 10px 20px !important;
+        font-size: 0.9rem;
+    }
+
+    .navLink span {
+        display: inline;
+    }
+
+    .navLink svg {
         font-size: 1rem;
     }
 
+    .userMenu {
+        gap: 12px;
+        padding: 8px 12px;
+    }
+
+    .userAvatar {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .userInfo {
+        display: block;
+    }
+
+    .userName {
+        display: block;
+        font-size: 0.9rem;
+    }
+
+    .userRole {
+        display: block;
+        font-size: 0.75rem;
+    }
+
+    .mainContent {
+        margin-top: 30px;
+        padding: 0 20px;
+    }
+
+    .tabCard {
+        border-radius: 20px !important;
+    }
+
+    .tabs {
+        padding: 0 20px !important;
+    }
+
+    .tabTitle {
+        font-size: 1rem;
+        padding: 10px 0;
+    }
+
     .tabTitle span:last-child {
-        display: none;
+        display: inline;
     }
 
     .tabTitle svg {
+        font-size: 1rem;
+    }
+
+    .profileSection {
+        padding: 25px;
+    }
+
+    .avatar {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+        border: 4px solid white;
+    }
+
+    .adminName {
+        font-size: 1.8rem;
+    }
+
+    .adminTitle {
+        font-size: 1.1rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .statIcon {
+        font-size: 2rem;
+    }
+
+    .statNumber {
+        font-size: 1.4rem;
+    }
+
+    .statLabel {
+        font-size: 0.75rem;
+    }
+
+    .moderationStats {
+        flex-direction: row;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .moderationItem {
+        padding: 10px;
+    }
+
+    .moderationIcon {
+        font-size: 1.5rem;
+    }
+
+    .moderationLabel {
+        font-size: 0.85rem;
+    }
+
+    .infoGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .infoLabel {
+        font-size: 0.85rem;
+    }
+
+    .infoValue {
+        font-size: 1rem;
+    }
+
+    .quickActionsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .quickAction {
+        height: 50px !important;
+        font-size: 0.9rem;
+    }
+
+    .settingsHeader {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .settingsTitle {
+        font-size: 1.5rem;
+    }
+
+    .themeOptions {
+        flex-direction: row;
+    }
+
+    .settingsActions {
+        flex-direction: row;
+    }
+
+    .saveButton,
+    .cancelButton {
+        height: 50px !important;
+    }
+}
+
+/* ========== DESKTOP (≥ 992px) ========== */
+@media (min-width: 992px) {
+    .pageContainer {
+        padding-top: 80px;
+    }
+
+    .mainContent {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .profileSection {
+        padding: 30px;
+    }
+
+    .statsGrid {
+        gap: 20px;
+    }
+
+    .statCard {
+        padding: 18px;
+    }
+
+    .quickActionsGrid {
+        gap: 20px;
+    }
+}
+
+/* ========== GRAND ÉCRAN (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+    .mainContent {
+        padding: 0;
+    }
+}
+
+/* ========== TRÈS PETIT ÉCRAN (≤ 380px) ========== */
+@media (max-width: 380px) {
+    .adminName {
         font-size: 1.2rem;
+    }
+
+    .avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 1.6rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
     }
 
     .statCard {
@@ -726,5 +936,16 @@
 
     .statContent {
         text-align: center;
+    }
+
+    .moderationContent {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .permissionBadge {
+        font-size: 0.7rem !important;
+        padding: 5px 10px !important;
     }
 }

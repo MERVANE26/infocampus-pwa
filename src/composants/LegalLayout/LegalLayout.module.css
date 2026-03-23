@@ -311,3 +311,30 @@
         font-size: 1.8rem;
     }
 }
+/* Structure de base pour toutes vos pages */
+.pageContainer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+.contentWrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+}
+
+@media (max-width: 768px) {
+    .pageContainer {
+        background: white;
+        padding: 0;
+    }
+    
+    .contentWrapper {
+        border-radius: 0;
+        padding: 20px;
+        max-width: 100%;
+    }
+}

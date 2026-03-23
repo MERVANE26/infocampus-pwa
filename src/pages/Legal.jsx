@@ -18,7 +18,7 @@ const Legal = () => {
                     <li><strong>Téléphone :</strong> +237 652 22 98 00</li>
                     <li><strong>Email :</strong> ndemenlaurenda@gmail.com</li>
                 </ul>
-            </section>
+            </section>00
 
             <section>
                 <h2>2. Responsable</h2>

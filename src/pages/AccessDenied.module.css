@@ -1,46 +1,255 @@
-.access-denied-container {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+/* AccessDenied.module.css - Version Responsive Mobile-First */
+
+/* ========== BASE MOBILE (par défaut) ========== */
+.accessDeniedContainer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
 }
 
-.access-denied-content {
-  background: white;
-  padding: 3rem 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.access-denied-icon {
-  font-size: 5rem;
-  color: #dc3545;
-  opacity: 0.8;
-}
-
-.access-denied-content h1 {
-  color: #212529;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.access-denied-content p {
-  font-size: 1.1rem;
-  color: #6c757d;
-}
-
-@media (max-width: 768px) {
-  .access-denied-content {
+.accessDeniedContent {
+    background: white;
     padding: 2rem 1.5rem;
-  }
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    max-width: 90%;
+    width: 100%;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.4s ease-out;
+}
 
-  .access-denied-icon {
-    font-size: 3rem;
-  }
+.accessDeniedIcon {
+    font-size: 3.5rem;
+    color: #dc3545;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: pulse 1.5s ease-in-out infinite;
+}
 
-  .access-denied-content h1 {
+.accessDeniedContent h1 {
+    color: #212529;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
     font-size: 1.5rem;
-  }
+    letter-spacing: -0.3px;
+}
 
-  .access-denied-content p {
-    font-size: 1rem;
-  }
+.accessDeniedContent p {
+    font-size: 0.95rem;
+    color: #6c757d;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+/* Bouton optionnel (si tu veux en ajouter un) */
+.backButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.backButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+/* ========== PETIT ÉCRAN MOBILE (≤ 380px) ========== */
+@media (max-width: 380px) {
+    .accessDeniedContainer {
+        padding: 1rem;
+    }
+
+    .accessDeniedContent {
+        padding: 1.5rem 1rem;
+        border-radius: 0.6rem;
+    }
+
+    .accessDeniedIcon {
+        font-size: 2.8rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 1.3rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 0.85rem;
+    }
+
+    .backButton {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ========== TABLETTE (≥ 480px) ========== */
+@media (min-width: 480px) {
+    .accessDeniedContent {
+        max-width: 450px;
+        padding: 2rem 2rem;
+    }
+
+    .accessDeniedIcon {
+        font-size: 4rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 1.7rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 1rem;
+    }
+}
+
+/* ========== TABLETTE MOYENNE (≥ 640px) ========== */
+@media (min-width: 640px) {
+    .accessDeniedContainer {
+        padding: 2rem;
+    }
+
+    .accessDeniedContent {
+        max-width: 500px;
+        padding: 2.5rem 2.5rem;
+        border-radius: 0.9rem;
+    }
+
+    .accessDeniedIcon {
+        font-size: 4.5rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 1.8rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 1rem;
+        margin-bottom: 1.8rem;
+    }
+}
+
+/* ========== TABLETTE GRANDE (≥ 768px) ========== */
+@media (min-width: 768px) {
+    .accessDeniedContainer {
+        padding: 2rem;
+    }
+
+    .accessDeniedContent {
+        max-width: 550px;
+        padding: 3rem 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .accessDeniedIcon {
+        font-size: 5rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 1.1rem;
+    }
+
+    .backButton {
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+    }
+}
+
+/* ========== DESKTOP (≥ 992px) ========== */
+@media (min-width: 992px) {
+    .accessDeniedContainer {
+        padding: 2.5rem;
+    }
+
+    .accessDeniedContent {
+        max-width: 600px;
+        padding: 3.5rem 3rem;
+        border-radius: 1.2rem;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    .accessDeniedIcon {
+        font-size: 5.5rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 2.2rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 1.15rem;
+        margin-bottom: 2rem;
+    }
+}
+
+/* ========== GRAND ÉCRAN (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+    .accessDeniedContainer {
+        padding: 3rem;
+    }
+
+    .accessDeniedContent {
+        max-width: 650px;
+        padding: 4rem 3.5rem;
+        border-radius: 1.5rem;
+    }
+
+    .accessDeniedIcon {
+        font-size: 6rem;
+    }
+
+    .accessDeniedContent h1 {
+        font-size: 2.4rem;
+    }
+
+    .accessDeniedContent p {
+        font-size: 1.2rem;
+    }
 }

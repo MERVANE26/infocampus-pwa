@@ -1,105 +1,386 @@
+/* Offline.module.css - Version Responsive Mobile-First */
+
+/* ========== BASE MOBILE (par défaut) - ≤ 480px ========== */
 .pageContainer {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2.5rem 1rem;
-  background: linear-gradient(150deg, #f9fafb 0%, #e5e7eb 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(150deg, #f9fafb 0%, #e5e7eb 100%);
 }
 
 .container {
-  width: 100%;
-  max-width: 940px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .card {
-  border: none;
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
-  overflow: hidden;
-  background: #ffffff;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+    background: #ffffff;
+    transition: all 0.3s ease;
 }
 
 .cardBody {
-  padding: 2.5rem 2.5rem;
-  text-align: center;
-  position: relative;
+    padding: 1.75rem 1.25rem;
+    text-align: center;
+    position: relative;
 }
 
+/* Header - Version mobile */
 .header {
-  display: grid;
-  grid-template-columns: 96px 1fr;
-  gap: 1.25rem;
-  align-items: center;
-  justify-items: center;
-  margin-bottom: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .iconWrapper {
-  width: 96px;
-  height: 96px;
-  border-radius: 24px;
-  background: rgba(99, 102, 241, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: rgba(99, 102, 241, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0 auto;
 }
 
 .icon {
-  font-size: 2.6rem;
-  color: #4f46e5;
-  position: relative;
-  z-index: 1;
+    font-size: 2.2rem;
+    color: #4f46e5;
+    position: relative;
+    z-index: 1;
 }
 
 .code {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: rgba(15, 23, 42, 0.45);
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(15, 23, 42, 0.4);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 4px;
+    border-radius: 8px;
 }
 
 .textGroup {
-  text-align: left;
+    text-align: center;
 }
 
 .logo {
-  width: 46px;
-  height: 46px;
-  margin-bottom: 0.25rem;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0.5rem;
+    display: none; /* Caché sur mobile si pas utilisé */
 }
 
 .title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  margin: 0;
-  color: #0f172a;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: #0f172a;
+    line-height: 1.2;
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: #475569;
-  margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0.5rem 0 0;
 }
 
 .message {
-  font-size: 1rem;
-  margin: 1.5rem auto 2rem;
-  color: #64748b;
-  max-width: 520px;
+    font-size: 0.9rem;
+    margin: 1.25rem auto 1.75rem;
+    color: #64748b;
+    max-width: 100%;
+    line-height: 1.5;
 }
 
 .actions {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
 .button {
-  padding: 0.75rem 1.75rem;
-  font-weight: 700;
-  border-radius: 14px;
-  box-shadow: 0 12px 20px rgba(79, 70, 229, 0.18);
+    padding: 0.7rem 1.5rem;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.15);
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 280px;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(79, 70, 229, 0.25);
+}
+
+/* ========== PETIT ÉCRAN MOBILE (≤ 380px) ========== */
+@media (max-width: 380px) {
+    .pageContainer {
+        padding: 1rem;
+    }
+
+    .cardBody {
+        padding: 1.25rem 1rem;
+    }
+
+    .iconWrapper {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+    }
+
+    .icon {
+        font-size: 1.8rem;
+    }
+
+    .title {
+        font-size: 1.4rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+    }
+
+    .message {
+        font-size: 0.85rem;
+        margin: 1rem auto 1.5rem;
+    }
+
+    .button {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* ========== TABLETTE (≥ 640px) ========== */
+@media (min-width: 640px) {
+    .pageContainer {
+        padding: 2rem 1.5rem;
+    }
+
+    .container {
+        max-width: 560px;
+    }
+
+    .card {
+        border-radius: 20px;
+        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    .cardBody {
+        padding: 2rem 2rem;
+    }
+
+    .header {
+        flex-direction: row;
+        gap: 1.25rem;
+        text-align: left;
+        justify-content: flex-start;
+    }
+
+    .iconWrapper {
+        width: 88px;
+        height: 88px;
+        border-radius: 22px;
+    }
+
+    .icon {
+        font-size: 2.4rem;
+    }
+
+    .code {
+        bottom: 8px;
+        right: 8px;
+        font-size: 0.8rem;
+    }
+
+    .textGroup {
+        text-align: left;
+    }
+
+    .title {
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
+    .message {
+        font-size: 0.95rem;
+        margin: 1.5rem auto 2rem;
+        max-width: 460px;
+    }
+
+    .button {
+        padding: 0.75rem 1.75rem;
+        font-size: 0.95rem;
+        width: auto;
+        min-width: 200px;
+    }
+}
+
+/* ========== TABLETTE GRANDE / PETIT DESKTOP (≥ 768px) ========== */
+@media (min-width: 768px) {
+    .pageContainer {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .container {
+        max-width: 680px;
+    }
+
+    .card {
+        border-radius: 24px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+    }
+
+    .cardBody {
+        padding: 2.5rem 2.5rem;
+    }
+
+    .iconWrapper {
+        width: 96px;
+        height: 96px;
+        border-radius: 24px;
+    }
+
+    .icon {
+        font-size: 2.6rem;
+    }
+
+    .code {
+        font-size: 0.85rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .message {
+        font-size: 1rem;
+        max-width: 520px;
+    }
+
+    .button {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        border-radius: 14px;
+        box-shadow: 0 12px 20px rgba(79, 70, 229, 0.18);
+    }
+}
+
+/* ========== DESKTOP (≥ 992px) ========== */
+@media (min-width: 992px) {
+    .pageContainer {
+        padding: 2.5rem 2rem;
+    }
+
+    .container {
+        max-width: 940px;
+    }
+
+    .card {
+        border-radius: 28px;
+        box-shadow: 0 24px 55px rgba(15, 23, 42, 0.18);
+    }
+
+    .cardBody {
+        padding: 2.8rem 3rem;
+    }
+
+    .header {
+        gap: 1.5rem;
+    }
+
+    .iconWrapper {
+        width: 108px;
+        height: 108px;
+        border-radius: 28px;
+    }
+
+    .icon {
+        font-size: 3rem;
+    }
+
+    .code {
+        font-size: 0.9rem;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .title {
+        font-size: 2.2rem;
+    }
+
+    .subtitle {
+        font-size: 1.05rem;
+    }
+
+    .message {
+        margin: 1.75rem auto 2.25rem;
+    }
+
+    .button {
+        padding: 0.9rem 2.2rem;
+    }
+}
+
+/* ========== GRAND ÉCRAN (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+    .pageContainer {
+        padding: 3rem;
+    }
+
+    .cardBody {
+        padding: 3rem 3.5rem;
+    }
+
+    .title {
+        font-size: 2.4rem;
+    }
+}
+
+/* ========== ANIMATIONS & TRANSITIONS ========== */
+.card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.button {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.button:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 12px rgba(79, 70, 229, 0.12);
 }

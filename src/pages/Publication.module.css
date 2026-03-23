@@ -1,42 +1,47 @@
 /* ============================================
    PUBLICATION PAGE - FACEBOOK/X STYLE DESIGN
+   VERSION RESPONSIVE MOBILE-FIRST
    ============================================ */
 
+/* ========== BASE MOBILE (≤ 480px) ========== */
 .pageContainer {
     background: #f5f5f5;
     min-height: 100vh;
-    padding-top: 80px;
+    padding: 50px 0 0 0;
 }
 
 .mainContent {
-    padding: 20px 0;
-    max-width: 1200px;
+    padding: 8px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 /* ===== FEED COLUMN ===== */
 .feedColumn {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 8px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 /* Filter Card */
 .filterContainer {
     position: sticky;
-    top: 84px;
+    top: 50px;
     z-index: 50;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
 }
 
 .filterFloatingToggle {
     position: fixed;
-    top: 92px;
-    right: 16px;
+    top: 62px;
+    right: 8px;
     z-index: 150;
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 1px solid rgba(0, 0, 0, 0.12);
     background: white;
@@ -45,10 +50,17 @@
     align-items: center;
     justify-content: center;
     padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .filterFloatingToggle:hover {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+}
+
+.filterFloatingToggle:active {
+    transform: scale(0.95);
 }
 
 .filterToggleBar {
@@ -71,6 +83,7 @@
     border-radius: 8px;
     border: none;
     background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
 }
 
 .filterToggleButton:hover {
@@ -105,9 +118,11 @@
 .filterCard {
     background: white;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 0;
+    box-shadow: none;
     margin-bottom: 0;
+    border-left: none;
+    border-right: none;
 }
 
 .searchIcon {
@@ -118,6 +133,7 @@
 
 .searchInput {
     border: 1px solid #e0e0e0;
+    border-radius: 8px;
 }
 
 .searchInput:focus-within {
@@ -129,25 +145,23 @@
 .feedList {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
 }
 
 /* Post Card */
 .postCard {
     background: white;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 0;
+    box-shadow: none;
     transition: all 0.2s ease;
-}
-
-.postCard:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border-left: none;
+    border-right: none;
 }
 
 /* Post Header */
 .postHeader {
-    padding: 12px 16px;
+    padding: 10px 12px;
     border-bottom: 1px solid #f0f0f0;
     display: flex;
     align-items: flex-start;
@@ -155,8 +169,8 @@
 }
 
 .postAvatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
@@ -164,34 +178,39 @@
     justify-content: center;
     color: white;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
     flex-shrink: 0;
 }
 
 .authorInfo {
     flex: 1;
     min-width: 0;
+    margin-left: 10px;
 }
 
 .authorName {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: #333;
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 
 .urgentBadge {
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 9px;
+    padding: 2px 5px;
     font-weight: 600;
 }
 
 .moreBtn {
     color: #999;
     padding: 4px 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .moreBtn:hover {
@@ -200,14 +219,14 @@
 
 /* Post Content */
 .postContent {
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 10px 12px;
+    font-size: 13px;
     line-height: 1.5;
     color: #333;
 }
 
 .postContent p {
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -220,9 +239,9 @@
 .attachmentsPreview {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-top: 12px;
-    padding: 8px;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px;
     background: #f9f9f9;
     border-radius: 4px;
 }
@@ -231,10 +250,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px;
+    padding: 5px;
     background: white;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     text-decoration: none;
     color: #666;
 }
@@ -248,13 +267,14 @@
 
 .fileIcon {
     color: #667eea;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .fileName {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 120px;
 }
 
 .fileDetails {
@@ -262,25 +282,26 @@
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    flex: 1;
 }
 
 .fileSize {
-    font-size: 11px;
+    font-size: 10px;
     color: #999;
 }
 
 /* Images Grid */
 .imagesGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
-    margin-top: 12px;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 10px;
 }
 
 .imageItem {
     width: 100%;
-    height: 150px;
-    border-radius: 4px;
+    height: 180px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s;
@@ -300,9 +321,9 @@
 /* Post Stats */
 .postStats {
     display: flex;
-    gap: 16px;
-    padding: 8px 16px;
-    font-size: 12px;
+    gap: 12px;
+    padding: 6px 12px;
+    font-size: 11px;
     color: #666;
     border-bottom: 1px solid #f0f0f0;
 }
@@ -321,16 +342,16 @@
 }
 
 .sharePopover {
-    max-width: 300px;
+    max-width: 280px;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .sharePopoverHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 12px;
+    padding: 8px 10px;
 }
 
 .sharePopoverClose {
@@ -344,11 +365,11 @@
 .sharePreview {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .shareTitle {
-    font-size: 12px;
+    font-size: 11px;
     color: #333;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -358,13 +379,13 @@
 .shareUrlContainer {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
 }
 
 .shareUrl {
-    font-size: 11px;
-    padding: 6px 8px;
+    font-size: 10px;
+    padding: 4px 6px;
     background: #f1f3f5;
     border-radius: 6px;
     overflow: hidden;
@@ -376,15 +397,18 @@
 .actionBtn {
     flex: 1;
     color: #666;
-    font-size: 13px;
-    padding: 8px 12px;
+    font-size: 11px;
+    padding: 6px 2px;
     border-radius: 4px;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .actionBtn:hover {
@@ -400,65 +424,20 @@
     color: #e91e63;
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR (caché sur mobile) ===== */
 .sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.userCard {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    position: sticky;
-    top: 100px;
-}
-
-.largeAvatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 20px;
-    margin: 0 auto;
-}
-
-.statsCard {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    position: sticky;
-    top: 280px;
-}
-
-.statItem {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.statItem:last-child {
-    border-bottom: none;
+    display: none;
 }
 
 /* ===== COMMENTS MODAL ===== */
 .commentsModal :global(.modal-dialog) {
-    max-width: 500px;
+    max-width: 95%;
+    margin: 16px auto;
 }
 
 .modalBody {
-    padding: 16px;
-    max-height: 500px;
+    padding: 12px;
+    max-height: 70vh;
     overflow-y: auto;
 }
 
@@ -466,9 +445,9 @@
 .addCommentForm {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #e0e0e0;
 }
 
@@ -490,7 +469,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     font-size: 13px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     resize: none;
 }
 
@@ -503,9 +482,11 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     color: white;
-    margin-top: 8px;
+    margin-top: 6px;
     font-size: 12px;
-    padding: 6px 16px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 .submitBtn:hover {
@@ -517,15 +498,15 @@
 .commentsList {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .commentItem {
     display: flex;
-    gap: 12px;
-    padding: 12px;
+    gap: 10px;
+    padding: 10px;
     background: #f9f9f9;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .commentData {
@@ -536,24 +517,25 @@
 .commentMeta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
     margin-bottom: 4px;
 }
 
 .commentMeta strong {
-    font-size: 13px;
+    font-size: 12px;
     color: #333;
 }
 
 .commentMeta small {
-    font-size: 11px;
+    font-size: 10px;
     color: #999;
 }
 
 .commentText {
-    font-size: 13px;
+    font-size: 12px;
     color: #333;
-    margin: 4px 0 8px 0;
+    margin: 4px 0 6px 0;
     line-height: 1.4;
     word-break: break-word;
 }
@@ -564,17 +546,21 @@
 }
 
 .commentReactions :global(button) {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: 11px;
+    padding: 3px 6px;
     color: #666;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 /* ===== EMPTY STATE ===== */
 .emptyState {
     background: white;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 0;
     text-align: center;
+    padding: 40px 20px;
 }
 
 .centerContent {
@@ -590,71 +576,88 @@
 .paginationContainer {
     display: flex;
     justify-content: center;
-    padding: 16px;
+    padding: 12px;
     background: white;
     border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 0;
+    margin: 8px 0;
 }
 
 /* ===== TOAST ===== */
 .toastContainer {
     z-index: 1000;
+    position: fixed;
+    top: 70px;
+    left: 16px;
+    right: 16px;
 }
 
 .toast {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
+    border-radius: 8px;
+    width: 100%;
 }
 
-/* ===== MOBILE RESPONSIVE ===== */
-@media (max-width: 992px) {
-    .sidebar {
-        display: none;
-    }
-
+/* ========== TABLETTE (≥ 768px) ========== */
+@media (min-width: 768px) {
     .pageContainer {
-        padding-top: 70px;
+        padding: 70px 0 40px 0;
+        background: #f5f5f5;
     }
 
     .mainContent {
         padding: 12px;
+        max-width: 100%;
     }
 
     .feedColumn {
         gap: 12px;
-    }
-}
-
-@media (max-width: 768px) {
-    .pageContainer {
-        padding-top: 60px;
-    }
-
-    .postCard {
-        border-radius: 4px;
+        max-width: 680px;
     }
 
     .filterContainer {
-        top: 60px;
+        top: 70px;
         gap: 4px;
     }
 
     .filterFloatingToggle {
-        top: 70px;
-        right: 12px;
-    }
-
-    .filterWrapper {
-        transform-origin: top;
+        top: 80px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
     }
 
     .filterCard {
-        border-radius: 6px;
+        border-radius: 8px;
+        border-left: 1px solid #e0e0e0;
+        border-right: 1px solid #e0e0e0;
     }
 
-    .attachmentsPreview {
-        grid-template-columns: 1fr;
+    .postCard {
+        border-radius: 8px;
+        border-left: 1px solid #e0e0e0;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .postAvatar {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .authorName {
+        font-size: 14px;
+    }
+
+    .postContent {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .imagesGrid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .actionBtn {
@@ -662,74 +665,131 @@
         padding: 6px 4px;
     }
 
-    .imagesGrid {
-        grid-template-columns: repeat(2, 1fr);
+    .postStats {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .userCard {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .statsCard {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        position: sticky;
+        top: 280px;
+    }
+
+    .commentsModal :global(.modal-dialog) {
+        max-width: 500px;
+        margin: 16px auto;
+    }
+
+    .toastContainer {
+        top: 90px;
+        right: 20px;
+        left: auto;
+    }
+
+    .toast {
+        width: auto;
+        min-width: 250px;
     }
 }
 
-@media (max-width: 480px) {
+/* ========== DESKTOP (≥ 992px) ========== */
+@media (min-width: 992px) {
     .pageContainer {
-        padding-top: 50px;
+        padding: 80px 0 40px 0;
     }
 
     .mainContent {
-        padding: 8px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     .feedColumn {
-        gap: 8px;
-    }
-
-    .postCard,
-    .filterCard {
-        border-radius: 0;
-        box-shadow: none;
-        border-left: none;
-        border-right: none;
-    }
-
-    .filterContainer {
-        top: 50px;
-        gap: 2px;
+        gap: 20px;
+        max-width: 600px;
     }
 
     .filterFloatingToggle {
-        top: 62px;
-        right: 8px;
-        width: 42px;
-        height: 42px;
+        top: 92px;
+        right: 20px;
     }
 
-    .filterWrapper {
-        transform-origin: top;
-    }
-
-    .postAvatar {
-        width: 36px;
-        height: 36px;
-        font-size: 12px;
-    }
-
-    .authorName {
-        font-size: 13px;
-    }
-
-    .postContent {
-        padding: 10px 12px;
-        font-size: 13px;
+    .filterContainer {
+        top: 84px;
     }
 
     .imagesGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 8px;
+    }
+
+    .imageItem {
+        height: 150px;
     }
 
     .actionBtn {
-        font-size: 11px;
-        padding: 6px 2px;
+        font-size: 13px;
+        padding: 8px 12px;
     }
 
-    .postStats {
+    .sidebar {
+        display: flex;
+    }
+}
+
+/* ========== GRAND ÉCRAN (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+    .feedColumn {
+        max-width: 680px;
+    }
+
+    .mainContent {
+        padding: 24px;
+    }
+}
+
+/* ========== TRÈS PETIT ÉCRAN (≤ 380px) ========== */
+@media (max-width: 380px) {
+    .authorName {
+        font-size: 12px;
+    }
+
+    .postAvatar {
+        width: 32px;
+        height: 32px;
         font-size: 11px;
-        padding: 6px 12px;
+    }
+
+    .postContent {
+        font-size: 12px;
+    }
+
+    .actionBtn {
+        font-size: 10px;
+    }
+
+    .fileName {
+        max-width: 80px;
+    }
+
+    .imageItem {
+        height: 150px;
     }
 }

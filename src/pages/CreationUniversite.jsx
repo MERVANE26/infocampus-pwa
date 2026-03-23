@@ -27,9 +27,16 @@ import { LOGO } from '../assets';
 
 const AVAILABLE_FIELDS = [
     { value: 'gl', label: 'Génie Logiciel' },
-    { value: 'res', label: 'Réseaux & Télécoms' },
-    { value: 'iia', label: 'Intelligence Artificielle' },
+    { value: 'res', label: 'Réseaux & Sécurité' },
+    { value: 'iia', label: 'Informatique Industrielle et Automatisme' },
     { value: 'genieCivil', label: 'Génie Civil' },
+    { value: 'BAT', label: 'Batiment' },
+    { value: 'ELT', label: 'Electrotechnique' },
+    { value: 'FCL', label: 'Froid & Climatisation' },
+    { value: 'GTO', label: 'Géometrie Topographique' },
+    { value: 'MSI', label: 'Maintenance Des Systémes Informatiques' },
+    { value: 'TEL', label: 'Telecommunication' },
+    { value: 'TPU', label: 'Travaux Publics' },
     { value: 'elec', label: 'Génie Électrique' },
     { value: 'mecanique', label: 'Génie Mécanique' },
     { value: 'commerce', label: 'Gestion / Commerce' },
