@@ -325,5 +325,18 @@
     "contactEmail": "Email: ndemenlaurenda@gmail.com",
     "contactPhone": "Phone: +237 652 22 98 00",
     "contactAddress": "Address: Douala - Cameroon"
+  },
+  "header":{
+    "about": "About",
+    "contact": "Contact",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "footer": {
+    "madeInAfrica": "A solution made in Africa 🌍",
+    "allRightsReserved": "All rights reserved.",
+    "followUs": "Follow us on social media",
+    "desc":"The future of university communication is here. Join us in revolutionizing the way information flows in African universities and beyond. Together, we can create a more connected, informed and empowered academic community."
   }
 }

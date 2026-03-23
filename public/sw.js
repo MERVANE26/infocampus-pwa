@@ -6,10 +6,12 @@ const urlsToCache = [
   '/manifest.json',
   '/static/css/main.css',
   '/static/js/main.js',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/favicon-16x16.png',
+  '/favicon-32x32.png',
+  '/apple-touch-icon.png',
+  '/android-chrome-192x192.png',
+  '/android-chrome-512x512.png'
 ];
-
 // Installation
 self.addEventListener('install', event => {
   event.waitUntil(

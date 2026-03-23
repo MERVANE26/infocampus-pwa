@@ -24,6 +24,7 @@ import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import AccessDenied from './pages/AccessDenied';
 import { api } from './lib/api';
+import GetStarted from './pages/GetStarted';
 
 // ============================================
 // COMPOSANT DE PROTECTION DES ROUTES
@@ -77,7 +78,7 @@ const CheckUserAuth = ({ children }) => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
   if (token || user) {
-    return <Navigate to="/profile" />;
+    return <Navigate to="/posts" />;
   }
   return children;
 }
@@ -151,10 +152,11 @@ function App() {
                 ROUTES PUBLIQUES (accessibles sans connexion)
                 ======================================== */}
             <Route path="/" element={
-              <CheckUserAuth>
+              // <CheckUserAuth>
                 <Home />
-              </CheckUserAuth>
+              // </CheckUserAuth>
             } />
+
             <Route path="/login" element={
               <CheckUserAuth>
                 <Connexion />
@@ -175,6 +177,13 @@ function App() {
                 <ValidationCode />
               </CheckUserAuth>
             } />
+
+            <Route path="/get-started" element={
+              <CheckUserAuth>
+                <GetStarted />
+              </CheckUserAuth>
+            } />
+
             {/* ========================================
                 ROUTES PROTÉGÉES (nécessitent une connexion)
                 ======================================== */}
@@ -188,6 +197,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+
 
             {/* Création de publication */}
             <Route

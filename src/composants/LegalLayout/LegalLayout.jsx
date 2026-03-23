@@ -1,34 +1,13 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
-import { FaUniversity, FaGithub, FaTwitter, FaLinkedin } from 'react-icons/fa';
-import LanguageSwitcher from '../LanguageSwitcher';
 import styles from './LegalLayout.module.css';
-import { LOGO } from '../../assets';
+import Footer from '../Footer';
+import Header from '../Header';
 
 const LegalLayout = ({ children, title, lastUpdated }) => {
-    const { t } = useTranslation();
+    // const { t } = useTranslation();
     return (
         <div className={styles.pageContainer}>
-            {/* Header avec navigation */}
-            <header className={styles.header}>
-                <Container>
-                    <nav className={styles.nav}>
-                        <Link to="/" className={styles.logo}>
-                            <img className={styles.brandLogo} src={LOGO} alt="infocampus-logo" />
-                            <span className={styles.logoText}>INFO<span>CAMPUS</span></span>
-                        </Link>
-                        <div className={styles.navLinks}>
-                            <Link to="/about" className={styles.navLink}>À propos</Link>
-                            <Link to="/terms" className={styles.navLink}>Conditions</Link>
-                            <Link to="/privacy" className={styles.navLink}>Confidentialité</Link>
-                            <Link to="/legal" className={styles.navLink}>Mentions légales</Link>
-                        </div>
-                    </nav>
-                </Container>
-            </header>
-
+            <Header/>
             {/* Contenu principal */}
             <main className={styles.main}>
                 <Container>
@@ -52,50 +31,8 @@ const LegalLayout = ({ children, title, lastUpdated }) => {
                     </Row>
                 </Container>
             </main>
+            <Footer />
 
-            {/* Footer */}
-            <footer className={styles.footer}>
-                <Container>
-                    <div className={styles.footerContent}>
-                        <div className={styles.footerInfo}>
-                            <FaUniversity className={styles.footerLogo} />
-                            <p className={styles.footerText}>
-                                INFOcAMPUS - La plateforme de communication intelligente<br />
-                                pour les universités africaines
-                            </p>
-                        </div>
-                        
-                        <div className={styles.footerLinks}>
-                            <Link to="/about">{t('common.about')}</Link>
-                            <Link to="/terms">{t('common.terms')}</Link>
-                            <Link to="/privacy">{t('common.privacy')}</Link>
-                            <Link to="/legal">{t('common.legal')}</Link>
-                            <span style={{ marginLeft: '20px' }}>
-                                <LanguageSwitcher />
-                            </span>
-                        </div>
-
-                        <div className={styles.footerSocial}>
-                            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                                <FaGithub />
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                                <FaTwitter />
-                            </a>
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                                <FaLinkedin />
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div className={styles.copyright}>
-                        <p>&copy; {new Date().getFullYear()} INFOcAMPUS. {t('common.allRightsReserved') || 'Tous droits réservés'}</p>
-                        <p className={styles.credit}>
-                            {t('common.madeInAfrica')}
-                        </p>
-                    </div>
-                </Container>
-            </footer>
         </div>
     );
 };
