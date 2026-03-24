@@ -8,11 +8,9 @@ import {
     FaEdit, 
     FaTrash,
     FaUniversity,
-    FaChartLine,
     FaCalendarAlt,
     FaUserGraduate,
     FaChalkboardTeacher,
-    FaBuilding
 } from 'react-icons/fa';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert, Badge, Tabs, Tab } from 'react-bootstrap';
 // import { useTheme } from '../context/ThemeContext';
