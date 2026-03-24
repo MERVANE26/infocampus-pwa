@@ -44,10 +44,12 @@ import styles from './ProfilEnseignant.module.css';
 import { useTranslation } from 'react-i18next';
 
 // Import de nos composants de boutons personnalisés
-import { 
-    BoutonProfil,
-    BoutonMatiere} from '../composants/Index';
+// import { 
+//     BoutonProfil,
+//     BoutonMatiere} from '../composants/Index';
 import { api } from '../lib/api';
+import BoutonProfil from '../composants/Boutons/BoutonProfil';
+import BoutonMatiere from '../composants/Boutons/BoutonMatiere';
 
 
 const ProfilEnseignant = ({universities}) => {

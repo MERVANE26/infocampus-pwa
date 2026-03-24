@@ -21,23 +21,6 @@ import Footer from '../composants/Footer';
 import Header from '../composants/Header';
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * InfoCampus Home Page - Chrome Design Style
- * 
- * Features:
- * - Clean, minimalist hero section
- * - Bold typography with clear hierarchy
- * - Interactive flip card animations with images
- * - Embedded tutorial iframes
- * - Carousel with navigation
- * - Smooth transitions and animations
- * - Modern color scheme
- * - Responsive grid layouts
- * - Mobile-optimized design
- */
-
-// Tutorial data with images and iframe URLs
-
 
 const HERO_BG =
     "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=2070";
@@ -87,9 +70,9 @@ const TUTORIALS = [
 
 // Statistics data
 const STATISTICS = [
-    { label: 'Universités', value: '150+', icon: Globe },
-    { label: 'Étudiants', value: '50K+', icon: Users },
-    { label: 'Publications', value: '2.5K+', icon: Zap },
+    { label: 'Universités', value: '1+', icon: Globe },
+    { label: 'Étudiants', value: '200+', icon: Users },
+    { label: 'Publications', value: '0+', icon: Zap },
     { label: 'Sécurité', value: '99.9%', icon: Shield },
 ];
 
@@ -314,7 +297,8 @@ const Carousel = ({ items, onCardClick }) => {
 };
 
 // Main Component
-export default function InfoCampusHomeChrome() {
+export default function Home() {
+
     const navigate = useNavigate();
     const heroRef = useRef(null);
     const [selectedTutorial, setSelectedTutorial] = useState(null);
@@ -408,14 +392,14 @@ export default function InfoCampusHomeChrome() {
                             className={styles.glassBtn}
                             onClick={() => navigate("/get-started")}
                         >
-                            Commencer <ChevronRight size={18} />
+                            {localStorage.getItem("user") ? " Voir les publications" : "Commencer"} <ChevronRight size={18} />
                         </motion.button>
 
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             className={styles.outlineBtn}
                         >
-                            <a style={{textDecoration: "none"}} href="#features">En savoir plus</a>
+                            <a style={{ textDecoration: "none" }} href="#features">En savoir plus</a>
                         </motion.button>
                     </motion.div>
                 </motion.div>

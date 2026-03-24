@@ -34,10 +34,10 @@ const Footer = () => {
                     <div className={styles.footerSocial2}>
                         <p>{t('footer.followUs') || 'Suivez-nous sur les réseaux sociaux'}</p>
                         <div className={styles.footerSocial}>
-                            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.youtube.com/@Mervane-u7g" target="_blank" rel="noopener noreferrer">
                                 <FaYoutube />
                             </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                            <a href="https://x.com" target="_blank" rel="noopener noreferrer">
                                 <FaTwitter />
                             </a>
                             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">

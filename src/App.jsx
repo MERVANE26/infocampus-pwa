@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './i18n';
+import './i18n.js';
 
 // ============================================
 // IMPORT DE TES COMPOSANTS
@@ -25,6 +25,7 @@ import { AuthProvider } from './context/AuthContext';
 import AccessDenied from './pages/AccessDenied';
 import { api } from './lib/api';
 import GetStarted from './pages/GetStarted';
+import DashboardUniversite from './pages/DashboardUniversite';
 
 // ============================================
 // COMPOSANT DE PROTECTION DES ROUTES
@@ -245,6 +246,17 @@ function App() {
                 </PrivateRoute>
               }
             />
+
+              <Route
+              path="/university-dashboard"
+              element={
+                <PrivateRoute>
+                  <DashboardUniversite universities={universities} />
+                </PrivateRoute>
+              }
+            />
+
+
 
             <Route
               path="/terms"

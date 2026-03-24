@@ -15,13 +15,13 @@ import {
     FaBuilding
 } from 'react-icons/fa';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert, Badge, Tabs, Tab } from 'react-bootstrap';
-import { useTheme } from '../context/ThemeContext';
+// import { useTheme } from '../context/ThemeContext';
 import AppNavbar from '../composants/AppNavbar';
 import styles from './DashboardUniversite.module.css';
 
 const DashboardUniversite = () => {
     const navigate = useNavigate();
-    const { theme } = useTheme();
+    // const { theme } = useTheme();
     const [loading, setLoading] = useState(true);
     const [university, setUniversity] = useState(null);
     const [filieres, setFilieres] = useState([]);
@@ -47,8 +47,8 @@ const DashboardUniversite = () => {
     // Données simulées (à remplacer par votre API)
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'chef_departement') {
-            navigate('/connexion');
+        if (!user ) {
+            navigate('/login');
             return;
         }
 

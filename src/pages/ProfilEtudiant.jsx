@@ -24,7 +24,8 @@ import {
     FaMoon,
     FaSun,
     FaLanguage,
-    FaPalette} from 'react-icons/fa';
+    FaPalette
+} from 'react-icons/fa';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -44,8 +45,8 @@ import styles from './ProfilEtudiant.module.css';
 import { formatUserField } from '../utils/formatUserInfo';
 
 // Import de nos composants de boutons personnalisés
-import {
-    BoutonProfil} from '../composants/Index';
+import BoutonProfil from '../composants/Boutons/BoutonProfil';
+
 import { api } from '../lib/api';
 
 
