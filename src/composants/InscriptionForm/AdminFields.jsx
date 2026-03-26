@@ -24,7 +24,9 @@ const AdminFields = ({ formData, onChange, onToggleTeacher, universities }) => {
                     required
                     className={styles.select}
                 >
+                    <option value="">{t('auth.select')}</option>
                     {universities.map(u => (
+
                         <option key={u.id} value={u.id}>{u.name}</option>
                     ))}
                 </Form.Select>
