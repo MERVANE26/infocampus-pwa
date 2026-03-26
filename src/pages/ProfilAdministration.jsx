@@ -51,10 +51,9 @@ import styles from './ProfilAdministration.module.css';
 import AppNavbar from '../composants/AppNavbar';
 
 // Import de nos composants de boutons personnalisés
-import {
-    BoutonProfil,
-} from '../composants/Index';
+
 import { api } from '../lib/api';
+import BoutonProfil from '../composants/Boutons/BoutonProfil';
 
 
 const ProfilAdministration = ({ universities }) => {

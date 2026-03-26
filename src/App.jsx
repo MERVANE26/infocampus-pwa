@@ -153,9 +153,10 @@ function App() {
                 ROUTES PUBLIQUES (accessibles sans connexion)
                 ======================================== */}
             <Route path="/" element={
-              // <CheckUserAuth>
-                <Home />
-              // </CheckUserAuth>
+              !window.matchMedia('(display-mode: standalone)').matches ? <Home /> :
+              <PrivateRoute>
+                <Publication />
+              </PrivateRoute>
             } />
 
             <Route path="/login" element={
@@ -247,7 +248,7 @@ function App() {
               }
             />
 
-              <Route
+            <Route
               path="/university-dashboard"
               element={
                 <PrivateRoute>
