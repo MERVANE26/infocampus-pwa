@@ -97,7 +97,6 @@ const RoleRestrictedRoute = ({ children, allowedRoles = [] }) => {
       try {
         const response = await api.get('/auth/profile');
         setUser(response.data.user);
-        console.log('User info fetched for role check:', response.data.user);
       } catch (err) {
         console.error('Erreur lors de la récupération des informations utilisateur :', err);
         setUser(null);

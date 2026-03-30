@@ -551,8 +551,6 @@ const FairePublication = () => {
                 };
             }
 
-            console.log("🚀 Sending:", basePayload, selectedFiles);
-
             await api.post("/posts/", requestData, config);
 
             localStorage.removeItem("teacherDraft");
@@ -564,7 +562,7 @@ const FairePublication = () => {
             }, 1500);
 
         } catch (error) {
-            console.error(error);
+            console.error(error.response.data.message);
             showNotification("Erreur lors de la publication", "error");
         } finally {
             setLoading(false);
@@ -833,7 +831,7 @@ const FairePublication = () => {
                                                                 onChange={(e) => handleChange('campus', e.target.value)}
                                                                 className={styles.targetSelect}
                                                             >
-                                                                <option value="tous">Tous les campus</option>
+                                                                <option value="tous">Selectionné / choose</option>
                                                                 {availableCampuses.map(c => (
                                                                     <option key={c._id || c} value={c._id || c}>
                                                                         {c.name || c}
