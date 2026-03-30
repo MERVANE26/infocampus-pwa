@@ -456,7 +456,8 @@ const FairePublication = () => {
 
         try {
             const userStr = localStorage.getItem("user");
-            if (!userStr) {
+            const token = localStorage.getItem("token");
+            if (!userStr && !token) {
                 showNotification("Utilisateur non authentifié", "error");
                 setLoading(false);
                 return;
